@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Shell / temp
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# Test artifacts
+.tmp/
+tmp/
+
+# Local project installs used only for smoke tests
+test-project/
+
+# Keep repo-scoped Codex skills tracked
+!.agents/
+!.agents/skills/
