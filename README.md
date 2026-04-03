@@ -18,7 +18,7 @@
 ### 1. Clone 到本機
 
 ```bash
-git clone git@github.com:busybutlazy/codex-skill-toolkit.git ~/codex-skill-toolkit
+git clone git@github.com:busybutlazy/Skill_Merchant-.git ~/Skill_Merchant
 ```
 
 如果你的正式 repo 名稱不同，把上面的 repo 名稱改成實際名稱即可。
@@ -42,7 +42,7 @@ bash --version
 
 ```bash
 cd /path/to/target-project
-bash ~/codex-skill-toolkit/skill-manager.sh
+bash ~/Skill_Merchant/skill-manager.sh
 ```
 
 `skill-manager.sh` 會把你選的公開 skills 安裝到目前專案的 `.agents/skills/`。
