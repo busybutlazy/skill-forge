@@ -55,6 +55,8 @@ INVALID_SOURCE_MESSAGES=()
 INSTALLED_SKILLS=()
 INVALID_INSTALLED_SKILLS=()
 INVALID_INSTALLED_MESSAGES=()
+UNKNOWN_INSTALLED_SKILLS=()
+UNKNOWN_INSTALLED_MESSAGES=()
 
 print_header() {
     echo ""
@@ -160,6 +162,42 @@ validate_skill_dir() {
     fi
 }
 
+has_metadata_shape() {
+    local skill_dir="$1"
+    local metadata="${skill_dir}/metadata.json"
+    [[ -f "$metadata" ]] || return 1
+
+    local metadata_name=""
+    local metadata_version=""
+    local metadata_category=""
+    local metadata_description=""
+
+    metadata_name="$(trim_value "$(parse_json "name" "$metadata")")"
+    metadata_version="$(trim_value "$(parse_json "version" "$metadata")")"
+    metadata_category="$(trim_value "$(parse_json "category" "$metadata")")"
+    metadata_description="$(trim_value "$(parse_json "description" "$metadata")")"
+
+    [[ -n "$metadata_name" || -n "$metadata_version" || -n "$metadata_category" || -n "$metadata_description" ]]
+}
+
+is_available_skill() {
+    local skill_name="$1"
+    local skill
+    for skill in "${AVAILABLE_SKILLS[@]}"; do
+        [[ "$skill" == "$skill_name" ]] && return 0
+    done
+    return 1
+}
+
+is_installed_skill() {
+    local skill_name="$1"
+    local skill
+    for skill in "${INSTALLED_SKILLS[@]}"; do
+        [[ "$skill" == "$skill_name" ]] && return 0
+    done
+    return 1
+}
+
 scan_available_skills() {
     AVAILABLE_SKILLS=()
     INVALID_SOURCE_SKILLS=()
@@ -184,6 +222,8 @@ scan_installed_skills() {
     INSTALLED_SKILLS=()
     INVALID_INSTALLED_SKILLS=()
     INVALID_INSTALLED_MESSAGES=()
+    UNKNOWN_INSTALLED_SKILLS=()
+    UNKNOWN_INSTALLED_MESSAGES=()
 
     [[ -d "$SKILLS_TARGET_DIR" ]] || return
 
@@ -193,11 +233,17 @@ scan_installed_skills() {
         local name
         local error
         name="$(basename "$dir")"
-        if error="$(validate_skill_dir "$dir" 2>/dev/null)"; then
+        if ! is_available_skill "$name"; then
+            UNKNOWN_INSTALLED_SKILLS+=("$name")
+            UNKNOWN_INSTALLED_MESSAGES+=("${name}: not managed by this skill-base")
+        elif error="$(validate_skill_dir "$dir" 2>/dev/null)"; then
             INSTALLED_SKILLS+=("$name")
-        else
+        elif has_metadata_shape "$dir"; then
             INVALID_INSTALLED_SKILLS+=("$name")
             INVALID_INSTALLED_MESSAGES+=("${name}: ${error}")
+        else
+            UNKNOWN_INSTALLED_SKILLS+=("$name")
+            UNKNOWN_INSTALLED_MESSAGES+=("${name}: local skill or unsupported package layout")
         fi
     done
 }
@@ -220,6 +266,17 @@ print_invalid_installed_warnings() {
     echo -e "${YELLOW}Broken installed skill packages:${NC}"
     local message
     for message in "${INVALID_INSTALLED_MESSAGES[@]}"; do
+        echo -e "  - ${message}"
+    done
+}
+
+print_unknown_installed_notes() {
+    (( ${#UNKNOWN_INSTALLED_MESSAGES[@]} > 0 )) || return
+
+    echo ""
+    echo -e "${DIM}Unmanaged local skills:${NC}"
+    local message
+    for message in "${UNKNOWN_INSTALLED_MESSAGES[@]}"; do
         echo -e "  - ${message}"
     done
 }
@@ -314,6 +371,7 @@ do_install() {
             src_desc="$(get_description "${SKILLS_SOURCE_DIR}/${skill}")"
 
             local is_installed=false
+            local is_unknown=false
             local installed_version=""
             for inst in "${INSTALLED_SKILLS[@]}"; do
                 if [[ "$inst" == "$skill" ]]; then
@@ -322,6 +380,14 @@ do_install() {
                     break
                 fi
             done
+            if ! $is_installed; then
+                for inst in "${UNKNOWN_INSTALLED_SKILLS[@]}"; do
+                    if [[ "$inst" == "$skill" ]]; then
+                        is_unknown=true
+                        break
+                    fi
+                done
+            fi
 
             if $is_installed; then
                 if [[ "$installed_version" == "$src_version" ]]; then
@@ -329,6 +395,8 @@ do_install() {
                 else
                     status_label="${YELLOW}[installed v${installed_version} ↑ update]${NC}"
                 fi
+            elif $is_unknown; then
+                status_label="${YELLOW}[unknown local package]${NC}"
             else
                 status_label="${DIM}[not installed]${NC}"
             fi
@@ -368,16 +436,20 @@ do_install() {
     fi
 
     local has_updates=false
+    local has_unknown_replacements=false
     echo ""
     echo -e "${BOLD}Will install/update:${NC}"
     for skill in "${selected_skills[@]}"; do
         local src_ver
         src_ver="$(get_version "${SKILLS_SOURCE_DIR}/${skill}")"
-        if [[ -d "${SKILLS_TARGET_DIR}/${skill}" ]]; then
+        if is_installed_skill "$skill"; then
             local cur_ver
             cur_ver="$(get_version "${SKILLS_TARGET_DIR}/${skill}")"
             echo -e "  • ${skill} ${DIM}v${cur_ver}${NC} → ${GREEN}v${src_ver}${NC}"
             has_updates=true
+        elif [[ -d "${SKILLS_TARGET_DIR}/${skill}" ]]; then
+            echo -e "  • ${skill} ${YELLOW}[unknown local package]${NC} → ${GREEN}v${src_ver}${NC}"
+            has_unknown_replacements=true
         else
             echo -e "  • ${skill} ${GREEN}v${src_ver}${NC} ${DIM}(new)${NC}"
         fi
@@ -386,6 +458,10 @@ do_install() {
     if $has_updates; then
         echo ""
         echo -e "${YELLOW}Warning:${NC} updates replace the entire skill package, not just SKILL.md."
+    fi
+    if $has_unknown_replacements; then
+        echo ""
+        echo -e "${YELLOW}Warning:${NC} installing over an unknown local package will replace that directory."
     fi
 
     echo ""
@@ -426,10 +502,12 @@ do_remove() {
     echo -e "${BOLD}Installed skills:${NC}"
     echo ""
 
+    scan_available_skills
     scan_installed_skills
 
     if (( ${#INSTALLED_SKILLS[@]} == 0 && ${#INVALID_INSTALLED_SKILLS[@]} == 0 )); then
         echo -e "  ${YELLOW}No skills installed in ${SKILLS_TARGET_DIR}${NC}"
+        print_unknown_installed_notes
         return
     fi
 
@@ -451,6 +529,7 @@ do_remove() {
     done
 
     print_invalid_installed_warnings
+    print_unknown_installed_notes
 
     echo ""
     echo -e "Enter numbers to remove (comma separated, or ${BOLD}'q'${NC} to cancel):"
@@ -501,10 +580,12 @@ do_list() {
     echo ""
     echo -e "${BOLD}Installed skills:${NC}"
 
+    scan_available_skills
     scan_installed_skills
 
     if (( ${#INSTALLED_SKILLS[@]} == 0 && ${#INVALID_INSTALLED_SKILLS[@]} == 0 )); then
         echo -e "  ${YELLOW}No skills installed in ${SKILLS_TARGET_DIR}${NC}"
+        print_unknown_installed_notes
         return
     fi
 
@@ -555,6 +636,7 @@ do_list() {
     done
 
     print_invalid_installed_warnings
+    print_unknown_installed_notes
     echo ""
 }
 
