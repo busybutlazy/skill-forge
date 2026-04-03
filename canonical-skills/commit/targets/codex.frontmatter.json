@@ -1,0 +1,4 @@
+{
+  "name": "commit",
+  "description": "Use this skill when the user wants help reviewing local changes, deciding commit boundaries, or creating one or more git commits."
+}

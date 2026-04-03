@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "commit",
+    "version": "1.0.0",
+    "description": "Plan commit boundaries, review staged content, and craft concise commit messages",
+    "updated_at": "2026-04-03",
+    "tags": ["git", "commit", "workflow"]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/agents/{name}.md"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "304603224c1f980212b0ac20b8570bb3ceaa0dac6acfb7f318b37c069a1eafe4"
+  }
+}

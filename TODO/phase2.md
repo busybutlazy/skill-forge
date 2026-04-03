@@ -47,7 +47,7 @@
    - 產出的 instruction format 要符合 Codex 的 skill 使用方式。
 
 2. Claude adapter
-   - 產出可安裝到 `<project>/.claude/skills/<skill>/` 的 package。
+   - 產出可安裝到 `<project>/.claude/agents/<skill>.md` 的 project subagent。
    - 只保留 Claude 真正需要的包裝層，不複製 Codex 專屬假設。
 
 3. Shared renderer rules
@@ -68,6 +68,21 @@
 
 4. 一份 drift policy
    - 明確規定不可直接手改 rendered artifact，source 才是唯一修改入口。
+
+## Phase 2 Output
+
+本 repo 的 phase 2 交付物落在：
+
+- `docs/phase2/canonical-package-spec.md`
+- `docs/phase2/adapter-contract.md`
+- `docs/phase2/drift-policy.md`
+- `canonical-skills/commit/`
+- `proof/phase2/rendered/`
+
+補充決議：
+
+- Claude target contract 以 project subagent 為準，目標路徑固定為 `.claude/agents/<name>.md`
+- phase 2 proof artifact 只作為 contract 驗證，不作為正式 install source
 
 ## Acceptance Criteria
 

@@ -1,0 +1,5 @@
+{
+  "name": "commit",
+  "description": "Git commit planning specialist. Use proactively when the user asks to review local changes, separate commit boundaries, or prepare one or more commits.",
+  "tools": "Bash, Read, Grep, Glob"
+}

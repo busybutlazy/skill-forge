@@ -1,0 +1,9 @@
+{
+  "name": "commit",
+  "version": "1.0.0",
+  "description": "Plan commit boundaries, review staged content, and craft concise commit messages",
+  "updated_at": "2026-04-03",
+  "tags": ["git", "commit", "workflow"],
+  "source_package_sha256": "304603224c1f980212b0ac20b8570bb3ceaa0dac6acfb7f318b37c069a1eafe4",
+  "rendered_from": "canonical-skills/commit"
+}

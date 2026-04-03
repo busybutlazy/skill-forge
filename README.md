@@ -75,6 +75,20 @@ codex-skill-toolkit/
 │       ├── references/
 │       ├── examples/
 │       └── assets/
+├── canonical-skills/
+│   └── <skill>/
+│       ├── package.json
+│       ├── instruction.md
+│       ├── manifest.json
+│       └── targets/
+├── docs/
+│   └── phase2/
+│       ├── canonical-package-spec.md
+│       ├── adapter-contract.md
+│       └── drift-policy.md
+├── proof/
+│   └── phase2/
+│       └── rendered/
 ├── skill-manager.sh
 ├── README.md
 ├── ROADMAP.md
@@ -94,7 +108,7 @@ codex-skill-toolkit/
 - 移除目標專案中不再需要的公開 skills
 
 CLI 不會處理這個 repo 自己的 `.agents/skills/` 管理者 skills。
-目前 CLI 只支援 Codex 的 `.agents/skills/` 安裝目標；Claude 相容規劃放在後續 roadmap phase。
+目前 CLI 只支援 Codex 的 `.agents/skills/` 安裝目標；phase 2 已補齊中立 canonical source 與 Claude adapter contract，正式 renderer / install pipeline 會在 phase 3 實作。
 
 ## Skill Format
 
@@ -158,3 +172,4 @@ description: "Use this skill when the user wants help reviewing changes and crea
 - 管理者技能不放進 `skill-base/`
 - 變更既有公開 skill 時，更新 `metadata.json.version`
 - 避免殘留任何與其他工具或舊結構耦合的目錄與文案
+- `canonical-skills/` 是 phase 2 起的唯一 source of truth；rendered artifact 不直接手改
