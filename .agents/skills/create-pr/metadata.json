@@ -1,0 +1,9 @@
+{
+  "name": "create-pr",
+  "version": "1.0.0",
+  "category": "git",
+  "description": "Summarize branch changes, draft reviewer-friendly PR text, and optionally create a PR with gh",
+  "author": "Toolkit Maintainer",
+  "updated_at": "2026-04-03",
+  "tags": ["git", "pull-request", "review", "workflow"]
+}
