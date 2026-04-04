@@ -8,16 +8,16 @@ Usage:
   skill-manager
   skill-manager shell
   skill-manager help
-  skill-manager <skill-toolkit arguments>
+  skill-manager <skill-forge arguments>
 
 Behavior:
   - No arguments: open the interactive menu for the current project directory
   - shell: open the runtime container's expert terminal
   - help, -h, --help: show this help text locally without starting Docker
-  - check whether the local toolkit repo is behind its upstream branch
+  - check whether the local skill-forge repo is behind its upstream branch
   - offer to update with git pull --ff-only, then restart if the update succeeds
   - rebuild the runtime image automatically before each run
-  - any other arguments: pass them through to the containerized skill-toolkit CLI
+  - any other arguments: pass them through to the containerized skill-forge CLI
 
 Examples:
   skill-manager
@@ -77,12 +77,12 @@ maybe_update_repo() {
         return
     fi
 
-    echo "A newer skill-toolkit version is available from $upstream_ref."
+    echo "A newer skill-forge version is available from $upstream_ref."
     if ! confirm_yes_no "Update now with 'git pull --ff-only'? [y/N] "; then
         return
     fi
 
-    echo "Updating toolkit repo..."
+    echo "Updating skill-forge repo..."
     if git -C "$SCRIPT_DIR" pull --ff-only; then
         echo "Update complete. Restarting skill-manager..."
         exec "$0" "$@"
@@ -111,7 +111,7 @@ maybe_update_repo "$@"
 exec env \
     HOST_UID="$HOST_UID" \
     HOST_GID="$HOST_GID" \
-    SKILL_TOOLKIT_PROJECT_HOST_DIR="$PROJECT_DIR" \
+    SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
     docker compose \
     -f "$SCRIPT_DIR/compose.yaml" \
-    run --build --rm toolkit "$@"
+    run --build --rm forge "$@"

@@ -9,7 +9,7 @@ from pathlib import Path
 from .models import CanonicalSkill, InstalledStatus
 from .render import render_skill
 from .repository import load_all_skills, load_manager_catalog_skill, load_manager_catalog_skills, load_skill
-from .utils import has_frontmatter, parse_toolkit_marker, read_text, sha256_file
+from .utils import has_frontmatter, parse_forge_marker, read_text, sha256_file
 
 
 def target_root(project_dir: Path, target: str) -> Path:
@@ -24,7 +24,7 @@ def _materialize_install(skill: CanonicalSkill, project_dir: Path, target: str) 
     destination = Path(skill.targets[target].install_path.format(name=skill.name))
     final_path = project_dir / destination
 
-    with tempfile.TemporaryDirectory(prefix="skill-toolkit-render-") as tmp_dir:
+    with tempfile.TemporaryDirectory(prefix="skill-forge-render-") as tmp_dir:
         temp_root = Path(tmp_dir)
         rendered_path = render_skill(skill, target, temp_root)
         if final_path.exists():
@@ -92,13 +92,13 @@ def _classify_snapshot_diff(expected: dict[str, str], actual: dict[str, str]) ->
 
 
 def _expected_codex_snapshot(skill: CanonicalSkill) -> dict[str, str]:
-    with tempfile.TemporaryDirectory(prefix="skill-toolkit-status-") as tmp_dir:
+    with tempfile.TemporaryDirectory(prefix="skill-forge-status-") as tmp_dir:
         rendered = render_skill(skill, "codex", Path(tmp_dir))
         return _snapshot_directory(rendered)
 
 
 def _expected_claude_snapshot(skill: CanonicalSkill) -> dict[str, str]:
-    with tempfile.TemporaryDirectory(prefix="skill-toolkit-status-") as tmp_dir:
+    with tempfile.TemporaryDirectory(prefix="skill-forge-status-") as tmp_dir:
         rendered = render_skill(skill, "claude", Path(tmp_dir))
         return _snapshot_claude_bundle(rendered)
 
@@ -123,7 +123,7 @@ def _codex_status(repo_root: Path, entry: Path, sources: dict[str, CanonicalSkil
     source_hash = metadata.get("source_package_sha256")
     version = metadata.get("version")
     if rendered_from != source.source_ref or not isinstance(source_hash, str):
-        return InstalledStatus(name=name, target="codex", status="unmanaged", location=entry, version=version, details="missing or foreign toolkit markers")
+        return InstalledStatus(name=name, target="codex", status="unmanaged", location=entry, version=version, details="missing or foreign skill-forge markers")
     if not skill_md.is_file():
         return InstalledStatus(name=name, target="codex", status="broken", location=entry, version=version, source_package_sha256=source_hash, details="missing SKILL.md", managed=True)
     if version != source.version:
@@ -149,9 +149,9 @@ def _claude_status(repo_root: Path, entry: Path, sources: dict[str, CanonicalSki
     marker = None
     managed = False
     try:
-        marker = parse_toolkit_marker(content)
+        marker = parse_forge_marker(content)
     except json.JSONDecodeError as exc:
-        return InstalledStatus(name=name, target="claude", status="broken", location=entry, details=f"invalid toolkit marker: {exc}")
+        return InstalledStatus(name=name, target="claude", status="broken", location=entry, details=f"invalid skill-forge marker: {exc}")
 
     if marker and marker.get("rendered_from") == source.source_ref:
         managed = True
@@ -160,7 +160,7 @@ def _claude_status(repo_root: Path, entry: Path, sources: dict[str, CanonicalSki
         return InstalledStatus(name=name, target="claude", status="broken", location=entry, details="missing YAML frontmatter", managed=managed)
 
     if marker is None:
-        return InstalledStatus(name=name, target="claude", status="unmanaged", location=entry, details="missing toolkit marker")
+        return InstalledStatus(name=name, target="claude", status="unmanaged", location=entry, details="missing skill-forge marker")
 
     if marker.get("rendered_from") != source.source_ref:
         return InstalledStatus(name=name, target="claude", status="unmanaged", location=entry, details="foreign rendered_from marker")
@@ -272,7 +272,7 @@ def update_skill(
     if status is None:
         raise FileNotFoundError(f"{skill_name} is not installed for target {target}")
     if not status.managed:
-        raise ValueError(f"{skill_name} is not a managed toolkit install for target {target}; refusing to update it")
+        raise ValueError(f"{skill_name} is not a managed skill-forge install for target {target}; refusing to update it")
     if status.status == "up_to_date":
         return status.location
     if status.status == "drift":
@@ -298,7 +298,7 @@ def remove_skill(repo_root: Path, project_dir: Path, skill_name: str, target: st
     if status is None:
         raise FileNotFoundError(f"{skill_name} is not installed for target {target}")
     if not status.managed:
-        raise ValueError(f"{skill_name} is not a managed toolkit install for target {target}; refusing to remove it")
+        raise ValueError(f"{skill_name} is not a managed skill-forge install for target {target}; refusing to remove it")
 
     if target == "codex":
         shutil.rmtree(status.location)

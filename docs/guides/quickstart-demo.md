@@ -33,7 +33,7 @@ canonical-skills/regular-skills/commit/
 
 ### Quickstart
 
-1. Clone the toolkit repo.
+1. Clone the skill-forge repo.
 
 ```bash
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
@@ -100,12 +100,12 @@ Use `commit` as the simplest example:
 
 ### Maintainer Demo Commands
 
-From the toolkit repo:
+From the skill-forge repo:
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . validate commit
-PYTHONPATH=src python -m skill_toolkit --repo-root . render commit --target codex --output /tmp/commit-codex
-PYTHONPATH=src python -m skill_toolkit --repo-root . render commit --target claude --output /tmp/commit-claude
+PYTHONPATH=src python -m skill_forge --repo-root . validate commit
+PYTHONPATH=src python -m skill_forge --repo-root . render commit --target codex --output /tmp/commit-codex
+PYTHONPATH=src python -m skill_forge --repo-root . render commit --target claude --output /tmp/commit-claude
 ```
 
 ### Consumer Demo Path
@@ -166,7 +166,7 @@ canonical-skills/regular-skills/commit/
 
 ### 快速開始
 
-1. 複製 toolkit repo。
+1. 複製 skill-forge repo。
 
 ```bash
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
@@ -233,12 +233,12 @@ render 後的 output 會安裝到：
 
 ### Maintainer demo 指令
 
-在 toolkit repo 中可以這樣示範：
+在 skill-forge repo 中可以這樣示範：
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . validate commit
-PYTHONPATH=src python -m skill_toolkit --repo-root . render commit --target codex --output /tmp/commit-codex
-PYTHONPATH=src python -m skill_toolkit --repo-root . render commit --target claude --output /tmp/commit-claude
+PYTHONPATH=src python -m skill_forge --repo-root . validate commit
+PYTHONPATH=src python -m skill_forge --repo-root . render commit --target codex --output /tmp/commit-codex
+PYTHONPATH=src python -m skill_forge --repo-root . render commit --target claude --output /tmp/commit-claude
 ```
 
 ### Consumer demo 路徑

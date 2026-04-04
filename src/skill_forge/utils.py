@@ -7,8 +7,9 @@ from pathlib import Path
 from typing import Any
 
 
-TOOLKIT_MARKER_PREFIX = "<!-- skill-toolkit: "
-TOOLKIT_MARKER_SUFFIX = " -->"
+FORGE_MARKER_PREFIX = "<!-- skill-forge: "
+LEGACY_TOOLKIT_MARKER_PREFIX = "<!-- skill-toolkit: "
+FORGE_MARKER_SUFFIX = " -->"
 FRONTMATTER_PATTERN = re.compile(r"\A---\n(.*?)\n---\n?", re.DOTALL)
 
 
@@ -57,16 +58,20 @@ def dump_frontmatter(data: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def make_toolkit_marker(payload: dict[str, Any]) -> str:
+def make_forge_marker(payload: dict[str, Any]) -> str:
     encoded = json.dumps(payload, sort_keys=True, ensure_ascii=False)
-    return f"{TOOLKIT_MARKER_PREFIX}{encoded}{TOOLKIT_MARKER_SUFFIX}\n"
+    return f"{FORGE_MARKER_PREFIX}{encoded}{FORGE_MARKER_SUFFIX}\n"
 
 
-def parse_toolkit_marker(content: str) -> dict[str, Any] | None:
+def parse_forge_marker(content: str) -> dict[str, Any] | None:
     for line in content.splitlines():
-        if line.startswith(TOOLKIT_MARKER_PREFIX) and line.endswith(TOOLKIT_MARKER_SUFFIX):
-            body = line[len(TOOLKIT_MARKER_PREFIX) : -len(TOOLKIT_MARKER_SUFFIX)]
-            return json.loads(body)
+        if line.endswith(FORGE_MARKER_SUFFIX):
+            if line.startswith(FORGE_MARKER_PREFIX):
+                body = line[len(FORGE_MARKER_PREFIX) : -len(FORGE_MARKER_SUFFIX)]
+                return json.loads(body)
+            if line.startswith(LEGACY_TOOLKIT_MARKER_PREFIX):
+                body = line[len(LEGACY_TOOLKIT_MARKER_PREFIX) : -len(FORGE_MARKER_SUFFIX)]
+                return json.loads(body)
     return None
 
 

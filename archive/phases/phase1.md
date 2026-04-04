@@ -48,7 +48,7 @@
 ## Acceptance Criteria
 
 - 在 macOS 內建 `/bin/bash` 下執行時，會得到明確錯誤訊息，而不是 bash 語法或內建功能炸掉。
-- manager 不會在啟動時自動修改 toolkit repo。
+- manager 不會在啟動時自動修改 skill-forge repo。
 - 壞掉的 skill package 不會被正常列出或安裝。
 - README 可以讓新使用者正確理解目前需求與限制。
 

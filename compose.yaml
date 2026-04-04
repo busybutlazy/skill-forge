@@ -1,9 +1,9 @@
 services:
-  toolkit-dev:
+  forge-dev:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    image: skill-toolkit-dev
+    image: skill-forge-dev
     working_dir: /workspace
     volumes:
       - .:/workspace
@@ -11,17 +11,17 @@ services:
     tty: true
     command: bash
 
-  toolkit:
+  forge:
     build:
       context: .
       dockerfile: Dockerfile
-    image: skill-toolkit
+    image: skill-forge
     working_dir: /workspace/project
     volumes:
-      - ${SKILL_TOOLKIT_PROJECT_HOST_DIR:-.}:/workspace/project
+      - ${SKILL_FORGE_PROJECT_HOST_DIR:-.}:/workspace/project
     environment:
-      SKILL_TOOLKIT_PROJECT_DIR: /workspace/project
-      SKILL_TOOLKIT_PROJECT_HOST_DIR: ${SKILL_TOOLKIT_PROJECT_HOST_DIR:-.}
+      SKILL_FORGE_PROJECT_DIR: /workspace/project
+      SKILL_FORGE_PROJECT_HOST_DIR: ${SKILL_FORGE_PROJECT_HOST_DIR:-.}
     stdin_open: true
     tty: true
     user: "${HOST_UID:-0}:${HOST_GID:-0}"

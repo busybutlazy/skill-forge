@@ -9,9 +9,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from skill_toolkit.install import list_installed
-from skill_toolkit.package_ops import refresh_skill_metadata
-from skill_toolkit.repository import (
+from skill_forge.install import list_installed
+from skill_forge.package_ops import refresh_skill_metadata
+from skill_forge.repository import (
     load_all_skills,
     load_skill,
     validate_skill_dir,
@@ -67,7 +67,7 @@ class ValidationTests(unittest.TestCase):
         self.assertIn("只同步已經 finalize 完成的 canonical skills", install_instruction)
 
     def test_refresh_skill_metadata_rebuilds_manifest_and_package_hash(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-refresh-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-refresh-") as tmp_dir:
             temp_root = Path(tmp_dir)
             skill_root = temp_root / "canonical-skills" / "regular-skills" / "demo"
             (skill_root / "targets").mkdir(parents=True)
@@ -152,7 +152,7 @@ class WorkflowTests(unittest.TestCase):
             [
                 sys.executable,
                 "-m",
-                "skill_toolkit",
+                "skill_forge",
                 "--repo-root",
                 str(REPO_ROOT),
                 *args,
@@ -178,7 +178,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_codex_install_update_list_json_and_remove_workflow(self) -> None:
         with tempfile.TemporaryDirectory(
-            prefix="skill-toolkit-test-"
+            prefix="skill-forge-test-"
         ) as tmp_dir:
             temp_root = Path(tmp_dir)
             render_root = temp_root / "rendered"
@@ -351,7 +351,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_unmanaged_codex_install_is_detected_and_not_overwritten_or_removed(self) -> None:
         with tempfile.TemporaryDirectory(
-            prefix="skill-toolkit-test-"
+            prefix="skill-forge-test-"
         ) as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             unmanaged_dir = (
@@ -405,7 +405,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertIn("refusing to remove it", removed.stderr)
 
     def test_public_install_rejects_maintainer_scoped_skill(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             project_root.mkdir()
 
@@ -421,7 +421,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertIn("allowed scopes: public", installed.stderr)
 
     def test_sync_maintainer_force_adopts_existing_unmanaged_codex_skill(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             unmanaged_dir = project_root / ".agents" / "skills" / "create-skill"
             unmanaged_dir.mkdir(parents=True)
@@ -467,7 +467,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(statuses[0]["status"], "up_to_date")
 
     def test_sync_manager_catalog_installs_manager_and_shared_skills_for_all_targets(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             project_root.mkdir()
 
@@ -498,7 +498,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(shared_metadata["rendered_from"], "canonical-skills/regular-skills/commit")
 
     def test_sync_manager_catalog_rejects_regular_skill_without_shared_tag(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             project_root.mkdir()
 
@@ -515,7 +515,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_claude_install_broken_update_and_unmanaged_workflow(self) -> None:
         with tempfile.TemporaryDirectory(
-            prefix="skill-toolkit-test-"
+            prefix="skill-forge-test-"
         ) as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             project_root.mkdir()
@@ -617,7 +617,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertFalse(agent_path.exists())
 
     def test_menu_installs_and_lists_codex_skill(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             project_root.mkdir()
 
@@ -629,7 +629,7 @@ class WorkflowTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             clean_output = self.strip_ansi(result.stdout)
-            self.assertIn("Skill Toolkit Manager", clean_output)
+            self.assertIn("skill-forge Manager", clean_output)
             self.assertIn("Installed commit", clean_output)
             self.assertIn("Select skills to install or refresh:", clean_output)
             self.assertIn("Press Enter to continue...", clean_output)
@@ -638,7 +638,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(statuses[0].status, "up_to_date")
 
     def test_menu_can_batch_install_skills(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             project_root.mkdir()
 
@@ -654,7 +654,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(installed_names, ["commit", "create-pr", "dto-organizer"])
 
     def test_menu_prefers_host_project_path_in_header_when_present(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             project_root.mkdir()
 
@@ -664,13 +664,13 @@ class WorkflowTests(unittest.TestCase):
                 str(project_root),
                 input_text="1\n7\n",
                 extra_env={
-                    "SKILL_TOOLKIT_PROJECT_HOST_DIR": "/host/project",
+                    "SKILL_FORGE_PROJECT_HOST_DIR": "/host/project",
                 },
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             clean_output = self.strip_ansi(result.stdout)
             self.assertIn("Project /host/project", clean_output)
-            self.assertNotIn(".skill-toolkit-output", clean_output)
+            self.assertNotIn(".skill-forge-output", clean_output)
 
 
 if __name__ == "__main__":

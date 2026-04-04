@@ -4,7 +4,7 @@
 
 ### Overview
 
-Skill Toolkit treats AI coding skills as governed packages, not loose prompt snippets.
+skill-forge treats AI coding skills as governed packages, not loose prompt snippets.
 
 The central idea is simple: keep one canonical source, validate it, track its package integrity, and only then render and install target-specific artifacts.
 
@@ -53,7 +53,7 @@ This does not make the repo a full policy engine, signing system, or audit backe
 
 #### Maintainers
 
-Maintainers work in the toolkit repo:
+Maintainers work in the skill-forge repo:
 
 - edit canonical skill packages
 - validate structure and integrity
@@ -105,7 +105,7 @@ Phase 7 does not implement these yet, but the roadmap now points toward:
 
 ### 概觀
 
-Skill Toolkit 把 AI coding skills 視為可治理的 package，而不是零散 prompt 片段。
+skill-forge 把 AI coding skills 視為可治理的 package，而不是零散 prompt 片段。
 
 核心概念很簡單：維持單一 canonical source，先驗證、先追蹤 package 完整性，再 render 與安裝 target-specific artifact。
 
@@ -154,7 +154,7 @@ canonical package 不只是 instruction file。它還包含：
 
 #### 維護者
 
-維護者在 toolkit repo 中工作：
+維護者在 skill-forge repo 中工作：
 
 - 編輯 canonical skill packages
 - 驗證結構與完整性

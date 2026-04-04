@@ -30,7 +30,7 @@
 
 直接呼叫 repo CLI：
 
-- `PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata <skill-name>`
+- `PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata <skill-name>`
 
 如果這次也要更新日期或版本，可以加上：
 
@@ -42,7 +42,7 @@
 
 接著執行：
 
-- `PYTHONPATH=src python -m skill_toolkit --repo-root . validate <skill-name>`
+- `PYTHONPATH=src python -m skill_forge --repo-root . validate <skill-name>`
 
 若 validate 失敗，要明確列出 validator issues，不要假裝完成。
 

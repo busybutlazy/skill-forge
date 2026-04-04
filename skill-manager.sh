@@ -10,6 +10,6 @@ Phase 3 moved this repository to a Python CLI with canonical-skills as the only 
 Use one of these instead:
 
   python3 -m pip install -e .
-  python3 -m skill_toolkit --help
-  skill-toolkit --help
+  python3 -m skill_forge --help
+  skill-forge --help
 EOF

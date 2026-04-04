@@ -2,7 +2,7 @@
 
 ## Goal
 
-讓一般使用者可以在自己的專案根目錄直接啟動 skill manager，不需要先理解 toolkit repo 路徑、`docker run` 參數或底層 CLI 子命令，並以互動式文字介面完成常見的 install / update / remove / status 檢查。
+讓一般使用者可以在自己的專案根目錄直接啟動 skill manager，不需要先理解 skill-forge repo 路徑、`docker run` 參數或底層 CLI 子命令，並以互動式文字介面完成常見的 install / update / remove / status 檢查。
 
 ## Decisions Locked In
 

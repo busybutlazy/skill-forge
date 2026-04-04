@@ -44,7 +44,7 @@
 
 3. Complete installed status contract
    - 重新檢查 `up_to_date`、`update_available`、`drift`、`broken`、`unmanaged` 的判定條件是否完整且互斥。
-   - `drift` 定義為 package 仍可辨識為 toolkit 管理物，但內容或 source hash 已與 canonical source 不一致；`broken` 則是必要檔案缺失、格式錯誤或無法完成基本解析。
+   - `drift` 定義為 package 仍可辨識為 skill-forge 管理物，但內容或 source hash 已與 canonical source 不一致；`broken` 則是必要檔案缺失、格式錯誤或無法完成基本解析。
    - 補齊 Codex 與 Claude target 對應的 broken / foreign install / local drift 偵測。
    - 規範 `list` 輸出的欄位與可預期含義，避免 phase 5 容器輸出格式漂移。
    - phase 3.5 要新增穩定的 `--json` 輸出選項，讓 phase 4 / phase 5 與後續自動化可以直接依賴機器可解析格式。
@@ -56,7 +56,7 @@
 
 5. Refresh documentation for stable CLI usage
    - README 明確分開「維護者開發用法」與「一般使用者安裝 / 使用用法」。
-   - 文件要寫清楚 `python3 -m skill_toolkit` 與 `skill-toolkit` 的前提條件。
+   - 文件要寫清楚 `python3 -m skill_forge` 與 `skill-forge` 的前提條件。
    - 文件要反映實際存在的子命令、狀態值與 install/update/remove 規則。
    - phase 4 容器化段落只保留銜接說明，不提前混入具體容器指令。
 
@@ -85,7 +85,7 @@
 
 1. `install` 遇到既有 managed package 時，預設直接覆蓋，不要求先走 `update`。
 2. `update` 遇到 `drift` 狀態時，允許強制覆蓋，但必須先顯示清楚警告與確認提示，讓使用者知道本地修改或異常內容將被覆寫。
-3. `remove` 允許移除帶有 toolkit marker 的 `broken` 安裝，不限於完全健康的 managed package。
+3. `remove` 允許移除帶有 skill-forge marker 的 `broken` 安裝，不限於完全健康的 managed package。
 4. `list` 在 phase 3.5 就新增 `--json`，固定機器可解析輸出契約。
 5. `update` 在 phase 3.5 先只做單一 skill 更新；全量更新延後。
 

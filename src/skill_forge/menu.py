@@ -43,7 +43,7 @@ class InteractiveMenu:
         self.project_dir = project_dir
         self.shell_rc = shell_rc
         self.target = "codex"
-        self.project_display_dir = Path(os.environ.get("SKILL_TOOLKIT_PROJECT_HOST_DIR", str(project_dir)))
+        self.project_display_dir = Path(os.environ.get("SKILL_FORGE_PROJECT_HOST_DIR", str(project_dir)))
 
     def run(self) -> int:
         self.target = self._choose_target(initial=True)
@@ -106,7 +106,7 @@ class InteractiveMenu:
         width = 62
         print()
         print(_color("╔" + "═" * width + "╗", CYAN))
-        print(_color("║", CYAN) + _color("Skill Toolkit Manager".center(width), BOLD) + _color("║", CYAN))
+        print(_color("║", CYAN) + _color("skill-forge Manager".center(width), BOLD) + _color("║", CYAN))
         print(_color("╠" + "═" * width + "╣", CYAN))
         print(_color("║", CYAN) + f" Target : {self.target:<{width - 10}}" + _color("║", CYAN))
         print(_color("║", CYAN) + f" Skills : {len(self._canonical_skills()):<{width - 10}}" + _color("║", CYAN))

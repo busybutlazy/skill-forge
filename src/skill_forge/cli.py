@@ -28,7 +28,7 @@ def _repo_root_from_args(args: argparse.Namespace) -> Path:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="skill-toolkit", description="Canonical skill toolkit CLI")
+    parser = argparse.ArgumentParser(prog="skill-forge", description="Canonical skill-forge CLI")
     parser.add_argument("--repo-root", default=".", help="Repository root containing canonical-skills/regular-skills and canonical-skills/manager-skills")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 

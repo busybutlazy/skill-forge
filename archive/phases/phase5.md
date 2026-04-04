@@ -1,4 +1,4 @@
-# Phase 5 - Ship the Toolkit as a Containerized CLI
+# Phase 5 - Ship skill-forge as a Containerized CLI
 
 ## Goal
 
@@ -19,7 +19,7 @@
 
 ## Acceptance Criteria
 
-- 使用者可透過 `docker run` 或等價方式執行 toolkit CLI。
+- 使用者可透過 `docker run` 或等價方式執行 skill-forge CLI。
 - 容器內執行結果與本地 Python CLI 一致。
 - target artifact 可正確寫回掛載的 host project。
 

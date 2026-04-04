@@ -51,11 +51,11 @@
 
 如果使用者沒有指定清單，預設可同步整個 manager catalog。
 
-### 4. Execute through the toolkit CLI
+### 4. Execute through the skill-forge CLI
 
 不要自己重寫安裝邏輯，直接呼叫 repo CLI：
 
-- `PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog ...`
+- `PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog ...`
 
 必要時加入：
 

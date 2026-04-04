@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 from .models import CanonicalSkill
-from .utils import dump_frontmatter, make_toolkit_marker, write_text
+from .utils import dump_frontmatter, make_forge_marker, write_text
 
 
 def _copy_assets(skill: CanonicalSkill, destination: Path) -> None:
@@ -42,7 +42,7 @@ def render_skill(skill: CanonicalSkill, target: str, output_root: Path) -> Path:
 
     if target == "claude":
         target_path.parent.mkdir(parents=True, exist_ok=True)
-        marker = make_toolkit_marker(
+        marker = make_forge_marker(
             {
                 "name": skill.name,
                 "version": skill.version,

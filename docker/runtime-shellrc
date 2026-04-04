@@ -1,7 +1,7 @@
-export SKILL_TOOLKIT_REPO_ROOT="${SKILL_TOOLKIT_REPO_ROOT:-/opt/skill-toolkit}"
-export SKILL_TOOLKIT_PROJECT_DIR="${SKILL_TOOLKIT_PROJECT_DIR:-/workspace/project}"
+export SKILL_FORGE_REPO_ROOT="${SKILL_FORGE_REPO_ROOT:-/opt/skill-forge}"
+export SKILL_FORGE_PROJECT_DIR="${SKILL_FORGE_PROJECT_DIR:-/workspace/project}"
 
-alias st='skill-toolkit --repo-root "$SKILL_TOOLKIT_REPO_ROOT"'
-alias project='cd "$SKILL_TOOLKIT_PROJECT_DIR"'
+alias st='skill-forge --repo-root "$SKILL_FORGE_REPO_ROOT"'
+alias project='cd "$SKILL_FORGE_PROJECT_DIR"'
 
-PS1='skill-toolkit> '
+PS1='skill-forge> '

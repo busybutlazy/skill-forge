@@ -1,52 +1,40 @@
-# Skill Toolkit
+# skill-forge
 
-Version: 1.1.1
-
-## English
+Version: 1.1.2
 
 Write skills once, govern centrally, deploy to multiple coding AI targets.
 
-Skill Toolkit is an open-source governance layer for AI development skills. It helps teams keep skill definitions in one canonical source, validate package integrity, and render and install the right target artifacts for tools such as Codex and Claude.
+`skill-forge` is an open-source governance layer for AI development skills. It helps teams keep skill definitions in one canonical source, validate package integrity, and render installable target artifacts for tools such as Codex and Claude.
 
-This repo is not a public skill marketplace. It is designed for teams that want controlled distribution, portable skill definitions, and a clearer trust boundary around which skills engineers are allowed to use.
+這是一個面向 AI 開發技能的開源治理層，讓團隊可以把 skill 定義集中在單一 canonical source，驗證 package 完整性，並為 Codex、Claude 等工具產生可安裝的 target artifacts。
 
-### Current Stage
+> This repo is **not** a public skill marketplace.  
+> It is designed for teams that want controlled distribution, portable skill definitions, and a clearer trust boundary around which skills engineers are allowed to use.
 
-Version `1.1.1` extends the `1.0.0` end-user baseline with a formal maintainer workflow and canonical manager skill model.
+---
 
-The current phase moves beyond the first user-facing baseline and focuses on maintainer operations:
+## Language
 
-- separating canonical source into `regular-skills/` and `manager-skills/`
-- formalizing the manager workflow around `create-skill`, `update-skill`, `finalize-skill`, and `install-manager-skill`
-- keeping repo-local Codex and Claude manager artifacts in sync from canonical source
+- [English](#english)
+- [繁體中文](#繁體中文)
 
-### What Changed In This Stage
+---
 
-- `canonical-skills/` is now split into `canonical-skills/regular-skills/` and `canonical-skills/manager-skills/`
-- `finalize-skill` was added so maintainers can finish a canonical edit with `refresh-metadata` and `validate` in one workflow
-- `install-manager-skill` was added so manager-only skills and `shared` regular skills can be synced back into this repo's local agent targets
-- maintainer guidance in README and the terminal guide now reflects the full create/update/finalize/install loop
+# English
 
-### Why This Exists
+## Overview
 
-```text
-canonical-skills/
-  regular-skills/
-  manager-skills/
-        |
-        v
- validate + render + package integrity
-        |
-        +--------------------+
-        |                    |
-        v                    v
-   Codex artifact      Claude artifact
-        |                    |
-        +-------- install / update -------+
-                             |
-                             v
-                    target project workflow
-```
+`skill-forge` lets teams define skills once in a canonical source tree, then render and distribute the correct artifacts to supported coding AI tools.
+
+It is built for teams that care about:
+
+- centralized governance
+- portable skill definitions
+- controlled rollout
+- repeatable installation
+- lower vendor lock-in
+
+### What problems it solves
 
 Teams adopting coding agents usually run into the same problems:
 
@@ -55,41 +43,81 @@ Teams adopting coding agents usually run into the same problems:
 - there is no shared review point for versioning, integrity, or rollout
 - switching vendors becomes expensive because skill logic is tied to one tool
 
-Skill Toolkit addresses that by treating `canonical-skills/` as the only canonical source tree, with `regular-skills/` for normal end-user skills and `manager-skills/` for manager-only workflows, then rendering target-specific outputs for each supported tool.
+`skill-forge` addresses this by treating `canonical-skills/` as the only source of truth, then rendering target-specific artifacts for supported tools.
 
-### Who It Is For
+---
+
+## Who this is for
 
 - engineering managers who want an approved source for team skills
-- platform teams who need a controlled way to distribute internal AI workflows
+- platform teams who need controlled distribution for internal AI workflows
 - developers who want a project-local skill manager without hand-maintaining per-tool copies
 
-This repo is a good fit when you care about governance, portability, and repeatable distribution more than marketplace-style discovery.
+This repo is a good fit when you care more about governance, portability, and repeatable distribution than marketplace-style discovery.
 
-### How To Read This Repo
+---
 
-- Start here for the product story and top-level workflow.
-- Read [docs/concepts/governance.md](docs/concepts/governance.md) for the governance model and trust story.
-- Read [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md) for team rollout guidance.
-- Read [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md) for a quickstart and demo walkthrough.
-- Read [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md) for the full terminal and maintainer operations manual.
+## Recommended usage by role
 
-### Quickstart
+### End users
+
+**Recommended path: `CLI/TUI`**
+
+For normal users, the default path should be the interactive `skill-manager` flow.
+
+Use it to:
+
+- install skills
+- update skills
+- check skill status
+- repair managed installs
+- remove managed skills
+- switch between `codex` and `claude`
+
+### Maintainers
+
+**Recommended path: AI collaboration**
+
+For maintainers, the default path should be working in Codex or Claude with manager skills.
+
+Use it to:
+
+- create new canonical skills
+- update existing canonical skills
+- finalize metadata and validation
+- sync manager-skills and shared regular-skills
+- refresh repo-local agent targets
+
+### Advanced fallback
+
+**Direct terminal commands are supported, but not recommended as the primary path.**
+
+Use them when you need:
+
+- debugging
+- low-level inspection
+- automation scripts
+- terminal fallback during maintainer work
+
+---
+
+## Quickstart
 
 Recommended user path: `CLI/TUI`.
 
-1. Clone the toolkit repo.
+### 1. Clone the repo
 
 ```bash
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
 ```
 
-2. Go to your target project.
+### 2. Go to your target project
 
 ```bash
 cd /path/to/target-project
 ```
 
-3. Launch the project-local skill manager.
+### 3. Launch the project-local skill manager
 
 ```bash
 ~/skill-forge/skill-manager
@@ -101,216 +129,214 @@ Or add `~/skill-forge` to your `PATH` and run:
 skill-manager
 ```
 
-4. Use the interactive menu to:
+### 4. Use the interactive menu
 
-- choose `codex` or `claude`
-- check installed skill status
-- install or update skills
-- repair broken managed installs
-- remove managed skills
-- switch targets or open the expert terminal
+Use the menu to:
 
-If you need the low-level path, you can also use the expert terminal and Python CLI directly. See [the terminal operations guide](docs/guides/terminal-operations-guide.md) for the detailed command reference, but the recommended entrypoint for normal users is still the menu-driven `skill-manager` flow.
+* choose `codex` or `claude`
+* check installed skill status
+* install or update skills
+* repair broken managed installs
+* remove managed skills
+* switch targets
+* open the expert terminal only when needed
 
-### Positioning
+> For normal users, `skill-manager` should remain the default entry point.
 
-#### Canonical source, not parallel copies
+If you need the low-level path, use the expert terminal and Python CLI directly, then refer to [the terminal operations guide](docs/guides/terminal-operations-guide.md) for the detailed command reference.
 
-Public skills live under `canonical-skills/regular-skills/`. Manager-only workflows live under `canonical-skills/manager-skills/`. Both are validated once, versioned once, and rendered into target artifacts instead of being maintained as separate per-tool source trees.
+---
 
-#### Governance layer, not a marketplace
+## Canonical model
 
-The goal is not to maximize public skill discovery. The goal is to give a team a controlled source, a repeatable packaging model, and a safer install and update path for approved skills.
+Public skills live under:
 
-#### Portability layer, not vendor lock-in
+```text
+canonical-skills/regular-skills/<name>/
+```
 
-Skill logic should be written once in a tool-neutral canonical package, then adapted to supported targets. That keeps future adapter expansion possible without falling back to copy-paste maintenance.
+Required files:
 
-#### Native capabilities and governance responsibilities
-
-Native AI tool features are still responsible for the in-product execution experience of each tool. Skill Toolkit is trying to solve a different problem: giving teams a canonical source, a governed distribution model, and a more portable way to manage skill definitions across tools.
-
-It is not a replacement for the native capabilities of Codex, Claude, or other coding AI products. It is a team-level governance layer that can sit alongside those tools when a team wants more control over source, rollout, and portability.
-
-### Current User Experience
-
-There are two user-facing paths:
-
-- `CLI/TUI (recommended)`: use the project-local `skill-manager` wrapper and interactive menu
-- `direct code/command input`: use the expert terminal and Python CLI commands directly
-
-#### CLI/TUI Path (Recommended)
-
-- Docker-based runtime for end users
-- interactive menu for install, update, remove, and status flows
-- lower cognitive load for normal project users
-- Codex and Claude supported as rendered targets
-
-#### Direct Code / Command Input Path
-
-- uses the expert terminal and Python CLI commands directly
-- useful for advanced users who want explicit command control
-- follows the same install, update, list, and remove safety rules
-- better treated as an advanced fallback than the default user experience
-
-### Canonical Model
-
-Each public skill lives in `canonical-skills/regular-skills/<name>/` and includes:
-
-- `package.json`
-- `instruction.md`
-- `manifest.json`
-- `targets/codex.frontmatter.json`
-- `targets/claude.frontmatter.json`
+* `package.json`
+* `instruction.md`
+* `manifest.json`
+* `targets/codex.frontmatter.json`
+* `targets/claude.frontmatter.json`
 
 Optional content:
 
-- `examples/`
-- `references/`
-- `scripts/`
-- `assets/`
+* `examples/`
+* `references/`
+* `scripts/`
+* `assets/`
 
-Detailed contracts:
+Detailed references:
 
-- `docs/reference/canonical-package-spec.md`
-- `docs/reference/adapter-contract.md`
-- `docs/reference/drift-policy.md`
+* [docs/reference/canonical-package-spec.md](docs/reference/canonical-package-spec.md)
+* [docs/reference/adapter-contract.md](docs/reference/adapter-contract.md)
+* [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
 
-### CLI and Safety Model
+---
 
-Core commands:
+## Public skills vs maintainer skills
 
-- `validate`
-- `render`
-- `install`
-- `list`
-- `remove`
-- `update`
-- `refresh-metadata`
-- `sync-maintainer`
-- `sync-manager-catalog`
+### `canonical-skills/regular-skills/`
 
-Managed install states:
+* canonical source for normal end-user skills
+* the only source normal installs should come from
 
-- `up_to_date`
-- `update_available`
-- `drift`
-- `broken`
-- `unmanaged`
+### `canonical-skills/manager-skills/`
 
-Key safety rules:
+* canonical source for maintainer-only workflows
+* includes workflows such as:
 
-- `install` overwrites managed `up_to_date` and `update_available` installs
-- `install` asks for confirmation before repairing `broken`
-- `install` requires `--force` before overwriting `drift`
-- `install` refuses to overwrite `unmanaged`
-- `update` only works on managed installs and also requires `--force` for `drift`
-- `remove` refuses to delete `unmanaged`
+  * `create-skill`
+  * `update-skill`
+  * `finalize-skill`
+  * `install-manager-skill`
 
-### Public Skills vs Maintainer Skills
+### `shared` tag
 
-- `canonical-skills/regular-skills/`
-  - canonical source for normal end-user skills
-  - the only source consumer installs should come from
-- `canonical-skills/manager-skills/`
-  - canonical source for manager-only workflows such as `create-skill`, `update-skill`, `finalize-skill`, and `install-manager-skill`
-  - not intended for normal user installation
-- `canonical-skills/regular-skills/` skills may optionally carry the `shared` tag
-  - `shared` means the skill stays a regular-skill source, but manager install flow may also sync it into this repo
-- `.agents/skills/`
-  - rendered Codex artifacts used to work on this repo itself
-  - not a source directory
-  - can be refreshed from canonical maintainer packages through `sync-maintainer`
+Skills under `regular-skills/` may optionally carry the `shared` tag.
 
-### Maintainer Workflow
+This means the skill remains a regular skill, but may also be synced through manager install flows.
 
-There are two recommended maintainer paths:
+### `.agents/skills/`
 
-- `terminal-style`: use the Python CLI directly inside the containerized development environment
-- `AI collaboration`: use manager skills through Codex or Claude, then fall back to terminal commands only when needed
+* rendered artifacts used by this repo itself
+* not canonical source
+* should not be edited by hand as source
 
-#### Terminal-Style Workflow
+---
 
-Containerized development environment:
+## Maintainer workflow
 
-```bash
-docker build -f Dockerfile.dev -t skill-toolkit-dev .
-docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-toolkit-dev
-```
+There are two maintainer paths, but only one should be the default.
 
-Validate canonical skills:
+### Preferred: AI collaboration
 
-```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . validate
-```
+Use this path when working inside Codex or Claude.
 
-If you want the low-level terminal fallback after changing a canonical skill, refresh manifest and package integrity metadata with:
+Recommended flow:
 
-```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata create-skill --today
-```
+1. Open this repo in Codex or Claude.
+2. Only edit canonical source:
 
-Sync maintainer-only skills into this repo's local Codex skill directory:
+   * `canonical-skills/regular-skills/`
+   * `canonical-skills/manager-skills/`
+3. Use manager skills:
 
-```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-maintainer --project . --target codex --force
-```
+   * `create-skill`
+   * `update-skill`
+   * `finalize-skill`
+   * `install-manager-skill`
+4. Fall back to terminal commands only when needed.
+5. Do not hand-edit rendered artifacts such as:
 
-Sync the full manager catalog, including manager-skills plus `shared` regular-skills, into both local targets:
+   * `.agents/skills/`
+   * `.claude/agents/`
+
+Recommended responsibility split:
+
+* add a new skill → `create-skill`
+* revise an existing skill → `update-skill`
+* finalize and validate changes → `finalize-skill`
+* sync manager targets → `install-manager-skill` or `sync-manager-catalog`
+
+### Fallback: terminal workflow
+
+Use terminal only when AI collaboration is not suitable, or when low-level inspection is needed.
+
+For the full command reference, see [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md).
+
+#### Containerized development environment
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog --project . --target all --force
+docker build -f Dockerfile.dev -t skill-forge-dev .
+docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-forge-dev
 ```
 
-Inspect repo-local installs including maintainer-only packages:
+#### Validate canonical skills
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . list --target codex --project . --scope all --json
+PYTHONPATH=src python -m skill_forge --repo-root . validate
 ```
 
-Run tests:
+#### Refresh metadata
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata create-skill --today
+```
+
+#### Sync maintainer-only skills into the local Codex directory
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex --force
+```
+
+#### Sync manager-skills and `shared` regular-skills into local targets
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog --project . --target all --force
+```
+
+#### Inspect install status
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project . --scope all --json
+```
+
+#### Run tests
 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests
 ```
 
-Runtime smoke test:
+#### Runtime smoke test
 
 ```bash
 make up
 ```
 
-Typical terminal-style loop:
+---
 
-1. Edit canonical source under `canonical-skills/regular-skills/` or `canonical-skills/manager-skills/`.
-2. Run `refresh-metadata <skill-name>` when package metadata or hashes need to be refreshed.
-3. Run `validate` to confirm the canonical package is still correct.
-4. Run `sync-maintainer` or `sync-manager-catalog` when repo-local manager targets need to be refreshed.
-5. Run tests and smoke tests before merge.
+## CLI and safety model
 
-#### AI Collaboration Workflow
+Core commands:
 
-Use this path when the maintainer is working inside Codex or Claude and wants the AI to drive most of the workflow.
+* `validate`
+* `render`
+* `install`
+* `list`
+* `remove`
+* `update`
+* `refresh-metadata`
+* `sync-maintainer`
+* `sync-manager-catalog`
 
-Recommended AI collaboration workflow with Codex:
+Managed install states:
 
-1. Open this repo in Codex and keep the repo-local manager skills available under `.agents/skills/`.
-2. Use `create-skill` when you need to add a new canonical skill under `canonical-skills/regular-skills/`.
-3. Use `update-skill` when you need to revise an existing canonical skill, including tags such as `shared`.
-4. After changing canonical content, run `refresh-metadata` and `validate`.
-5. Use `install-manager-skill` or `sync-manager-catalog` when you want to sync manager-skills plus `shared` regular-skills back into this repo's local agent targets.
+* `up_to_date`
+* `update_available`
+* `drift`
+* `broken`
+* `unmanaged`
 
-Recommended AI collaboration workflow with Claude:
+Key safety rules:
 
-1. Open this repo in Claude and use the manager workflows rendered from `canonical-skills/manager-skills/`.
-2. Keep source edits limited to `canonical-skills/regular-skills/` and `canonical-skills/manager-skills/`; do not edit rendered `.agents/skills/` or `.claude/agents/` artifacts by hand.
-3. Use `create-skill` only for new canonical packages and `update-skill` only for existing ones.
-4. After source changes, run `refresh-metadata`, `validate`, and then `sync-manager-catalog --target all` when you want Codex and Claude maintainer targets refreshed together.
+* `install` overwrites managed `up_to_date` and `update_available`
+* `install` asks for confirmation before repairing `broken`
+* `install` requires `--force` before overwriting `drift`
+* `install` refuses to overwrite `unmanaged`
+* `update` only works on managed installs and also requires `--force` for `drift`
+* `remove` refuses to delete `unmanaged`
 
-### Project Layout
+---
+
+## Project layout
 
 ```text
-skill-toolkit/
+skill-forge/
 ├── AGENTS.md
 ├── .agents/
 ├── canonical-skills/
@@ -329,103 +355,181 @@ skill-toolkit/
 └── skill-manager
 ```
 
-### Roadmap Direction
+---
 
-The current roadmap focuses on external clarity, adoption, and governance framing rather than new UI work. CLI and TUI remain the primary operating surface for now.
+## How to read this repo
+
+Recommended reading order:
+
+1. `README.md`
+2. [docs/concepts/governance.md](docs/concepts/governance.md)
+3. [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md)
+4. [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md)
+5. [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md)
+
+For normal users, start with quickstart and the `skill-manager` flow.
+For maintainers, then go deeper into governance and terminal operations.
+
+---
+
+## Positioning
+
+### Not a marketplace
+
+`skill-forge` is not trying to maximize public discovery.
+It is trying to provide a controlled source, a repeatable packaging model, and a safer install/update path for approved skills.
+
+### Not vendor lock-in
+
+Skill logic should be written once as a tool-neutral canonical package, then adapted to supported targets instead of maintained as parallel per-tool copies.
+
+### Not a replacement for native AI tool features
+
+Codex, Claude, and similar tools still own their in-product execution experience.
+
+`skill-forge` solves a different problem: canonical source, governance, distribution, and cross-tool portability.
+
+---
+
+## Current version focus
+
+Version `1.1.2` extends the `1.0.0` end-user baseline with a formal maintainer workflow and canonical manager skill model.
+
+This stage focuses on:
+
+* formally splitting `canonical-skills/` into:
+
+  * `canonical-skills/regular-skills/`
+  * `canonical-skills/manager-skills/`
+* adding `finalize-skill`
+* adding `install-manager-skill`
+* aligning maintainer guidance around the create / update / finalize / install loop
+
+---
+
+## Roadmap
+
+The current roadmap focuses on:
+
+* clearer external positioning
+* better adoption guidance
+* stronger governance framing
+
+CLI/TUI and AI collaboration remain the primary operating surfaces for now.
 
 See `ROADMAP.md` for current priorities and direction.
 
-### Compatibility Note
+---
 
-`skill-manager.sh` remains a compatibility shim only. The real workflow is the Python CLI plus the project-local `skill-manager` wrapper.
+## Compatibility note
 
-## 繁體中文
+`skill-manager.sh` remains a compatibility shim only.
 
-以單一 canonical source 管理 AI coding skills，集中治理，再部署到多個 coding AI target。
+The real workflow is now:
 
-Skill Toolkit 是一個面向 AI 開發技能的開源治理層。它讓團隊可以把 skill 定義收斂到單一 canonical source，驗證 package 完整性，並為 Codex、Claude 等工具 render 與安裝正確的 target artifact。
+* end users: `skill-manager`
+* maintainers: AI collaboration first, Python CLI as fallback
 
-這個 repo 不是公開 skill marketplace。它的定位是提供團隊可控的 skill 分發、可移植的 skill 定義，以及更清楚的信任邊界，讓工程師使用的 skills 有可管理來源。
+---
 
-### 目前階段
+# 繁體中文
 
-`1.1.1` 是在 `1.0.0` 一般使用者基礎體驗之上，正式補齊 maintainer workflow 與 canonical manager skill model 的版本。
+## 專案簡介
 
-目前這個階段則是從第一階段的 user-facing baseline，進一步往 maintainer workflow 收斂：
+`skill-forge` 讓團隊可以把 skills 集中定義在同一套 canonical source 中，再依不同 coding AI 工具 render 並分發對應的 artifacts。
 
-- 把 canonical source 正式分成 `regular-skills/` 與 `manager-skills/`
-- 把管理者流程固定成 `create-skill`、`update-skill`、`finalize-skill`、`install-manager-skill`
-- 讓本 repo 的 Codex / Claude manager artifacts 可以從 canonical source 一致同步
+它適合那些在意以下幾件事的團隊：
 
-### 這個階段改了什麼
+* 集中治理
+* skill 定義可移植
+* 發佈與安裝流程可控
+* 安裝結果可重現
+* 降低 vendor lock-in
 
-- `canonical-skills/` 現在正式拆成 `canonical-skills/regular-skills/` 與 `canonical-skills/manager-skills/`
-- 新增 `finalize-skill`，讓維護者可以在同一個 workflow 內完成 `refresh-metadata` 與 `validate`
-- 新增 `install-manager-skill`，讓 manager-only skills 與帶 `shared` tag 的 regular skills 可以同步回本 repo 的本地 agent targets
-- README 與 maintainer terminal guide 都已更新成完整的 create / update / finalize / install 維護流程
+### 這個專案解決什麼問題
 
-### 為什麼會有這個專案
+導入 coding agents 的團隊，常會遇到這些問題：
 
-```text
-canonical-skills/
-  regular-skills/
-  manager-skills/
-        |
-        v
- validate + render + package integrity
-        |
-        +--------------------+
-        |                    |
-        v                    v
-   Codex artifact      Claude artifact
-        |                    |
-        +-------- install / update -------+
-                             |
-                             v
-                    target project workflow
-```
+* 工程師各自安裝不同來源的 skills，缺乏一致管理
+* 同一套 workflow 被迫為不同 AI 工具重寫
+* 沒有明確的版本、完整性與發佈審查點
+* skill 邏輯綁死在單一工具上，未來切換成本高
 
-導入 coding agent 的團隊通常會遇到相同問題：
+`skill-forge` 的做法，是把 `canonical-skills/` 當作唯一 source of truth，再為支援的工具 render 出 target-specific artifacts。
 
-- 工程師各自安裝來源不一致、甚至不明的 skills
-- 同一套 workflow 被迫為不同 AI 工具重寫多次
-- 缺少共用的版本、完整性與發佈審查點
-- 一旦 skill 邏輯綁死在單一工具上，改用其他 vendor 的成本就會變高
+---
 
-Skill Toolkit 的解法是把 `canonical-skills/` 視為唯一 canonical source tree，其中 `regular-skills/` 給一般使用者技能、`manager-skills/` 給管理者流程，再為各個支援的工具 render 對應的 target-specific output。
+## 適合誰使用
 
-### 適合誰使用
+* 想建立團隊 approved skill source 的 engineering managers
+* 需要可控分發內部 AI workflows 的 platform teams
+* 想用 project-local skill manager，而不是手動維護多套工具版本的 developers
 
-- 想要替團隊建立 approved skill source 的 engineering managers
-- 需要可控分發內部 AI workflow 的 platform teams
-- 希望用 project-local skill manager，而不是手動維護多套工具版本的 developers
+如果你在意的是治理、可移植性與可重現分發，而不是公開 marketplace 式的探索體驗，這個 repo 會比較適合你。
 
-當你更在意治理、可移植性與可重現分發，而不是 marketplace 式的探索體驗時，這個 repo 就是合適選擇。
+---
 
-### 如何閱讀這個 repo
+## 依角色區分的建議用法
 
-- 先從這份 README 了解產品定位與高層流程。
-- 用 [docs/concepts/governance.md](docs/concepts/governance.md) 看治理模型與 trust story。
-- 用 [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md) 看團隊導入建議。
-- 用 [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md) 看 quickstart 與 demo walkthrough。
+### 一般使用者
 
-### 快速開始
+**建議路徑：`CLI/TUI`**
+
+對一般使用者來說，預設應該走 `skill-manager` 的互動式流程，而不是直接記憶底層命令。
+
+適合用來：
+
+* 安裝 skills
+* 更新 skills
+* 檢查 skill 狀態
+* 修復 managed installs
+* 移除 managed skills
+* 在 `codex` 與 `claude` 間切換
+
+### 維護者
+
+**建議路徑：AI 協作**
+
+對維護者來說，預設應該是在 Codex 或 Claude 中，搭配 manager skills 進行維護，而不是一開始就手打 terminal 命令。
+
+適合用來：
+
+* 建立新的 canonical skills
+* 修改既有 canonical skills
+* 收尾 metadata 與 validation
+* 同步 manager-skills 與 shared regular-skills
+* 更新 repo-local agent targets
+
+### 進階 fallback
+
+**直接輸入 terminal 命令仍然支援，但不建議作為主路徑。**
+
+適合用在：
+
+* 除錯
+* 低階檢查
+* 自動化腳本整合
+* 維護者在協作流程中需要 fallback 時
+
+---
+
+## 快速開始
 
 推薦的一般使用者路徑是 `CLI/TUI`。
 
-1. 複製 toolkit repo。
+### 1. Clone repo
 
 ```bash
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
 ```
 
-2. 進入 target project。
+### 2. 進入你的 target project
 
 ```bash
 cd /path/to/target-project
 ```
 
-3. 啟動 project-local skill manager。
+### 3. 啟動 project-local skill manager
 
 ```bash
 ~/skill-forge/skill-manager
@@ -437,208 +541,214 @@ cd /path/to/target-project
 skill-manager
 ```
 
-4. 在互動式 menu 裡：
+### 4. 在互動式選單中完成操作
 
-- 選 `codex` 或 `claude`
-- 檢查已安裝 skill 狀態
-- 安裝或更新 skills
-- 修復 broken 的 managed install
-- 移除 managed skills
-- 切換 target 或進入 expert terminal
+你可以透過選單進行：
 
-如果你需要走低階路徑，也可以進 expert terminal 直接使用 Python CLI。詳細指令與操作方式請看 [terminal 操作手冊](docs/guides/terminal-operations-guide.md)；但對一般使用者來說，仍然建議以 menu-driven 的 `skill-manager` 流程為主。
+* 選擇 `codex` 或 `claude`
+* 檢查已安裝 skill 狀態
+* 安裝或更新 skills
+* 修復 broken 的 managed install
+* 移除 managed skills
+* 切換 target
+* 只有在需要時才進入 expert terminal
 
-### 定位
+> 對一般使用者來說，`skill-manager` 應該是預設入口。
 
-#### canonical source，不是平行副本
+如果你需要走低階路徑，可以進 expert terminal 直接使用 Python CLI，詳細指令請參考 [terminal 操作手冊](docs/guides/terminal-operations-guide.md)。
 
-公開 skill 都放在 `canonical-skills/regular-skills/`，管理者專用 skill 則放在 `canonical-skills/manager-skills/`。它們都只被驗證一次、只被版本管理一次，再被 render 成不同 target artifact，而不是維護多份平行的 per-tool source tree。
+---
 
-#### 治理層，不是 marketplace
+## Canonical Model
 
-這個 repo 的目標不是最大化公開 skill 的探索與上架，而是提供團隊可控來源、可重現 packaging model，以及對 approved skills 更安全的 install 與 update 路徑。
+公開 skills 放在：
 
-#### 可移植層，不是 vendor lock-in
+```text
+canonical-skills/regular-skills/<name>/
+```
 
-skill 邏輯應該先寫成 tool-neutral 的 canonical package，再適配到支援的 targets。這讓未來新增 adapter 成為可能，而不必回到 copy-paste 維護多套版本。
+至少包含：
 
-#### 原生能力與治理責任的分工
-
-各個 AI 工具的原生功能仍然負責它們各自產品內的執行體驗。Skill Toolkit 想解的是另一個層次的問題：為團隊提供 canonical source、可治理的分發模型，以及跨工具管理 skill 定義的可移植方式。
-
-它不是要取代 Codex、Claude 或其他 coding AI 產品的原生能力。它比較像是一層團隊級的治理層，讓需要更高來源控制、rollout 管理與可移植性的團隊，可以和這些工具並行使用。
-
-### 目前的使用體驗
-
-一般使用者體驗可以分成兩條路徑：
-
-- `CLI/TUI（推薦）`：透過 project-local `skill-manager` wrapper 與互動式 menu 操作
-- `直接輸入 code / command`：透過 expert terminal 直接輸入 Python CLI 指令
-
-#### CLI/TUI 路徑（推薦）
-
-- 一般使用者走 Docker-based runtime
-- 透過互動式 menu 完成 install、update、remove 與 status 流程
-- 心智負擔較低，適合一般 project 使用者
-- 目前支援 Codex 與 Claude 兩個 rendered targets
-
-#### 直接輸入 Code / Command 路徑
-
-- 直接進 expert terminal，執行 Python CLI 指令
-- 適合想要精準控制命令的進階使用者
-- 仍然遵守同一套 install、update、list、remove 安全規則
-- 更適合作為進階 fallback，而不是預設使用方式
-
-### Canonical Model
-
-每個公開 skill 都放在 `canonical-skills/regular-skills/<name>/`，至少包含：
-
-- `package.json`
-- `instruction.md`
-- `manifest.json`
-- `targets/codex.frontmatter.json`
-- `targets/claude.frontmatter.json`
+* `package.json`
+* `instruction.md`
+* `manifest.json`
+* `targets/codex.frontmatter.json`
+* `targets/claude.frontmatter.json`
 
 可選內容：
 
-- `examples/`
-- `references/`
-- `scripts/`
-- `assets/`
+* `examples/`
+* `references/`
+* `scripts/`
+* `assets/`
 
-詳細契約請看：
+詳細規格請參考：
 
-- `docs/reference/canonical-package-spec.md`
-- `docs/reference/adapter-contract.md`
-- `docs/reference/drift-policy.md`
+* [docs/reference/canonical-package-spec.md](docs/reference/canonical-package-spec.md)
+* [docs/reference/adapter-contract.md](docs/reference/adapter-contract.md)
+* [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
 
-### CLI 與安全模型
+---
 
-核心指令：
+## 公開 skills 與 maintainer skills
 
-- `validate`
-- `render`
-- `install`
-- `list`
-- `remove`
-- `update`
-- `refresh-metadata`
-- `sync-maintainer`
-- `sync-manager-catalog`
+### `canonical-skills/regular-skills/`
 
-managed install 狀態：
+* 一般使用者 skills 的 canonical source
+* 一般安裝流程應以這裡為來源
 
-- `up_to_date`
-- `update_available`
-- `drift`
-- `broken`
-- `unmanaged`
+### `canonical-skills/manager-skills/`
 
-主要安全規則：
+* 維護者工作流的 canonical source
+* 例如：
 
-- `install` 會直接覆蓋 managed 的 `up_to_date` 與 `update_available`
-- `install` 修復 `broken` 前會要求確認
-- `install` 覆蓋 `drift` 前必須加 `--force`
-- `install` 會拒絕覆蓋 `unmanaged`
-- `update` 只處理 managed install，遇到 `drift` 也必須加 `--force`
-- `remove` 會拒絕刪除 `unmanaged`
+  * `create-skill`
+  * `update-skill`
+  * `finalize-skill`
+  * `install-manager-skill`
 
-### 公開 skills 與 maintainer skills
+### `shared` tag
 
-- `canonical-skills/regular-skills/`
-  - 一般使用者 skill 的 canonical source
-- `canonical-skills/manager-skills/`
-  - 管理者工作流 skill 的 canonical source
-  - `create-skill`、`update-skill`、`install-manager-skill` 應只出現在這裡
-- `canonical-skills/regular-skills/` 中的 skill 可選擇加上 `shared` tag
-  - `shared` 代表 canonical source 仍是 regular-skill，但 manager install flow 也可以額外同步它
-- `.agents/skills/`
-  - 這個 repo 自己使用的 rendered artifact
-  - 不是對外分發 skill 的 source
+`regular-skills/` 下的 skill 可以帶 `shared` tag。
 
-### 維護者工作流程
+這代表它仍然是 regular skill，但也可以透過 manager install flow 一起同步。
 
-推薦把維護流程分成兩種：
+### `.agents/skills/`
 
-- `terminal-style`：在容器化開發環境裡直接使用 Python CLI
-- `AI 協作`：在 Codex 或 Claude 內使用 manager skills，必要時才退回 terminal 指令
+* 這是本 repo 自己使用的 rendered artifacts
+* 不是 canonical source
+* 不應手動當作 source 編輯
 
-#### Terminal-Style 維護流程
+---
 
-容器化開發環境：
+## 維護者工作流程
 
-```bash
-docker build -f Dockerfile.dev -t skill-toolkit-dev .
-docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-toolkit-dev
-```
+維護者其實有兩條路，但只有一條應該是主路徑。
 
-驗證 canonical skills：
+### 首選：AI 協作
 
-```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . validate
-```
+這條路徑適合在 Codex 或 Claude 中維護。
 
-當修改 canonical skill 後，刷新 manifest 與 package hash：
+建議流程：
 
-```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata create-skill --today
-```
+1. 用 Codex 或 Claude 打開這個 repo。
+2. 只編輯 canonical source：
 
-只同步 manager-only skills 到本 repo 本地 Codex 目錄：
+   * `canonical-skills/regular-skills/`
+   * `canonical-skills/manager-skills/`
+3. 用 manager skills 進行操作：
 
-```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-maintainer --project . --target codex --force
-```
+   * `create-skill`
+   * `update-skill`
+   * `finalize-skill`
+   * `install-manager-skill`
+4. 只有在必要時才退回 terminal 命令。
+5. 不要手動修改 rendered artifacts，例如：
 
-把 manager-skills 加上帶 `shared` tag 的 regular-skills 一起同步到本 repo 本地 targets：
+   * `.agents/skills/`
+   * `.claude/agents/`
+
+建議分工：
+
+* 新增 skill → `create-skill`
+* 修改 skill → `update-skill`
+* 收尾與驗證 → `finalize-skill`
+* 同步 manager targets → `install-manager-skill` 或 `sync-manager-catalog`
+
+### fallback：terminal workflow
+
+只有在 AI 協作不適合，或需要做更低階檢查時，再使用 terminal。
+
+完整命令說明請看 [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md)。
+
+#### 容器化開發環境
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog --project . --target all --force
+docker build -f Dockerfile.dev -t skill-forge-dev .
+docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-forge-dev
 ```
 
-執行測試：
+#### 驗證 canonical skills
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . validate
+```
+
+#### 更新 metadata
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata create-skill --today
+```
+
+#### 只同步 manager-only skills 到本地 Codex 目錄
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex --force
+```
+
+#### 同步 manager-skills 與 `shared` regular-skills 到本地 targets
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog --project . --target all --force
+```
+
+#### 查看 install 狀態
+
+```bash
+PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project . --scope all --json
+```
+
+#### 執行測試
 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests
 ```
 
-Runtime smoke test：
+#### Runtime smoke test
 
 ```bash
 make up
 ```
 
-典型的 terminal-style 維護循環：
+---
 
-1. 在 `canonical-skills/regular-skills/` 或 `canonical-skills/manager-skills/` 下修改 canonical source。
-2. 若 metadata 或 hash 需要更新，就執行 `refresh-metadata <skill-name>`。
-3. 執行 `validate`，確認 canonical package 仍然正確。
-4. 若要刷新本 repo 的 manager targets，就執行 `sync-maintainer` 或 `sync-manager-catalog`。
-5. merge 前再跑測試與 smoke test。
+## CLI 與安全模型
 
-#### AI 協作維護流程
+核心指令：
 
-這條路徑適合在 Codex 或 Claude 中協作，讓 AI 先驅動大部分流程，必要時再回到 terminal。
+* `validate`
+* `render`
+* `install`
+* `list`
+* `remove`
+* `update`
+* `refresh-metadata`
+* `sync-maintainer`
+* `sync-manager-catalog`
 
-推薦的 Codex 協作流程：
+managed install 狀態：
 
-1. 用 Codex 打開這個 repo，並讓 repo-local manager skills 維持在 `.agents/skills/` 可用。
-2. 若要新增 skill source，就用 `create-skill` 在 `canonical-skills/regular-skills/` 下建立新的 canonical package。
-3. 若要修改既有 skill，就用 `update-skill`，包含像 `shared` 這類 tag 調整。
-4. canonical 內容改完後，優先用 `finalize-skill` 收尾；若不走 skill workflow，再用 terminal 跑 `refresh-metadata` 與 `validate`。
-5. 若要把 manager-skills 與帶 `shared` tag 的 regular-skills 同步回本 repo agent targets，就用 `install-manager-skill` 或 `sync-manager-catalog`。
+* `up_to_date`
+* `update_available`
+* `drift`
+* `broken`
+* `unmanaged`
 
-推薦的 Claude 協作流程：
+主要安全規則：
 
-1. 用 Claude 打開這個 repo，使用由 `canonical-skills/manager-skills/` render 出來的管理技能。
-2. source 編輯只限於 `canonical-skills/regular-skills/` 與 `canonical-skills/manager-skills/`，不要手動修改 `.agents/skills/` 或 `.claude/agents/` rendered artifacts。
-3. `create-skill` 只用來建立新的 canonical package，`update-skill` 只用來修改既有 package。
-4. source 改完後，優先用 `finalize-skill` 收尾；若要走 terminal fallback，再跑 `refresh-metadata`、`validate`。若要一起刷新 Codex 與 Claude 的管理者 targets，再跑 `sync-manager-catalog --target all`。
+* `install` 會直接覆蓋 managed 的 `up_to_date` 與 `update_available`
+* `install` 修復 `broken` 前會要求確認
+* `install` 覆蓋 `drift` 前必須加 `--force`
+* `install` 會拒絕覆蓋 `unmanaged`
+* `update` 只處理 managed install，遇到 `drift` 也必須加 `--force`
+* `remove` 會拒絕刪除 `unmanaged`
 
-### 專案結構
+---
+
+## 專案結構
 
 ```text
-skill-toolkit/
+skill-forge/
 ├── AGENTS.md
 ├── .agents/
 ├── canonical-skills/
@@ -657,12 +767,76 @@ skill-toolkit/
 └── skill-manager
 ```
 
-### Roadmap 方向
+---
 
-目前 roadmap 的重點是把對外敘事、導入路徑與治理框架講清楚，而不是新增 UI。現階段主要操作面仍然是 CLI 與 TUI。
+## 如何閱讀這個 repo
 
-請參考 `ROADMAP.md` 了解目前的優先順序與方向。
+建議閱讀順序：
 
-### 相容性說明
+1. `README.md`
+2. [docs/concepts/governance.md](docs/concepts/governance.md)
+3. [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md)
+4. [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md)
+5. [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md)
 
-`skill-manager.sh` 目前只保留相容提示用途。真正的工作流程已經是 Python CLI 加上 project-local `skill-manager` wrapper。
+一般使用者優先看 quickstart 與 `skill-manager` 流程。
+維護者再深入看 governance 與 terminal 操作文件。
+
+---
+
+## 定位說明
+
+### 這不是 marketplace
+
+`skill-forge` 的目標不是最大化公開探索與上架，而是提供團隊可控來源、可重現 packaging model，以及更安全的 install / update 路徑。
+
+### 這不是 vendor lock-in
+
+skill 邏輯應該先寫成 tool-neutral 的 canonical package，再適配到支援的 targets，而不是為每個工具手動維護平行版本。
+
+### 這不是用來取代原生 AI 工具能力
+
+Codex、Claude 等工具仍然負責各自產品內的執行體驗。
+
+`skill-forge` 處理的是另一個層次的問題：canonical source、治理、分發與跨工具可移植性。
+
+---
+
+## 目前版本重點
+
+`1.1.2` 是在 `1.0.0` 一般使用者基礎體驗之上，正式補齊 maintainer workflow 與 canonical manager skill model 的版本。
+
+這個版本的重點包括：
+
+* `canonical-skills/` 正式拆分為：
+
+  * `canonical-skills/regular-skills/`
+  * `canonical-skills/manager-skills/`
+* 新增 `finalize-skill`
+* 新增 `install-manager-skill`
+* 讓維護者工作流更明確地收斂到 create / update / finalize / install 這條主線
+
+---
+
+## Roadmap
+
+目前 roadmap 的重點是：
+
+* 對外定位更清楚
+* 導入說明更完整
+* 治理模型更明確
+
+現階段主要操作面仍然以 CLI/TUI 與 AI 協作流程為主。
+
+請參考 `ROADMAP.md` 了解目前方向。
+
+---
+
+## 相容性說明
+
+`skill-manager.sh` 目前只保留相容提示用途。
+
+真正的工作流程已經是：
+
+* 一般使用者：`skill-manager`
+* 維護者：AI 協作優先，Python CLI 為 fallback

@@ -25,5 +25,5 @@
 
 ## Out of Scope
 
-- 正式對外發布 toolkit image
+- 正式對外發布 skill-forge image
 - 以容器作為一般使用者的唯一使用方式
