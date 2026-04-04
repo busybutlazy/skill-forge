@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from skill_toolkit.install import list_installed
+from skill_toolkit.package_ops import refresh_skill_metadata
 from skill_toolkit.repository import (
     load_all_skills,
     load_skill,
@@ -27,9 +28,109 @@ class ValidationTests(unittest.TestCase):
             result = validate_skill_dir(skill.root)
             self.assertTrue(result.valid, f"{skill.name}: {result.issues}")
 
+    def test_scope_filtering_distinguishes_public_and_maintainer_skills(self) -> None:
+        public_skills = {skill.name for skill in load_all_skills(REPO_ROOT, scopes={"public"})}
+        maintainer_skills = {skill.name for skill in load_all_skills(REPO_ROOT, scopes={"maintainer"})}
+        self.assertIn("commit", public_skills)
+        self.assertNotIn("create-skill", public_skills)
+        self.assertIn("create-skill", maintainer_skills)
+        self.assertIn("finalize-skill", maintainer_skills)
+        self.assertIn("install-manager-skill", maintainer_skills)
+        self.assertIn("update-skill", maintainer_skills)
+
     def test_dto_skill_has_examples_asset_projection(self) -> None:
         skill = load_skill(REPO_ROOT, "dto-organizer")
         self.assertIn("examples", skill.asset_dirs)
+
+    def test_shared_tag_marks_regular_skill_for_manager_catalog(self) -> None:
+        skill = load_skill(REPO_ROOT, "commit")
+        self.assertEqual(skill.scope, "public")
+        self.assertIn("shared", skill.tags)
+
+    def test_manager_skill_instructions_reference_finalize_handoff(self) -> None:
+        create_instruction = (
+            REPO_ROOT / "canonical-skills" / "manager-skills" / "create-skill" / "instruction.md"
+        ).read_text(encoding="utf-8")
+        update_instruction = (
+            REPO_ROOT / "canonical-skills" / "manager-skills" / "update-skill" / "instruction.md"
+        ).read_text(encoding="utf-8")
+        install_instruction = (
+            REPO_ROOT / "canonical-skills" / "manager-skills" / "install-manager-skill" / "instruction.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("finalize-skill", create_instruction)
+        self.assertIn("若使用者回答 `yes`", create_instruction)
+        self.assertIn("若使用者回答 `no`", create_instruction)
+        self.assertIn("finalize-skill", update_instruction)
+        self.assertIn("若使用者回答 `yes`", update_instruction)
+        self.assertIn("若使用者回答 `no`", update_instruction)
+        self.assertIn("只同步已經 finalize 完成的 canonical skills", install_instruction)
+
+    def test_refresh_skill_metadata_rebuilds_manifest_and_package_hash(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-toolkit-refresh-") as tmp_dir:
+            temp_root = Path(tmp_dir)
+            skill_root = temp_root / "canonical-skills" / "regular-skills" / "demo"
+            (skill_root / "targets").mkdir(parents=True)
+            (skill_root / "instruction.md").write_text("demo\n", encoding="utf-8")
+            (skill_root / "targets" / "codex.frontmatter.json").write_text(
+                json.dumps({"name": "demo", "description": "demo"}, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            (skill_root / "targets" / "claude.frontmatter.json").write_text(
+                json.dumps({"name": "demo", "description": "demo"}, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            (skill_root / "package.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "identity": {
+                            "name": "demo",
+                            "version": "1.0.0",
+                            "description": "demo",
+                            "updated_at": "2026-04-01",
+                            "tags": ["demo"],
+                        },
+                        "distribution": {"scope": "public"},
+                        "content": {"instruction_file": "instruction.md"},
+                        "targets": {
+                            "codex": {
+                                "frontmatter_file": "targets/codex.frontmatter.json",
+                                "install_path": ".agents/skills/{name}/",
+                            },
+                            "claude": {
+                                "frontmatter_file": "targets/claude.frontmatter.json",
+                                "install_path": ".claude/agents/{name}.md",
+                            },
+                        },
+                        "integrity": {
+                            "manifest_file": "manifest.json",
+                            "package_sha256": "stale",
+                        },
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            (skill_root / "manifest.json").write_text(
+                json.dumps({"files": [], "package_sha256": "stale"}, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            result = refresh_skill_metadata(temp_root, "demo", version="1.0.1", updated_at="2026-04-04")
+            manifest = json.loads((skill_root / "manifest.json").read_text(encoding="utf-8"))
+            package_data = json.loads((skill_root / "package.json").read_text(encoding="utf-8"))
+
+            self.assertEqual(result.skill, "demo")
+            self.assertEqual(package_data["identity"]["version"], "1.0.1")
+            self.assertEqual(package_data["identity"]["updated_at"], "2026-04-04")
+            self.assertEqual(package_data["integrity"]["package_sha256"], manifest["package_sha256"])
+            self.assertEqual(
+                [entry["path"] for entry in manifest["files"]],
+                ["instruction.md", "targets/claude.frontmatter.json", "targets/codex.frontmatter.json"],
+            )
 
 
 class WorkflowTests(unittest.TestCase):
@@ -69,7 +170,11 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("VALID commit", result.stdout)
         self.assertIn("VALID create-pr", result.stdout)
+        self.assertIn("VALID create-skill", result.stdout)
         self.assertIn("VALID dto-organizer", result.stdout)
+        self.assertIn("VALID finalize-skill", result.stdout)
+        self.assertIn("VALID install-manager-skill", result.stdout)
+        self.assertIn("VALID update-skill", result.stdout)
 
     def test_codex_install_update_list_json_and_remove_workflow(self) -> None:
         with tempfile.TemporaryDirectory(
@@ -298,6 +403,115 @@ class WorkflowTests(unittest.TestCase):
             )
             self.assertEqual(removed.returncode, 1)
             self.assertIn("refusing to remove it", removed.stderr)
+
+    def test_public_install_rejects_maintainer_scoped_skill(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            installed = self.run_cli(
+                "install",
+                "create-skill",
+                "--target",
+                "codex",
+                "--project",
+                str(project_root),
+            )
+            self.assertEqual(installed.returncode, 1)
+            self.assertIn("allowed scopes: public", installed.stderr)
+
+    def test_sync_maintainer_force_adopts_existing_unmanaged_codex_skill(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            unmanaged_dir = project_root / ".agents" / "skills" / "create-skill"
+            unmanaged_dir.mkdir(parents=True)
+            (unmanaged_dir / "SKILL.md").write_text("manual\n", encoding="utf-8")
+
+            synced = self.run_cli(
+                "sync-maintainer",
+                "create-skill",
+                "--project",
+                str(project_root),
+                "--target",
+                "codex",
+                "--force",
+            )
+            self.assertEqual(synced.returncode, 0, synced.stderr)
+            metadata_path = unmanaged_dir / "metadata.json"
+            self.assertTrue(metadata_path.is_file())
+            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            self.assertEqual(metadata["rendered_from"], "canonical-skills/manager-skills/create-skill")
+
+            resynced = self.run_cli(
+                "sync-maintainer",
+                "create-skill",
+                "--project",
+                str(project_root),
+                "--target",
+                "codex",
+            )
+            self.assertEqual(resynced.returncode, 0, resynced.stderr)
+
+            listed = self.run_cli(
+                "list",
+                "--target",
+                "codex",
+                "--project",
+                str(project_root),
+                "--scope",
+                "all",
+                "--json",
+            )
+            self.assertEqual(listed.returncode, 0, listed.stderr)
+            statuses = json.loads(listed.stdout)
+            self.assertEqual(statuses[0]["status"], "up_to_date")
+
+    def test_sync_manager_catalog_installs_manager_and_shared_skills_for_all_targets(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            synced = self.run_cli(
+                "sync-manager-catalog",
+                "create-skill",
+                "commit",
+                "--project",
+                str(project_root),
+                "--target",
+                "all",
+            )
+            self.assertEqual(synced.returncode, 0, synced.stderr)
+
+            codex_manager_metadata = project_root / ".agents" / "skills" / "create-skill" / "metadata.json"
+            codex_shared_metadata = project_root / ".agents" / "skills" / "commit" / "metadata.json"
+            claude_manager_agent = project_root / ".claude" / "agents" / "create-skill.md"
+            claude_shared_agent = project_root / ".claude" / "agents" / "commit.md"
+
+            self.assertTrue(codex_manager_metadata.is_file())
+            self.assertTrue(codex_shared_metadata.is_file())
+            self.assertTrue(claude_manager_agent.is_file())
+            self.assertTrue(claude_shared_agent.is_file())
+
+            manager_metadata = json.loads(codex_manager_metadata.read_text(encoding="utf-8"))
+            shared_metadata = json.loads(codex_shared_metadata.read_text(encoding="utf-8"))
+            self.assertEqual(manager_metadata["rendered_from"], "canonical-skills/manager-skills/create-skill")
+            self.assertEqual(shared_metadata["rendered_from"], "canonical-skills/regular-skills/commit")
+
+    def test_sync_manager_catalog_rejects_regular_skill_without_shared_tag(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            synced = self.run_cli(
+                "sync-manager-catalog",
+                "dto-organizer",
+                "--project",
+                str(project_root),
+                "--target",
+                "codex",
+            )
+            self.assertEqual(synced.returncode, 1)
+            self.assertIn("is not available in the manager catalog", synced.stderr)
 
     def test_claude_install_broken_update_and_unmanaged_workflow(self) -> None:
         with tempfile.TemporaryDirectory(

@@ -1,0 +1,4 @@
+{
+  "name": "install-manager-skill",
+  "description": "Use this skill when a maintainer wants to install or refresh manager-only skills and shared regular skills into this repository's local Codex or Claude agent targets."
+}

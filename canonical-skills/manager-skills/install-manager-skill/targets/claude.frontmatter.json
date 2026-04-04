@@ -1,0 +1,5 @@
+{
+  "name": "install-manager-skill",
+  "description": "Manager skill catalog installer for this repository. Use when a maintainer needs to select manager skills and shared regular skills and sync them into local agent targets.",
+  "tools": "Bash, Read, Grep, Glob, Edit"
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "install-manager-skill",
+    "version": "1.0.0",
+    "description": "Install or refresh manager-only skills plus shared regular skills into this repository's local agent targets",
+    "updated_at": "2026-04-04",
+    "tags": [
+      "maintainer",
+      "catalog",
+      "install"
+    ]
+  },
+  "distribution": {
+    "scope": "maintainer"
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/agents/{name}.md"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "ef194de32f8331be487e6c00681c1b62aec86fa8b380f7b9457b7b52e2affc83"
+  }
+}

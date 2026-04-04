@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .models import CanonicalSkill, InstalledStatus
 from .render import render_skill
-from .repository import load_all_skills, load_skill
+from .repository import load_all_skills, load_manager_catalog_skill, load_manager_catalog_skills, load_skill
 from .utils import has_frontmatter, parse_toolkit_marker, read_text, sha256_file
 
 
@@ -46,8 +46,12 @@ def _materialize_install(skill: CanonicalSkill, project_dir: Path, target: str) 
     return final_path
 
 
-def _source_index(repo_root: Path) -> dict[str, CanonicalSkill]:
-    return {skill.name: skill for skill in load_all_skills(repo_root)}
+def _source_index(repo_root: Path, *, scopes: set[str] | None = None) -> dict[str, CanonicalSkill]:
+    return {skill.name: skill for skill in load_all_skills(repo_root, scopes=scopes)}
+
+
+def _manager_catalog_index(repo_root: Path, *, target_filter: set[str] | None = None) -> dict[str, CanonicalSkill]:
+    return {skill.name: skill for skill in load_manager_catalog_skills(repo_root, target_filter=target_filter)}
 
 
 def _snapshot_directory(root: Path) -> dict[str, str]:
@@ -176,8 +180,14 @@ def _claude_status(repo_root: Path, entry: Path, sources: dict[str, CanonicalSki
     return InstalledStatus(name=name, target="claude", status="up_to_date", location=entry, version=str(version), source_package_sha256=str(source_hash), managed=True)
 
 
-def list_installed(repo_root: Path, project_dir: Path, target: str) -> list[InstalledStatus]:
-    sources = _source_index(repo_root)
+def list_installed(
+    repo_root: Path,
+    project_dir: Path,
+    target: str,
+    *,
+    source_scopes: set[str] | None = None,
+) -> list[InstalledStatus]:
+    sources = _source_index(repo_root, scopes=source_scopes or {"public"})
     root = target_root(project_dir, target)
     if not root.exists():
         return []
@@ -210,9 +220,14 @@ def install_skill(
     *,
     force: bool = False,
     confirm: Callable[[str], bool] | None = None,
+    allowed_scopes: set[str] | None = None,
 ) -> Path:
-    skill = load_skill(repo_root, skill_name, target_filter={target})
-    statuses = {status.name: status for status in list_installed(repo_root, project_dir, target)}
+    scopes = allowed_scopes or {"public"}
+    skill = load_skill(repo_root, skill_name, target_filter={target}, allowed_scopes=scopes)
+    statuses = {
+        status.name: status
+        for status in list_installed(repo_root, project_dir, target, source_scopes=scopes)
+    }
     status = statuses.get(skill_name)
 
     if status is not None:
@@ -246,8 +261,13 @@ def update_skill(
     *,
     force: bool = False,
     confirm: Callable[[str], bool] | None = None,
+    allowed_scopes: set[str] | None = None,
 ) -> Path:
-    statuses = {status.name: status for status in list_installed(repo_root, project_dir, target)}
+    scopes = allowed_scopes or {"public"}
+    statuses = {
+        status.name: status
+        for status in list_installed(repo_root, project_dir, target, source_scopes=scopes)
+    }
     status = statuses.get(skill_name)
     if status is None:
         raise FileNotFoundError(f"{skill_name} is not installed for target {target}")
@@ -268,7 +288,7 @@ def update_skill(
             confirm,
         )
 
-    skill = load_skill(repo_root, skill_name, target_filter={target})
+    skill = load_skill(repo_root, skill_name, target_filter={target}, allowed_scopes=scopes)
     return _materialize_install(skill, project_dir, target)
 
 
@@ -289,3 +309,61 @@ def remove_skill(repo_root: Path, project_dir: Path, skill_name: str, target: st
     if assets_dir.exists():
         shutil.rmtree(assets_dir)
     return status.location
+
+
+def sync_manager_catalog(
+    repo_root: Path,
+    project_dir: Path,
+    target: str,
+    *,
+    skill_names: list[str] | None = None,
+    force: bool = False,
+    confirm: Callable[[str], bool] | None = None,
+) -> list[Path]:
+    target_filter = {target}
+    catalog = _manager_catalog_index(repo_root, target_filter=target_filter)
+    selected_names = skill_names or sorted(catalog)
+    if not selected_names:
+        return []
+
+    installed_paths: list[Path] = []
+    for skill_name in selected_names:
+        if skill_name not in catalog:
+            raise FileNotFoundError(f"{skill_name} is not available in the manager catalog")
+        skill = load_manager_catalog_skill(repo_root, skill_name, target_filter=target_filter)
+        allowed_scopes = {skill.scope}
+        try:
+            path = install_skill(
+                repo_root,
+                project_dir,
+                skill_name,
+                target,
+                force=force,
+                confirm=confirm,
+                allowed_scopes=allowed_scopes,
+            )
+        except ValueError as exc:
+            if "is unmanaged; refusing to overwrite it" not in str(exc) or not force:
+                raise
+            if target == "codex":
+                unmanaged_path = project_dir / ".agents" / "skills" / skill_name
+            else:
+                unmanaged_path = project_dir / ".claude" / "agents" / f"{skill_name}.md"
+            if unmanaged_path.is_dir():
+                shutil.rmtree(unmanaged_path)
+            elif unmanaged_path.exists():
+                unmanaged_path.unlink()
+            assets_dir = unmanaged_path.with_name(f"{skill_name}.assets")
+            if assets_dir.exists():
+                shutil.rmtree(assets_dir)
+            path = install_skill(
+                repo_root,
+                project_dir,
+                skill_name,
+                target,
+                force=force,
+                confirm=confirm,
+                allowed_scopes=allowed_scopes,
+            )
+        installed_paths.append(path)
+    return installed_paths

@@ -1,0 +1,5 @@
+{
+  "name": "finalize-skill",
+  "description": "Canonical skill finalizer for this repository. Use when a maintainer needs to refresh metadata and validate a skill after source edits.",
+  "tools": "Bash, Read, Grep, Glob, Edit"
+}

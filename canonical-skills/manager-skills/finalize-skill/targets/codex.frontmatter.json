@@ -1,0 +1,4 @@
+{
+  "name": "finalize-skill",
+  "description": "Use this skill when a maintainer has finished editing a canonical skill and needs to refresh metadata and validate it."
+}
