@@ -1,0 +1,4 @@
+{
+  "name": "update-skill",
+  "description": "Use this skill when the user wants to modify an existing public skill in this repository's canonical-skills, revise its workflow, or update its package metadata and version."
+}

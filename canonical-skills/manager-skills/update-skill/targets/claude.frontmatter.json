@@ -1,0 +1,5 @@
+{
+  "name": "update-skill",
+  "description": "Canonical skill maintenance specialist for this repository. Use when a maintainer needs to revise an existing public canonical skill package.",
+  "tools": "Bash, Read, Grep, Glob, Edit"
+}

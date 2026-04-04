@@ -1,14 +1,22 @@
 {
   "schema_version": 1,
   "identity": {
-    "name": "create-pr",
+    "name": "commit",
     "version": "1.0.0",
-    "description": "Summarize branch changes, draft reviewer-friendly PR text, and optionally create a PR with gh",
+    "description": "Plan commit boundaries, review staged content, and craft concise commit messages",
     "updated_at": "2026-04-03",
-    "tags": ["git", "pull-request", "review", "workflow"]
+    "tags": [
+      "git",
+      "commit",
+      "workflow",
+      "shared"
+    ]
   },
   "content": {
     "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
   },
   "targets": {
     "codex": {
@@ -22,6 +30,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "4fbba97575b4e9e268dd8cb638e19a62b7f2d9ad69b25f5c8de78e65686ffaba"
+    "package_sha256": "304603224c1f980212b0ac20b8570bb3ceaa0dac6acfb7f318b37c069a1eafe4"
   }
 }

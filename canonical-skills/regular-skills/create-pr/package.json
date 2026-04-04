@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "create-pr",
+    "version": "1.0.0",
+    "description": "Summarize branch changes, draft reviewer-friendly PR text, and optionally create a PR with gh",
+    "updated_at": "2026-04-03",
+    "tags": [
+      "git",
+      "pull-request",
+      "review",
+      "workflow",
+      "shared"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/agents/{name}.md"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "4fbba97575b4e9e268dd8cb638e19a62b7f2d9ad69b25f5c8de78e65686ffaba"
+  }
+}

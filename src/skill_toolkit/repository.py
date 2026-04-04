@@ -8,17 +8,45 @@ from .utils import compute_package_sha, read_text, sha256_file
 
 OPTIONAL_ASSET_DIRS = ["examples", "references", "scripts", "assets"]
 SUPPORTED_TARGETS = ("codex", "claude")
+SUPPORTED_SCOPES = ("public", "maintainer")
+SHARED_MANAGER_TAG = "shared"
+CANONICAL_BUCKETS = {
+    "regular-skills": "public",
+    "manager-skills": "maintainer",
+}
 
 
 def canonical_root(repo_root: Path) -> Path:
     return repo_root / "canonical-skills"
 
 
-def iter_skill_dirs(repo_root: Path) -> list[Path]:
+def canonical_bucket_roots(repo_root: Path) -> dict[str, Path]:
     root = canonical_root(repo_root)
-    if not root.is_dir():
-        return []
-    return sorted(path for path in root.iterdir() if path.is_dir())
+    return {bucket: root / bucket for bucket in CANONICAL_BUCKETS}
+
+
+def iter_skill_dirs(repo_root: Path) -> list[Path]:
+    skill_dirs: list[Path] = []
+    for bucket_root in canonical_bucket_roots(repo_root).values():
+        if not bucket_root.is_dir():
+            continue
+        skill_dirs.extend(sorted(path for path in bucket_root.iterdir() if path.is_dir()))
+    return sorted(skill_dirs)
+
+
+def _source_ref_for_skill_dir(repo_root: Path, skill_dir: Path) -> str:
+    return str(skill_dir.resolve().relative_to(repo_root.resolve()))
+
+
+def _scope_from_path(repo_root: Path, skill_dir: Path) -> str | None:
+    try:
+        relative = skill_dir.resolve().relative_to(canonical_root(repo_root).resolve())
+    except ValueError:
+        return None
+    parts = relative.parts
+    if len(parts) < 2:
+        return None
+    return CANONICAL_BUCKETS.get(parts[0])
 
 
 def resolve_skill_dir(repo_root: Path, skill: str | Path) -> Path:
@@ -27,7 +55,16 @@ def resolve_skill_dir(repo_root: Path, skill: str | Path) -> Path:
     maybe_path = Path(skill)
     if maybe_path.exists():
         return maybe_path.resolve()
-    return canonical_root(repo_root) / skill
+    matches: list[Path] = []
+    for bucket_root in canonical_bucket_roots(repo_root).values():
+        candidate = bucket_root / skill
+        if candidate.is_dir():
+            matches.append(candidate)
+    if not matches:
+        return canonical_root(repo_root) / skill
+    if len(matches) > 1:
+        raise ValueError(f"duplicate canonical skill name found in multiple buckets: {skill}")
+    return matches[0]
 
 
 def validate_skill_dir(skill_dir: Path, target_filter: set[str] | None = None) -> ValidationResult:
@@ -77,6 +114,17 @@ def validate_skill_dir(skill_dir: Path, target_filter: set[str] | None = None) -
             tags = identity.get("tags")
             if not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags):
                 issues.append("identity.tags must be a list of strings")
+
+        distribution = package_data.get("distribution")
+        if not isinstance(distribution, dict):
+            issues.append("package.json missing distribution object")
+        else:
+            scope = distribution.get("scope")
+            if scope not in SUPPORTED_SCOPES:
+                issues.append(f"distribution.scope must be one of: {', '.join(SUPPORTED_SCOPES)}")
+            expected_scope = _scope_from_path(skill_dir.parents[2], skill_dir)
+            if expected_scope is not None and scope != expected_scope:
+                issues.append(f"distribution.scope must match canonical bucket scope: {expected_scope}")
 
         content = package_data.get("content")
         if not isinstance(content, dict) or content.get("instruction_file") != "instruction.md":
@@ -160,7 +208,13 @@ def validate_skill_dir(skill_dir: Path, target_filter: set[str] | None = None) -
     return ValidationResult(skill=skill_dir.name, valid=not issues, issues=issues, package_sha256=package_sha)
 
 
-def load_skill(repo_root: Path, skill: str | Path, target_filter: set[str] | None = None) -> CanonicalSkill:
+def load_skill(
+    repo_root: Path,
+    skill: str | Path,
+    target_filter: set[str] | None = None,
+    *,
+    allowed_scopes: set[str] | None = None,
+) -> CanonicalSkill:
     skill_dir = resolve_skill_dir(repo_root, skill)
     result = validate_skill_dir(skill_dir, target_filter=target_filter)
     if not result.valid:
@@ -168,6 +222,10 @@ def load_skill(repo_root: Path, skill: str | Path, target_filter: set[str] | Non
 
     package_data = json.loads(read_text(skill_dir / "package.json"))
     identity = package_data["identity"]
+    scope = package_data["distribution"]["scope"]
+    if allowed_scopes is not None and scope not in allowed_scopes:
+        allowed = ", ".join(sorted(allowed_scopes))
+        raise ValueError(f"{identity['name']} has scope {scope}; allowed scopes: {allowed}")
     targets: dict[str, TargetConfig] = {}
 
     for target_name, target_data in package_data["targets"].items():
@@ -185,6 +243,8 @@ def load_skill(repo_root: Path, skill: str | Path, target_filter: set[str] | Non
     return CanonicalSkill(
         root=skill_dir,
         name=identity["name"],
+        scope=scope,
+        source_ref=_source_ref_for_skill_dir(repo_root, skill_dir),
         version=identity["version"],
         description=identity["description"],
         updated_at=identity["updated_at"],
@@ -197,5 +257,47 @@ def load_skill(repo_root: Path, skill: str | Path, target_filter: set[str] | Non
     )
 
 
-def load_all_skills(repo_root: Path, target_filter: set[str] | None = None) -> list[CanonicalSkill]:
-    return [load_skill(repo_root, path, target_filter=target_filter) for path in iter_skill_dirs(repo_root)]
+def load_all_skills(
+    repo_root: Path,
+    target_filter: set[str] | None = None,
+    *,
+    scopes: set[str] | None = None,
+) -> list[CanonicalSkill]:
+    skills = [load_skill(repo_root, path, target_filter=target_filter) for path in iter_skill_dirs(repo_root)]
+    if scopes is None:
+        return skills
+    return [skill for skill in skills if skill.scope in scopes]
+
+
+def load_shared_regular_skills(
+    repo_root: Path,
+    target_filter: set[str] | None = None,
+) -> list[CanonicalSkill]:
+    return [
+        skill
+        for skill in load_all_skills(repo_root, target_filter=target_filter, scopes={"public"})
+        if SHARED_MANAGER_TAG in skill.tags
+    ]
+
+
+def load_manager_catalog_skills(
+    repo_root: Path,
+    target_filter: set[str] | None = None,
+) -> list[CanonicalSkill]:
+    catalog: dict[str, CanonicalSkill] = {}
+    for skill in load_all_skills(repo_root, target_filter=target_filter, scopes={"maintainer"}):
+        catalog[skill.name] = skill
+    for skill in load_shared_regular_skills(repo_root, target_filter=target_filter):
+        catalog.setdefault(skill.name, skill)
+    return [catalog[name] for name in sorted(catalog)]
+
+
+def load_manager_catalog_skill(
+    repo_root: Path,
+    skill_name: str,
+    target_filter: set[str] | None = None,
+) -> CanonicalSkill:
+    for skill in load_manager_catalog_skills(repo_root, target_filter=target_filter):
+        if skill.name == skill_name:
+            return skill
+    raise FileNotFoundError(f"{skill_name} is not available in the manager catalog")

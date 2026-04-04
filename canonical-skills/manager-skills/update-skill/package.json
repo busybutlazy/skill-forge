@@ -1,11 +1,18 @@
 {
   "schema_version": 1,
   "identity": {
-    "name": "commit",
+    "name": "update-skill",
     "version": "1.0.0",
-    "description": "Plan commit boundaries, review staged content, and craft concise commit messages",
-    "updated_at": "2026-04-03",
-    "tags": ["git", "commit", "workflow"]
+    "description": "Update an existing canonical skill package and keep its metadata in sync",
+    "updated_at": "2026-04-04",
+    "tags": [
+      "maintainer",
+      "canonical-skills",
+      "workflow"
+    ]
+  },
+  "distribution": {
+    "scope": "maintainer"
   },
   "content": {
     "instruction_file": "instruction.md"
@@ -22,6 +29,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "304603224c1f980212b0ac20b8570bb3ceaa0dac6acfb7f318b37c069a1eafe4"
+    "package_sha256": "a510c844ead72488699990a86edfa231bc975d806d40afdd4b24ca363a4b5310"
   }
 }

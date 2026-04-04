@@ -22,6 +22,8 @@ class TargetConfig:
 class CanonicalSkill:
     root: Path
     name: str
+    scope: str
+    source_ref: str
     version: str
     description: str
     updated_at: str
@@ -31,11 +33,6 @@ class CanonicalSkill:
     manifest_file: str
     targets: dict[str, TargetConfig]
     asset_dirs: list[str] = field(default_factory=list)
-
-    @property
-    def source_ref(self) -> str:
-        return f"canonical-skills/{self.name}"
-
 
 @dataclass(frozen=True)
 class ValidationResult:

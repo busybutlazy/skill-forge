@@ -1,0 +1,4 @@
+{
+  "name": "create-skill",
+  "description": "Use this skill when the user wants to create a new public skill in this repository's canonical-skills, scaffold its package, or draft the first version of its package and instructions."
+}

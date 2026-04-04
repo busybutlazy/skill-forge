@@ -1,11 +1,18 @@
 {
   "schema_version": 1,
   "identity": {
-    "name": "dto-organizer",
+    "name": "create-skill",
     "version": "1.0.0",
-    "description": "Inventory API request and response shapes and generate structured DTO documentation",
-    "updated_at": "2026-04-03",
-    "tags": ["documentation", "api", "dto", "schema", "inventory"]
+    "description": "Create and scaffold a new public canonical skill for this repository",
+    "updated_at": "2026-04-04",
+    "tags": [
+      "maintainer",
+      "canonical-skills",
+      "scaffolding"
+    ]
+  },
+  "distribution": {
+    "scope": "maintainer"
   },
   "content": {
     "instruction_file": "instruction.md"
@@ -22,6 +29,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "9527dce730cc75d962fdfca070e00814b2debaa63f82fa172f4458d2be556d40"
+    "package_sha256": "560b2285b1d47711fb4fddc9edd6a2ebe7a11920bf90c82f8af54b200b531f8e"
   }
 }

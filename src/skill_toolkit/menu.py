@@ -91,7 +91,7 @@ class InteractiveMenu:
         return list_installed(self.repo_root, self.project_dir, self.target)
 
     def _canonical_skills(self) -> list[CanonicalSkill]:
-        return load_all_skills(self.repo_root, target_filter={self.target})
+        return load_all_skills(self.repo_root, target_filter={self.target}, scopes={"public"})
 
     def _canonical_index(self) -> dict[str, CanonicalSkill]:
         return {skill.name: skill for skill in self._canonical_skills()}

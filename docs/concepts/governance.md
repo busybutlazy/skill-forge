@@ -12,7 +12,12 @@ The central idea is simple: keep one canonical source, validate it, track its pa
 
 An approved source is the set of canonical skill packages your team is willing to distribute.
 
-In this repo, that source lives under `canonical-skills/`. Public skills are reviewed there, versioned there, and rendered from there.
+In this repo, that source lives under `canonical-skills/`, but it is intentionally split:
+
+- `canonical-skills/regular-skills/` for normal end-user skills
+- `canonical-skills/manager-skills/` for manager-only workflows
+
+Public skills are reviewed, versioned, and rendered from `regular-skills/`. Manager-only workflows are governed from `manager-skills/` so they do not get mixed into the normal consumer install path.
 
 That gives teams a stable review point:
 
@@ -53,6 +58,7 @@ Maintainers work in the toolkit repo:
 - edit canonical skill packages
 - validate structure and integrity
 - render and install through the CLI for testing
+- refresh manifest and integrity metadata through the CLI when render-driving files change
 - decide what is ready for team distribution
 
 #### Consumers
@@ -107,7 +113,12 @@ Skill Toolkit 把 AI coding skills 視為可治理的 package，而不是零散 
 
 approved source 指的是你的團隊願意分發的 canonical skill package 集合。
 
-在這個 repo 中，這個來源就是 `canonical-skills/`。公開 skills 在這裡被審查、在這裡被版本化，也從這裡被 render。
+在這個 repo 中，這個來源就是 `canonical-skills/`，但會刻意再分成兩層：
+
+- `canonical-skills/regular-skills/` 給一般使用者 skill
+- `canonical-skills/manager-skills/` 給管理者工作流
+
+公開 skills 由 `regular-skills/` 被審查、版本化與 render；管理者技能則由 `manager-skills/` 治理，避免混進一般 consumer install path。
 
 這讓團隊擁有穩定的審查點：
 
@@ -148,6 +159,7 @@ canonical package 不只是 instruction file。它還包含：
 - 編輯 canonical skill packages
 - 驗證結構與完整性
 - 透過 CLI render 與 install 做測試
+- 在 render-driving files 改動後，透過 CLI 刷新 manifest 與 integrity metadata
 - 決定哪些內容可以分發給團隊
 
 #### 使用者

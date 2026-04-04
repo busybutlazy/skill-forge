@@ -1,0 +1,5 @@
+{
+  "name": "create-skill",
+  "description": "Canonical skill scaffolding specialist for this repository. Use when a maintainer needs to create a new public canonical skill package.",
+  "tools": "Bash, Read, Grep, Glob, Edit"
+}

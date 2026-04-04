@@ -44,7 +44,7 @@ Optional outputs:
 
 - must keep at least `name`, `version`, `description`, `updated_at`, and `tags`
 - must include `source_package_sha256`
-- must include `rendered_from: "canonical-skills/<skill>"`
+- must include the canonical source path in `rendered_from`, for example `canonical-skills/regular-skills/commit` or `canonical-skills/manager-skills/create-skill`
 
 ### Claude Target
 
@@ -138,7 +138,7 @@ Using the `commit` skill as a validation example, the system should confirm:
 
 - 至少保留 `name`、`version`、`description`、`updated_at`、`tags`
 - 必須加入 `source_package_sha256`
-- 必須加入 `rendered_from: "canonical-skills/<skill>"`
+- `rendered_from` 必須保留 canonical source 路徑，例如 `canonical-skills/regular-skills/commit` 或 `canonical-skills/manager-skills/create-skill`
 
 ### Claude Target
 

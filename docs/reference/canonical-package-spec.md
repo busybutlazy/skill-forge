@@ -14,7 +14,7 @@ A canonical package is the only source of truth for a skill. Codex and Claude in
 ### Canonical Layout
 
 ```text
-canonical-skills/<skill>/
+canonical-skills/regular-skills/<skill>/
 ├── package.json
 ├── instruction.md
 ├── manifest.json
@@ -46,6 +46,9 @@ Only `package.json`, `instruction.md`, `manifest.json`, and at least one target 
   "content": {
     "instruction_file": "instruction.md"
   },
+  "distribution": {
+    "scope": "public"
+  },
   "targets": {
     "codex": {
       "frontmatter_file": "targets/codex.frontmatter.json",
@@ -68,6 +71,7 @@ Field rules:
 - `schema_version`: version of the canonical package schema
 - `identity.*`: shared identity; target overrides must not replace `name` or `version`
 - `content.instruction_file`: shared instruction body
+- `distribution.scope`: whether the canonical package is `public` or `maintainer`
 - `targets.<target>.frontmatter_file`: target wrapper definition
 - `targets.<target>.install_path`: output path template used by the renderer
 - `integrity.*`: package-level integrity metadata
@@ -156,7 +160,7 @@ canonical package 是 skill 的唯一 source of truth。Codex 與 Claude 的可�
 ### Canonical Layout
 
 ```text
-canonical-skills/<skill>/
+canonical-skills/regular-skills/<skill>/
 ├── package.json
 ├── instruction.md
 ├── manifest.json
@@ -188,6 +192,9 @@ canonical-skills/<skill>/
   "content": {
     "instruction_file": "instruction.md"
   },
+  "distribution": {
+    "scope": "public"
+  },
   "targets": {
     "codex": {
       "frontmatter_file": "targets/codex.frontmatter.json",
@@ -210,6 +217,7 @@ canonical-skills/<skill>/
 - `schema_version`：canonical package schema 版本
 - `identity.*`：共享 identity；target override 不得覆寫 `name` 或 `version`
 - `content.instruction_file`：共享 instruction 主體
+- `distribution.scope`：canonical package 屬於 `public` 或 `maintainer`
 - `targets.<target>.frontmatter_file`：target wrapper 定義
 - `targets.<target>.install_path`：renderer 使用的輸出路徑樣板
 - `integrity.*`：package-level 完整性資訊

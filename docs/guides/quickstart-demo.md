@@ -6,14 +6,14 @@
 
 This walkthrough shows the core mental model:
 
-1. define a skill once in `canonical-skills/`
+1. define a skill once in `canonical-skills/regular-skills/`
 2. render it for Codex or Claude
 3. install it into a target project through `skill-manager`
 
 ### High-Level Flow
 
 ```text
-canonical-skills/commit/
+canonical-skills/regular-skills/commit/
         |
         v
  validate + render
@@ -93,7 +93,7 @@ Claude skills may also include an adjacent assets directory when the canonical p
 
 Use `commit` as the simplest example:
 
-- the canonical package lives in `canonical-skills/commit/`
+- the canonical package lives in `canonical-skills/regular-skills/commit/`
 - it is validated as a canonical package
 - it can be rendered into Codex and Claude target formats
 - it can then be installed into a target project through a managed flow
@@ -139,14 +139,14 @@ The phase 7 demo is successful if a reader can quickly understand:
 
 這份 walkthrough 要展示的核心心智模型是：
 
-1. 在 `canonical-skills/` 中定義 skill 一次
+1. 在 `canonical-skills/regular-skills/` 中定義 skill 一次
 2. 為 Codex 或 Claude render
 3. 透過 `skill-manager` 安裝到 target project
 
 ### 高層流程
 
 ```text
-canonical-skills/commit/
+canonical-skills/regular-skills/commit/
         |
         v
  validate + render
@@ -226,7 +226,7 @@ render 後的 output 會安裝到：
 
 最簡單的示範可以用 `commit`：
 
-- canonical package 位於 `canonical-skills/commit/`
+- canonical package 位於 `canonical-skills/regular-skills/commit/`
 - 它先作為 canonical package 被驗證
 - 然後可被 render 成 Codex 與 Claude target format
 - 最後再透過 managed flow 安裝到 target project
