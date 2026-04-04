@@ -31,6 +31,11 @@ cd /path/to/target-project
 ```bash
 skill-manager
 ```
+或是不修改環境變數，直接啟動
+
+```bash
+~/skill-forge/skill-manager
+```
 
 這個 wrapper 會：
 
@@ -43,9 +48,9 @@ skill-manager
 啟動後先選 `codex` 或 `claude`，再用數字選單操作：
 
 - 檢查目前 project 已安裝 skill 狀態
-- 批次安裝或更新多個 skill
-- 批次更新或修復多個 skill
-- 批次移除 skill
+- 安裝或更新多個 skill
+- 更新或修復多個 skill
+- 移除多個 skill
 - 切換 target
 - 進入 expert terminal
 
