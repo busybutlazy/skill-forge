@@ -4,7 +4,7 @@
 
 ### Who Should Adopt This
 
-Skill Toolkit is a strong fit for teams that want to standardize how AI coding skills are distributed and updated.
+skill-forge is a strong fit for teams that want to standardize how AI coding skills are distributed and updated.
 
 Typical adopters:
 
@@ -74,7 +74,7 @@ If you are socializing this internally, a useful message is:
 
 ### 適合誰採用
 
-Skill Toolkit 很適合想要標準化 AI coding skill 分發與更新方式的團隊。
+skill-forge 很適合想要標準化 AI coding skill 分發與更新方式的團隊。
 
 典型採用者包括：
 

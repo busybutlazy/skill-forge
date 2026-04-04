@@ -49,14 +49,14 @@ phase 7 完成後，consumer workflow 已經相對清楚：
    - 保留 `.agents/skills/` 作為 render output，不再當 source
 
 2. Add manual metadata refresh tooling
-   - 新增 `skill-toolkit refresh-metadata <skill>`
+   - 新增 `skill-forge refresh-metadata <skill>`
    - 自動重建 `manifest.json.files`
    - 同步更新 `manifest.json.package_sha256`
    - 同步更新 `package.json.integrity.package_sha256`
    - 視需要更新 `identity.version` 與 `identity.updated_at`
 
 3. Add maintainer sync tooling
-   - 新增 `skill-toolkit sync-maintainer --project .`
+   - 新增 `skill-forge sync-maintainer --project .`
    - 讓 maintainer 可以手動把 maintainer-only canonical skills render/install 到 repo 本地 `.agents/skills/`
    - 支援 `--force`，用於從舊 unmanaged 內容遷移到受管輸出
 

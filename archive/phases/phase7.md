@@ -2,7 +2,7 @@
 
 ## Goal
 
-把這個 repo 從「能管理 canonical skills 的 toolkit」進一步收斂成一個清楚可理解的開源定位：企業可控、可審核、可移植的 AI coding skill 管理基礎設施。
+把這個 repo 從「能管理 canonical skills 的 skill-forge」進一步收斂成一個清楚可理解的開源定位：企業可控、可審核、可移植的 AI coding skill 管理基礎設施。
 
 phase 7 的重點不是新增漂亮 UI，而是把產品敘事、信任模型、導入路徑與後續擴充方向講清楚，讓更多開發者與團隊知道這個 repo 解的是什麼問題。
 
@@ -84,7 +84,7 @@ phase 1 到 phase 6 已經完成了核心技術骨架：
 
 ## Acceptance Criteria
 
-- README 首屏能在短時間內讓新讀者理解這不是 skill marketplace，而是 canonical skill governance toolkit。
+- README 首屏能在短時間內讓新讀者理解這不是 skill marketplace，而是 canonical skill governance layer。
 - repo 文件能清楚說明安全控管與 vendor portability 的價值主張。
 - 至少有一份 quickstart 或 demo 能直觀展示 canonical source 與雙 target render。
 - 後續 governance 能力有明確 backlog 或設計方向，不再只停留在口頭概念。

@@ -11,7 +11,7 @@ This guide explains the current terminal surface end to end so maintainers can t
 Use the terminal surface in two different ways:
 
 - consumer path: run `skill-manager` from a target project and use the menu
-- maintainer path: run `python -m skill_toolkit` from the toolkit repo
+- maintainer path: run `python -m skill_forge` from the skill-forge repo
 
 The key difference is simple:
 
@@ -27,8 +27,8 @@ Behavior:
 - with no arguments, it opens the interactive menu for the current project
 - `skill-manager shell` opens the runtime container's expert terminal
 - `skill-manager help` prints local usage text without starting Docker
-- any other arguments are forwarded to the containerized `skill-toolkit` CLI
-- before each run, it checks whether the toolkit repo is behind upstream and can offer a `git pull --ff-only`
+- any other arguments are forwarded to the containerized `skill-forge` CLI
+- before each run, it checks whether the skill-forge repo is behind upstream and can offer a `git pull --ff-only`
 - it rebuilds the runtime image before execution
 
 Use `skill-manager` when you want:
@@ -57,7 +57,7 @@ Main actions:
 - `update_available`: installed version differs from the current canonical version
 - `drift`: managed install exists but installed files no longer match rendered output
 - `broken`: required managed files are missing or invalid
-- `unmanaged`: files exist in the target location but were not installed by this toolkit
+- `unmanaged`: files exist in the target location but were not installed by skill-forge
 
 Safety rules:
 
@@ -68,10 +68,10 @@ Safety rules:
 
 ### Core CLI Commands
 
-Run these from the toolkit repo:
+Run these from the skill-forge repo:
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root .
+PYTHONPATH=src python -m skill_forge --repo-root .
 ```
 
 Commands:
@@ -105,8 +105,8 @@ Use after changing a canonical skill's shared instruction, target overrides, or 
 Examples:
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata create-skill --today
-PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata commit --version 1.0.1 --updated-at 2026-04-04
+PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata create-skill --today
+PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata commit --version 1.0.1 --updated-at 2026-04-04
 ```
 
 What it does:
@@ -125,8 +125,8 @@ Use when the repo's local `.agents/skills/` should be refreshed from canonical m
 Examples:
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-maintainer --project . --target codex
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-maintainer --project . --target codex --force
+PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex
+PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex --force
 ```
 
 When to use `--force`:
@@ -144,8 +144,8 @@ Use when the repo's local agent targets should include both:
 Examples:
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog --project . --target all
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog create-skill commit --project . --target codex --force
+PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog --project . --target all
+PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog create-skill commit --project . --target codex --force
 ```
 
 ### Public vs Maintainer Skills
@@ -179,7 +179,7 @@ PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog create
 terminal 介面其實分成兩種用法：
 
 - consumer path：在 target project 執行 `skill-manager`
-- maintainer path：在 toolkit repo 執行 `python -m skill_toolkit`
+- maintainer path：在 skill-forge repo 執行 `python -m skill_forge`
 
 關鍵差異很簡單：
 
@@ -195,7 +195,7 @@ terminal 介面其實分成兩種用法：
 - 不帶參數時，為目前專案打開 interactive menu
 - `skill-manager shell` 會進入 runtime container 的 expert terminal
 - `skill-manager help` 只在本機顯示 usage，不會啟動 Docker
-- 其他參數會直接轉發到 containerized `skill-toolkit` CLI
+- 其他參數會直接轉發到 containerized `skill-forge` CLI
 - 每次執行前會檢查 repo 是否落後 upstream，必要時提示 `git pull --ff-only`
 - 每次執行前都會重建 runtime image
 
@@ -225,7 +225,7 @@ terminal 介面其實分成兩種用法：
 - `update_available`：已安裝版本和目前 canonical version 不同
 - `drift`：是 managed install，但檔案內容已不等於 render output
 - `broken`：managed install 缺少必要檔案或 metadata 異常
-- `unmanaged`：目標位置有內容，但不是由 toolkit 安裝
+- `unmanaged`：目標位置有內容，但不是由 skill-forge 安裝
 
 安全規則：
 
@@ -236,10 +236,10 @@ terminal 介面其實分成兩種用法：
 
 ### Core CLI Commands
 
-在 toolkit repo 裡執行：
+在 skill-forge repo 裡執行：
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root .
+PYTHONPATH=src python -m skill_forge --repo-root .
 ```
 
 命令用途：
@@ -273,8 +273,8 @@ PYTHONPATH=src python -m skill_toolkit --repo-root .
 範例：
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata create-skill --today
-PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata commit --version 1.0.1 --updated-at 2026-04-04
+PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata create-skill --today
+PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata commit --version 1.0.1 --updated-at 2026-04-04
 ```
 
 它會做的事：
@@ -293,8 +293,8 @@ PYTHONPATH=src python -m skill_toolkit --repo-root . refresh-metadata commit --v
 範例：
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-maintainer --project . --target codex
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-maintainer --project . --target codex --force
+PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex
+PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex --force
 ```
 
 `--force` 適用時機：
@@ -312,8 +312,8 @@ PYTHONPATH=src python -m skill_toolkit --repo-root . sync-maintainer --project .
 範例：
 
 ```bash
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog --project . --target all
-PYTHONPATH=src python -m skill_toolkit --repo-root . sync-manager-catalog create-skill commit --project . --target codex --force
+PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog --project . --target all
+PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog create-skill commit --project . --target codex --force
 ```
 
 ### Public 與 Maintainer Skills

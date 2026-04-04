@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Repository instructions for maintaining this skill toolkit.
+Repository instructions for maintaining skill-forge.
 
 ## Purpose
 
