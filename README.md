@@ -23,7 +23,7 @@ phase 3 起，這個 repo 採用單一 canonical source 模型：
 ### 1. Clone 這個 repo
 
 ```bash
-git clone git@github.com:busybutlazy/Skill_Merchant-.git ~/Skill_Merchant
+git clone git@github.com:busybutlazy/Skill_Merchant.git ~/Skill_Merchant
 cd ~/Skill_Merchant
 ```
 
