@@ -8,7 +8,49 @@ phase 3 起，這個 repo 採用單一 canonical source 模型：
 - Codex 與 Claude 安裝內容都由 renderer 產出
 - `skill-base/` 已淘汰，不再是公開 skill 的維護入口
 
-這個專案的主要使用者不需要是 Python 工程師。你只需要照著下面步驟做，就可以把 toolkit 裝起來並安裝 skill 到目標專案。
+這個專案的主要使用者不需要是 Python 工程師。phase 6 起，對一般使用者來說，主要入口是 project-local 的 `skill-manager` wrapper 與互動式文字選單。
+
+## 一般使用者流程
+
+### 1. 先準備 toolkit repo
+
+```bash
+git clone git@github.com:busybutlazy/Skill_Merchant.git ~/Skill_Merchant
+```
+
+把 repo 放在固定位置後，將 [skill-manager](/Users/busybutlazy/Documents/github_projects/Skill_Merchant/skill-manager) 加到你的 `PATH`，或在目標專案中用絕對路徑執行它。
+
+### 2. 到你的 target project 根目錄
+
+```bash
+cd /path/to/target-project
+```
+
+### 3. 啟動 skill manager
+
+```bash
+skill-manager
+```
+
+這個 wrapper 會：
+
+- 自動把目前目錄當成 target project
+- 自動建立 `./.skill-toolkit-output`
+- 自動帶入目前使用者的檔案權限對映
+- 啟動 phase 6 的互動式 menu
+
+### 4. 在 menu 裡操作
+
+啟動後先選 `codex` 或 `claude`，再用數字選單操作：
+
+- 檢查目前 project 已安裝 skill 狀態
+- 安裝 skill
+- 更新或修復 skill
+- 移除 skill
+- 切換 target
+- 進入 expert terminal
+
+如果你只是要確認現在專案裡哪些 skill 需要更新，直接進入 menu 後選 target，再選 `Check installed skill status` 即可。
 
 ## 使用前提
 
@@ -320,6 +362,46 @@ python -m pip install -e .
 
 這份 `compose.yaml` 只提供維護者快速進入掛載了 repo 的開發 shell，不是 phase 5 的最終 runtime 介面。
 
+## 容器化 CLI
+
+phase 5 / phase 6 的容器模式分成兩層：
+
+- 一般使用者：從 target project 根目錄直接跑 `skill-manager`
+- 維護者或進階使用者：在 toolkit repo 內跑 `make up`、`docker compose run` 或 direct CLI
+
+### 一般使用者主入口
+
+在目標專案根目錄執行：
+
+```bash
+skill-manager
+```
+
+若你要直接進 expert terminal，可執行：
+
+```bash
+skill-manager shell
+```
+
+### 維護者入口
+
+在 toolkit repo 根目錄執行：
+
+```bash
+make up
+```
+
+這會進入同一個 runtime image，只是 mount 預設會以目前目錄作為 target project。
+
+### 直接執行單次命令
+
+runtime image 仍然支援 direct CLI：
+
+```bash
+docker build -t skill-toolkit:latest .
+docker run --rm skill-toolkit:latest validate
+```
+
 ## Project Layout
 
 ```text
@@ -328,8 +410,14 @@ skill-toolkit/
 ├── .dockerignore
 ├── .agents/
 │   └── skills/
+├── Makefile
 ├── compose.yaml
+├── docker/
+│   ├── runtime-entrypoint.sh
+│   └── runtime-shellrc
+├── Dockerfile
 ├── Dockerfile.dev
+├── skill-manager
 ├── canonical-skills/
 │   └── <skill>/
 │       ├── package.json
@@ -447,13 +535,19 @@ skill-toolkit/
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-容器化驗證：
+容器化開發驗證：
 
 ```bash
 docker build -f Dockerfile.dev -t skill-toolkit-dev .
 docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-toolkit-dev
 ```
 
+phase 5 runtime smoke test：
+
+```bash
+make up
+```
+
 ## Compatibility Note
 
-`skill-manager.sh` 已退役為相容提示入口，不再承擔主要邏輯。新的正式使用方式是 Python CLI。
+`skill-manager.sh` 已退役為相容提示入口，不再承擔主要邏輯。核心邏輯仍由 Python CLI 提供；phase 6 另外新增了 project-local 的 `skill-manager` wrapper，作為一般使用者的主要啟動入口。

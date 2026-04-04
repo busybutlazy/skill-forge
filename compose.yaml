@@ -10,3 +10,19 @@ services:
     stdin_open: true
     tty: true
     command: bash
+
+  toolkit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: skill-toolkit
+    working_dir: /workspace/project
+    volumes:
+      - ${SKILL_TOOLKIT_PROJECT_HOST_DIR:-.}:/workspace/project
+      - ${SKILL_TOOLKIT_OUTPUT_HOST_DIR:-./.skill-toolkit-output}:/workspace/output
+    environment:
+      SKILL_TOOLKIT_PROJECT_DIR: /workspace/project
+      SKILL_TOOLKIT_OUTPUT_DIR: /workspace/output
+    stdin_open: true
+    tty: true
+    user: "${HOST_UID:-0}:${HOST_GID:-0}"

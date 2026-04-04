@@ -7,6 +7,7 @@ from pathlib import Path
 
 from . import __version__
 from .install import install_skill, list_installed, remove_skill, update_skill
+from .menu import run_menu
 from .models import ValidationFailure
 from .render import render_skill
 from .repository import SUPPORTED_TARGETS, iter_skill_dirs, load_skill, validate_skill_dir
@@ -53,6 +54,11 @@ def build_parser() -> argparse.ArgumentParser:
     update_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     update_parser.add_argument("--project", required=True, help="Target project root")
     update_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
+
+    menu_parser = subparsers.add_parser("menu", help="Open the interactive skill manager")
+    menu_parser.add_argument("--project", required=True, help="Target project root")
+    menu_parser.add_argument("--output", required=True, help="Output directory for rendered files")
+    menu_parser.add_argument("--shell-rc", help="Shell rc file used by expert terminal mode")
 
     return parser
 
@@ -145,6 +151,17 @@ def run_update(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_menu_command(args: argparse.Namespace) -> int:
+    repo_root = _repo_root_from_args(args)
+    shell_rc = Path(args.shell_rc).resolve() if args.shell_rc else None
+    return run_menu(
+        repo_root,
+        Path(args.project).resolve(),
+        Path(args.output).resolve(),
+        shell_rc=shell_rc,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -156,6 +173,7 @@ def main(argv: list[str] | None = None) -> int:
         "list": run_list,
         "remove": run_remove,
         "update": run_update,
+        "menu": run_menu_command,
     }
     try:
         return command_handlers[args.command](args)

@@ -11,6 +11,7 @@
 5. [Phase 3.6: 補齊 install safety 與 phase 完成紀錄](TODO/phase3.6.md)
 6. [Phase 4: 容器化開發與測試環境](TODO/phase4.md)
 7. [Phase 5: 將 toolkit 發布為容器化 CLI](TODO/phase5.md)
+8. [Phase 6: 恢復 project-local UX 與互動式 skill manager](TODO/phase6.md)
 
 ## 完成狀態
 
@@ -19,6 +20,8 @@
 - Phase 3.5: 已完成
 - Phase 3.6: 已完成
 - Phase 4: 已完成
+- Phase 5: 已完成
+- Phase 6: 已完成
 
 ## 已決定方向
 
@@ -30,7 +33,7 @@
 
 ## Backlog
 
-以下需求保留到前五個 phase 完成後再排程：
+以下需求保留到前六個 phase 完成後再排程：
 
 ### CLI Enhancements
 

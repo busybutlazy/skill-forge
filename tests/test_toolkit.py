@@ -394,6 +394,28 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(removed.returncode, 0, removed.stderr)
             self.assertFalse(agent_path.exists())
 
+    def test_menu_installs_and_lists_codex_skill(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            output_root = Path(tmp_dir) / "output"
+            project_root.mkdir()
+            output_root.mkdir()
+
+            result = self.run_cli(
+                "menu",
+                "--project",
+                str(project_root),
+                "--output",
+                str(output_root),
+                input_text="1\n2\n1\n1\n7\n",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("Installed commit", result.stdout)
+            self.assertIn("Target: codex", result.stdout)
+            statuses = list_installed(REPO_ROOT, project_root, "codex")
+            self.assertEqual(statuses[0].name, "commit")
+            self.assertEqual(statuses[0].status, "up_to_date")
+
 
 if __name__ == "__main__":
     unittest.main()
