@@ -1,6 +1,6 @@
 # Skill Toolkit
 
-Version: 1.0.0
+Version: 1.1.0
 
 ## English
 
@@ -9,6 +9,23 @@ Write skills once, govern centrally, deploy to multiple coding AI targets.
 Skill Toolkit is an open-source governance layer for AI development skills. It helps teams keep skill definitions in one canonical source, validate package integrity, and render and install the right target artifacts for tools such as Codex and Claude.
 
 This repo is not a public skill marketplace. It is designed for teams that want controlled distribution, portable skill definitions, and a clearer trust boundary around which skills engineers are allowed to use.
+
+### Current Stage
+
+Version `1.1.0` extends the `1.0.0` end-user baseline with a formal maintainer workflow and canonical manager skill model.
+
+The current phase moves beyond the first user-facing baseline and focuses on maintainer operations:
+
+- separating canonical source into `regular-skills/` and `manager-skills/`
+- formalizing the manager workflow around `create-skill`, `update-skill`, `finalize-skill`, and `install-manager-skill`
+- keeping repo-local Codex and Claude manager artifacts in sync from canonical source
+
+### What Changed In This Stage
+
+- `canonical-skills/` is now split into `canonical-skills/regular-skills/` and `canonical-skills/manager-skills/`
+- `finalize-skill` was added so maintainers can finish a canonical edit with `refresh-metadata` and `validate` in one workflow
+- `install-manager-skill` was added so manager-only skills and `shared` regular skills can be synced back into this repo's local agent targets
+- maintainer guidance in README and the terminal guide now reflects the full create/update/finalize/install loop
 
 ### Why This Exists
 
@@ -294,6 +311,23 @@ See `ROADMAP.md` for current priorities and direction.
 Skill Toolkit 是一個面向 AI 開發技能的開源治理層。它讓團隊可以把 skill 定義收斂到單一 canonical source，驗證 package 完整性，並為 Codex、Claude 等工具 render 與安裝正確的 target artifact。
 
 這個 repo 不是公開 skill marketplace。它的定位是提供團隊可控的 skill 分發、可移植的 skill 定義，以及更清楚的信任邊界，讓工程師使用的 skills 有可管理來源。
+
+### 目前階段
+
+`1.1.0` 是在 `1.0.0` 一般使用者基礎體驗之上，正式補齊 maintainer workflow 與 canonical manager skill model 的版本。
+
+目前這個階段則是從第一階段的 user-facing baseline，進一步往 maintainer workflow 收斂：
+
+- 把 canonical source 正式分成 `regular-skills/` 與 `manager-skills/`
+- 把管理者流程固定成 `create-skill`、`update-skill`、`finalize-skill`、`install-manager-skill`
+- 讓本 repo 的 Codex / Claude manager artifacts 可以從 canonical source 一致同步
+
+### 這個階段改了什麼
+
+- `canonical-skills/` 現在正式拆成 `canonical-skills/regular-skills/` 與 `canonical-skills/manager-skills/`
+- 新增 `finalize-skill`，讓維護者可以在同一個 workflow 內完成 `refresh-metadata` 與 `validate`
+- 新增 `install-manager-skill`，讓 manager-only skills 與帶 `shared` tag 的 regular skills 可以同步回本 repo 的本地 agent targets
+- README 與 maintainer terminal guide 都已更新成完整的 create / update / finalize / install 維護流程
 
 ### 為什麼會有這個專案
 
