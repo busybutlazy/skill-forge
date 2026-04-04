@@ -38,8 +38,8 @@ description: "Use this skill when the user wants to create a new public skill in
 
 - `AGENTS.md`
 - `README.md`
-- `docs/phase2/canonical-package-spec.md`
-- `docs/phase2/adapter-contract.md`
+- `docs/reference/canonical-package-spec.md`
+- `docs/reference/adapter-contract.md`
 - 至少一個 `canonical-skills/` 既有 skill 作為結構參考
 
 ### 3. Create the public skill

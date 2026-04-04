@@ -30,7 +30,7 @@ description: "Use this skill when the user wants to modify an existing public sk
 - `canonical-skills/<skill-name>/package.json`
 - `canonical-skills/<skill-name>/manifest.json`
 - `canonical-skills/<skill-name>/targets/`
-- 必要時對照 `docs/phase2/canonical-package-spec.md` 與 `docs/phase2/adapter-contract.md`
+- 必要時對照 `docs/reference/canonical-package-spec.md` 與 `docs/reference/adapter-contract.md`
 
 搞清楚：
 

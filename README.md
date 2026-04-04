@@ -1,260 +1,355 @@
 # Skill Toolkit
 
-用來維護、驗證、render、安裝 canonical skills 的 toolkit repo。
+Version: 1.0.0
 
-phase 3 起，這個 repo 採用單一 canonical source 模型：
+## English
 
-- `canonical-skills/` 是唯一 source of truth
-- Codex 與 Claude 安裝內容都由 renderer 產出
-- `skill-base/` 已淘汰，不再是公開 skill 的維護入口
+Write skills once, govern centrally, deploy to multiple coding AI targets.
 
-這個專案的主要使用者不需要是 Python 工程師。phase 6 起，對一般使用者來說，主要入口是 project-local 的 `skill-manager` wrapper 與互動式文字選單。
+Skill Toolkit is an open-source governance layer for AI development skills. It helps teams keep skill definitions in one canonical source, validate package integrity, and render and install the right target artifacts for tools such as Codex and Claude.
 
-## 一般使用者流程
+This repo is not a public skill marketplace. It is designed for teams that want controlled distribution, portable skill definitions, and a clearer trust boundary around which skills engineers are allowed to use.
 
-### 1. 先準備 toolkit repo
+### Why This Exists
+
+```text
+canonical-skills/
+        |
+        v
+ validate + render + package integrity
+        |
+        +--------------------+
+        |                    |
+        v                    v
+   Codex artifact      Claude artifact
+        |                    |
+        +-------- install / update -------+
+                             |
+                             v
+                    target project workflow
+```
+
+Teams adopting coding agents usually run into the same problems:
+
+- engineers install skills from inconsistent or unknown sources
+- the same workflow gets rewritten separately for each AI tool
+- there is no shared review point for versioning, integrity, or rollout
+- switching vendors becomes expensive because skill logic is tied to one tool
+
+Skill Toolkit addresses that by treating `canonical-skills/` as the only public source of truth, then rendering target-specific outputs for each supported tool.
+
+### Who It Is For
+
+- engineering managers who want an approved source for team skills
+- platform teams who need a controlled way to distribute internal AI workflows
+- developers who want a project-local skill manager without hand-maintaining per-tool copies
+
+This repo is a good fit when you care about governance, portability, and repeatable distribution more than marketplace-style discovery.
+
+### How To Read This Repo
+
+- Start here for the product story and top-level workflow.
+- Read [docs/concepts/governance.md](docs/concepts/governance.md) for the governance model and trust story.
+- Read [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md) for team rollout guidance.
+- Read [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md) for a quickstart and demo walkthrough.
+
+### Quickstart
+
+1. Clone the toolkit repo.
 
 ```bash
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
 ```
 
-把 repo 放在固定位置後，將 [skill-manager](/Users/busybutlazy/Documents/github_projects/skill-forge/skill-manager) 加到你的 `PATH`，或在目標專案中用絕對路徑執行它。
-
-### 2. 到你的 target project 根目錄
+2. Go to your target project.
 
 ```bash
 cd /path/to/target-project
 ```
 
-### 3. 啟動 skill manager
-
-```bash
-skill-manager
-```
-或是不修改環境變數，直接啟動
+3. Launch the project-local skill manager.
 
 ```bash
 ~/skill-forge/skill-manager
 ```
 
-這個 wrapper 會：
-
-- 自動把目前目錄當成 target project
-- 自動帶入目前使用者的檔案權限對映
-- 啟動 phase 6 的互動式 menu
-
-### 4. 在 menu 裡操作
-
-啟動後先選 `codex` 或 `claude`，再用數字選單操作：
-
-- 檢查目前 project 已安裝 skill 狀態
-- 安裝或更新多個 skill
-- 更新或修復多個 skill
-- 移除多個 skill
-- 切換 target
-- 進入 expert terminal
-
-menu 會直接顯示：
-
-- 方框式主畫面與 target / status summary
-- 每次切頁會清空舊畫面後重繪，不會一直累積舊 log
-- 以顏色區分 `up_to_date`、`update_available`、`drift`、`broken`、`unmanaged`
-- 每個 skill 的版本、描述與部分 tags
-- 安裝 / 更新 / 移除時的多選模式，可用逗號選多個，安裝與更新也可用 `a` 一次全選
-
-如果你只是要確認現在專案裡哪些 skill 需要更新，直接進入 menu 後選 target，再選 `Check installed skill status` 即可。
-
-## 使用前提
-
-- 一般使用者路線以 Docker 為主
-- 主要入口是 target project 內的 `skill-manager`
-- 需要先安裝並啟動 Docker Desktop 或等價 Docker daemon
-- 不再建議在 host 上直接安裝 toolkit CLI
-
-## 安裝教學
-
-### 1. Clone 這個 repo
-
-```bash
-git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
-cd ~/skill-forge
-```
-
-如果你的正式 repo 名稱不同，把上面的 repo URL 換成實際網址即可。
-
-### 2. 確認 Docker 已啟動
-
-```bash
-docker version
-```
-
-如果 daemon 沒有啟動，`skill-manager` 與容器化 CLI 都無法使用。
-
-### 3. 啟動 skill manager
-
-在 target project 根目錄執行：
+Or add `~/skill-forge` to your `PATH` and run:
 
 ```bash
 skill-manager
 ```
 
-第一次執行時，wrapper 會自動 build / 更新 runtime image，之後直接進入互動式 menu。
+4. Use the interactive menu to:
 
-## 一般使用者常用操作
+- choose `codex` or `claude`
+- check installed skill status
+- install or update skills
+- repair broken managed installs
+- remove managed skills
+- switch targets or open the expert terminal
 
-- 安裝 / 更新 / 移除 skill：直接在 `skill-manager` menu 裡完成
-- 切換 target：在 menu 裡選 `Switch target`
-- 檢查已安裝狀態：在 menu 裡選 `Check installed skill status`
-- 進 expert terminal：執行 `skill-manager shell`
+### Positioning
 
-## 容器化開發環境
+#### Canonical source, not parallel copies
 
-phase 4 的目的是提供維護者可重現的開發與測試環境，避免依賴 host 上的 Python 狀態。這一段是 maintainer workflow，不是 phase 5 的最終對外發佈方式。
+Public skills live under `canonical-skills/`. They are validated once, versioned once, and rendered into target artifacts instead of being maintained as separate per-tool source trees.
 
-### 1. 先啟動 Docker daemon
+#### Governance layer, not a marketplace
 
-先確認 Docker Desktop 或等價 daemon 已啟動：
+The goal is not to maximize public skill discovery. The goal is to give a team a controlled source, a repeatable packaging model, and a safer install and update path for approved skills.
 
-```bash
-docker version
-```
+#### Portability layer, not vendor lock-in
 
-如果 daemon 沒有啟動，`docker build` 與 `docker run` 都會失敗。
+Skill logic should be written once in a tool-neutral canonical package, then adapted to supported targets. That keeps future adapter expansion possible without falling back to copy-paste maintenance.
 
-### 2. 建立開發用 image
+#### Native capabilities and governance responsibilities
 
-在 repo 根目錄執行：
+Native AI tool features are still responsible for the in-product execution experience of each tool. Skill Toolkit is trying to solve a different problem: giving teams a canonical source, a governed distribution model, and a more portable way to manage skill definitions across tools.
+
+It is not a replacement for the native capabilities of Codex, Claude, or other coding AI products. It is a team-level governance layer that can sit alongside those tools when a team wants more control over source, rollout, and portability.
+
+### Current User Experience
+
+For day-to-day usage, the main entrypoint is the project-local `skill-manager` wrapper.
+
+- Docker-based runtime for end users
+- interactive menu for install, update, remove, and status flows
+- direct CLI path for maintainers and advanced users
+- Codex and Claude supported as rendered targets
+
+### Canonical Model
+
+Each public skill lives in `canonical-skills/<name>/` and includes:
+
+- `package.json`
+- `instruction.md`
+- `manifest.json`
+- `targets/codex.frontmatter.json`
+- `targets/claude.frontmatter.json`
+
+Optional content:
+
+- `examples/`
+- `references/`
+- `scripts/`
+- `assets/`
+
+Detailed contracts:
+
+- `docs/reference/canonical-package-spec.md`
+- `docs/reference/adapter-contract.md`
+- `docs/reference/drift-policy.md`
+
+### CLI and Safety Model
+
+Core commands:
+
+- `validate`
+- `render`
+- `install`
+- `list`
+- `remove`
+- `update`
+
+Managed install states:
+
+- `up_to_date`
+- `update_available`
+- `drift`
+- `broken`
+- `unmanaged`
+
+Key safety rules:
+
+- `install` overwrites managed `up_to_date` and `update_available` installs
+- `install` asks for confirmation before repairing `broken`
+- `install` requires `--force` before overwriting `drift`
+- `install` refuses to overwrite `unmanaged`
+- `update` only works on managed installs and also requires `--force` for `drift`
+- `remove` refuses to delete `unmanaged`
+
+### Public Skills vs Maintainer Skills
+
+- `canonical-skills/`
+  - only public, distributable source
+  - validated and rendered by the Python CLI
+- `.agents/skills/`
+  - maintainer-only skills used to work on this repo itself
+  - not the public source of distributed skills
+
+### Maintainer Workflow
+
+Containerized development environment:
 
 ```bash
 docker build -f Dockerfile.dev -t skill-toolkit-dev .
+docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-toolkit-dev
 ```
 
-### 3. 直接用 `docker run` 進入 repo 開發環境
-
-```bash
-docker run --rm -it \
-  -v "$PWD:/workspace" \
-  -w /workspace \
-  skill-toolkit-dev
-```
-
-### 4. 在容器內驗證 canonical skills
+Validate canonical skills:
 
 ```bash
 PYTHONPATH=src python -m skill_toolkit --repo-root . validate
 ```
 
-### 5. 在容器內跑 phase 3.5 測試
+Run tests:
 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests
 ```
 
-### 6. 在容器內做 target smoke test
-
-```bash
-mkdir -p /tmp/skill-toolkit-demo
-PYTHONPATH=src python -m skill_toolkit --repo-root . install commit --target codex --project /tmp/skill-toolkit-demo
-PYTHONPATH=src python -m skill_toolkit --repo-root . list --target codex --project /tmp/skill-toolkit-demo --json
-PYTHONPATH=src python -m skill_toolkit --repo-root . remove commit --target codex --project /tmp/skill-toolkit-demo
-```
-
-### 7. 使用 `compose.yaml`
-
-如果你的環境支援 Docker Compose，可以改用：
-
-```bash
-docker compose run --rm toolkit-dev
-```
-
-若你要連續執行多個驗證命令，建議依序執行，不要平行開多個 `docker compose run`。同一個 compose project 在同時建立 network / container 資源時，可能出現暫時性的資源競爭。
-
-這份 `compose.yaml` 只提供維護者快速進入掛載了 repo 的開發 shell，不是 phase 5 的最終 runtime 介面。
-
-## 容器化 CLI
-
-phase 5 / phase 6 的容器模式分成兩層：
-
-- 一般使用者：從 target project 根目錄直接跑 `skill-manager`
-- 維護者或進階使用者：在 toolkit repo 內跑 `make up`、`docker compose run` 或 direct CLI
-
-### 一般使用者主入口
-
-在目標專案根目錄執行：
-
-```bash
-skill-manager
-```
-
-若你要直接進 expert terminal，可執行：
-
-```bash
-skill-manager shell
-```
-
-如果你只是忘了 wrapper 的用法，可直接在 host 上查：
-
-```bash
-skill-manager --help
-```
-
-### 維護者入口
-
-在 toolkit repo 根目錄執行：
+Runtime smoke test:
 
 ```bash
 make up
 ```
 
-這會進入同一個 runtime image，只是 mount 預設會以目前目錄作為 target project。
-
-### 直接執行單次命令
-
-如果你是維護者或進階使用者，也可以直接透過 runtime container 執行單次命令：
-
-```bash
-docker compose run --build --rm toolkit validate
-```
-
-## Project Layout
+### Project Layout
 
 ```text
 skill-toolkit/
 ├── AGENTS.md
-├── .dockerignore
 ├── .agents/
-│   └── skills/
-├── Makefile
-├── compose.yaml
-├── docker/
-│   ├── runtime-entrypoint.sh
-│   └── runtime-shellrc
+├── canonical-skills/
+├── docs/
+│   ├── concepts/
+│   ├── guides/
+│   └── reference/
+├── src/
+├── tests/
 ├── Dockerfile
 ├── Dockerfile.dev
-├── skill-manager
-├── canonical-skills/
-│   └── <skill>/
-│       ├── package.json
-│       ├── instruction.md
-│       ├── manifest.json
-│       ├── targets/
-│       ├── examples/
-│       ├── references/
-│       ├── scripts/
-│       └── assets/
-├── docs/
-│   └── phase2/
-├── proof/
-│   └── phase2/
-├── src/
-│   └── skill_toolkit/
-├── tests/
-├── pyproject.toml
-├── ROADMAP.md
-└── TODO/
+├── compose.yaml
+├── Makefile
+└── skill-manager
 ```
 
-## Canonical Model
+### Roadmap Direction
+
+The current roadmap focuses on external clarity, adoption, and governance framing rather than new UI work. CLI and TUI remain the primary operating surface for now.
+
+See `ROADMAP.md` for current priorities and direction.
+
+### Compatibility Note
+
+`skill-manager.sh` remains a compatibility shim only. The real workflow is the Python CLI plus the project-local `skill-manager` wrapper.
+
+## 繁體中文
+
+以單一 canonical source 管理 AI coding skills，集中治理，再部署到多個 coding AI target。
+
+Skill Toolkit 是一個面向 AI 開發技能的開源治理層。它讓團隊可以把 skill 定義收斂到單一 canonical source，驗證 package 完整性，並為 Codex、Claude 等工具 render 與安裝正確的 target artifact。
+
+這個 repo 不是公開 skill marketplace。它的定位是提供團隊可控的 skill 分發、可移植的 skill 定義，以及更清楚的信任邊界，讓工程師使用的 skills 有可管理來源。
+
+### 為什麼會有這個專案
+
+```text
+canonical-skills/
+        |
+        v
+ validate + render + package integrity
+        |
+        +--------------------+
+        |                    |
+        v                    v
+   Codex artifact      Claude artifact
+        |                    |
+        +-------- install / update -------+
+                             |
+                             v
+                    target project workflow
+```
+
+導入 coding agent 的團隊通常會遇到相同問題：
+
+- 工程師各自安裝來源不一致、甚至不明的 skills
+- 同一套 workflow 被迫為不同 AI 工具重寫多次
+- 缺少共用的版本、完整性與發佈審查點
+- 一旦 skill 邏輯綁死在單一工具上，改用其他 vendor 的成本就會變高
+
+Skill Toolkit 的解法是把 `canonical-skills/` 視為唯一公開 source of truth，再為各個支援的工具 render 對應的 target-specific output。
+
+### 適合誰使用
+
+- 想要替團隊建立 approved skill source 的 engineering managers
+- 需要可控分發內部 AI workflow 的 platform teams
+- 希望用 project-local skill manager，而不是手動維護多套工具版本的 developers
+
+當你更在意治理、可移植性與可重現分發，而不是 marketplace 式的探索體驗時，這個 repo 就是合適選擇。
+
+### 如何閱讀這個 repo
+
+- 先從這份 README 了解產品定位與高層流程。
+- 用 [docs/concepts/governance.md](docs/concepts/governance.md) 看治理模型與 trust story。
+- 用 [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md) 看團隊導入建議。
+- 用 [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md) 看 quickstart 與 demo walkthrough。
+
+### 快速開始
+
+1. 複製 toolkit repo。
+
+```bash
+git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
+```
+
+2. 進入 target project。
+
+```bash
+cd /path/to/target-project
+```
+
+3. 啟動 project-local skill manager。
+
+```bash
+~/skill-forge/skill-manager
+```
+
+如果你已經把 `~/skill-forge` 加進 `PATH`，也可以直接執行：
+
+```bash
+skill-manager
+```
+
+4. 在互動式 menu 裡：
+
+- 選 `codex` 或 `claude`
+- 檢查已安裝 skill 狀態
+- 安裝或更新 skills
+- 修復 broken 的 managed install
+- 移除 managed skills
+- 切換 target 或進入 expert terminal
+
+### 定位
+
+#### canonical source，不是平行副本
+
+公開 skill 都放在 `canonical-skills/`。它們只被驗證一次、只被版本管理一次，再被 render 成不同 target artifact，而不是維護多份平行的 per-tool source tree。
+
+#### 治理層，不是 marketplace
+
+這個 repo 的目標不是最大化公開 skill 的探索與上架，而是提供團隊可控來源、可重現 packaging model，以及對 approved skills 更安全的 install 與 update 路徑。
+
+#### 可移植層，不是 vendor lock-in
+
+skill 邏輯應該先寫成 tool-neutral 的 canonical package，再適配到支援的 targets。這讓未來新增 adapter 成為可能，而不必回到 copy-paste 維護多套版本。
+
+#### 原生能力與治理責任的分工
+
+各個 AI 工具的原生功能仍然負責它們各自產品內的執行體驗。Skill Toolkit 想解的是另一個層次的問題：為團隊提供 canonical source、可治理的分發模型，以及跨工具管理 skill 定義的可移植方式。
+
+它不是要取代 Codex、Claude 或其他 coding AI 產品的原生能力。它比較像是一層團隊級的治理層，讓需要更高來源控制、rollout 管理與可移植性的團隊，可以和這些工具並行使用。
+
+### 目前的使用體驗
+
+日常使用時，主要入口是 project-local `skill-manager` wrapper。
+
+- 一般使用者走 Docker-based runtime
+- 透過互動式 menu 完成 install、update、remove 與 status 流程
+- 維護者與進階使用者仍可直接走 CLI
+- 目前支援 Codex 與 Claude 兩個 rendered targets
+
+### Canonical Model
 
 每個公開 skill 都放在 `canonical-skills/<name>/`，至少包含：
 
@@ -273,34 +368,22 @@ skill-toolkit/
 
 詳細契約請看：
 
-- `docs/phase2/canonical-package-spec.md`
-- `docs/phase2/adapter-contract.md`
-- `docs/phase2/drift-policy.md`
+- `docs/reference/canonical-package-spec.md`
+- `docs/reference/adapter-contract.md`
+- `docs/reference/drift-policy.md`
 
-## CLI Commands
+### CLI 與安全模型
+
+核心指令：
 
 - `validate`
-  - 驗證 canonical package 結構、frontmatter override、manifest、package hash
 - `render`
-  - 從 canonical source 產出 Codex 或 Claude target artifact
 - `install`
-  - 安裝 rendered package 到目標專案
-  - `up_to_date` 與 `update_available` 的 managed package 會直接覆蓋
-  - `broken` 的 managed package 會要求確認後修復
-  - `drift` 的 managed package 需加 `--force`，且仍會要求確認
-  - `unmanaged` package 會拒絕覆蓋
 - `list`
-  - 列出已安裝 package 與狀態
-  - 可加 `--json` 輸出機器可解析格式
 - `remove`
-  - 移除 managed package
-  - 也允許移除帶 toolkit marker 的 broken install
 - `update`
-  - 用 canonical source 重新覆蓋已安裝 managed package
-  - phase 3.5 先只支援單一 skill 更新
-  - `drift` 狀態需加 `--force`，且仍會要求確認
 
-`list` 目前會區分：
+managed install 狀態：
 
 - `up_to_date`
 - `update_available`
@@ -308,62 +391,77 @@ skill-toolkit/
 - `broken`
 - `unmanaged`
 
-狀態定義：
+主要安全規則：
 
-- `up_to_date`
-  - 安裝內容與 canonical render output 一致
-- `update_available`
-  - 已安裝版本與 canonical source 版本不同
-- `drift`
-  - 仍可辨識為 toolkit 管理物，但本地內容或 hash 已與 canonical source 不一致
-- `broken`
-  - 必要檔案缺失、格式錯誤，或無法完成基本解析
-- `unmanaged`
-  - 目標位置有內容，但不是目前 toolkit 可安全管理的安裝
+- `install` 會直接覆蓋 managed 的 `up_to_date` 與 `update_available`
+- `install` 修復 `broken` 前會要求確認
+- `install` 覆蓋 `drift` 前必須加 `--force`
+- `install` 會拒絕覆蓋 `unmanaged`
+- `update` 只處理 managed install，遇到 `drift` 也必須加 `--force`
+- `remove` 會拒絕刪除 `unmanaged`
 
-## 安裝與更新規則
-
-- `install` 對 `up_to_date` 與 `update_available` 的 managed package 直接覆蓋。
-- `install` 遇到 `broken` 時會要求確認，再覆蓋修復。
-- `install` 遇到 `drift` 時必須加 `--force`，並在覆蓋前要求確認。
-- `install` 會拒絕覆蓋 `unmanaged` package。
-- `update` 只處理已安裝且可辨識為 managed 的 package。
-- `update` 遇到 `drift` 時必須加 `--force`，並在覆蓋前要求確認。
-- `update` 遇到 `broken` 時會要求確認，再覆蓋修復。
-- `remove` 會拒絕刪除 `unmanaged` package。
-
-## Public Skills vs Maintainer Skills
+### 公開 skills 與 maintainer skills
 
 - `canonical-skills/`
-  - 公開可分發 skills 的唯一來源
+  - 唯一公開、可分發的 source
   - 由 Python CLI 驗證與 render
 - `.agents/skills/`
-  - 這個 repo 內部使用的 maintainer skills
-  - 不會被公開安裝流程直接當作 source
+  - 這個 repo 自己使用的 maintainer-only skills
+  - 不是對外分發 skill 的公開 source
 
-## Validation and Tests
+### 維護者工作流程
 
-執行 phase 3 測試：
-
-```bash
-docker build -f Dockerfile.dev -t skill-toolkit-dev .
-docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-toolkit-dev \
-  bash -lc 'PYTHONPATH=src python -m unittest discover -s tests'
-```
-
-容器化開發驗證：
+容器化開發環境：
 
 ```bash
 docker build -f Dockerfile.dev -t skill-toolkit-dev .
 docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-toolkit-dev
 ```
 
-phase 5 runtime smoke test：
+驗證 canonical skills：
+
+```bash
+PYTHONPATH=src python -m skill_toolkit --repo-root . validate
+```
+
+執行測試：
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests
+```
+
+Runtime smoke test：
 
 ```bash
 make up
 ```
 
-## Compatibility Note
+### 專案結構
 
-`skill-manager.sh` 已退役為相容提示入口，不再承擔主要邏輯。核心邏輯仍由 Python CLI 提供；phase 6 另外新增了 project-local 的 `skill-manager` wrapper，作為一般使用者的主要啟動入口。
+```text
+skill-toolkit/
+├── AGENTS.md
+├── .agents/
+├── canonical-skills/
+├── docs/
+│   ├── concepts/
+│   ├── guides/
+│   └── reference/
+├── src/
+├── tests/
+├── Dockerfile
+├── Dockerfile.dev
+├── compose.yaml
+├── Makefile
+└── skill-manager
+```
+
+### Roadmap 方向
+
+目前 roadmap 的重點是把對外敘事、導入路徑與治理框架講清楚，而不是新增 UI。現階段主要操作面仍然是 CLI 與 TUI。
+
+請參考 `ROADMAP.md` 了解目前的優先順序與方向。
+
+### 相容性說明
+
+`skill-manager.sh` 目前只保留相容提示用途。真正的工作流程已經是 Python CLI 加上 project-local `skill-manager` wrapper。
