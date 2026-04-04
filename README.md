@@ -184,6 +184,12 @@ python3 -m skill_toolkit --repo-root . update commit --target codex --project /p
 
 `--force` 仍會顯示確認提示，避免把本地修改靜默覆蓋。
 
+如果你是重新安裝既有 skill，而該安裝已經 `drift`，`install` 也需要同樣加上 `--force`：
+
+```bash
+python3 -m skill_toolkit --repo-root . install commit --target codex --project /path/to/target-project --force
+```
+
 ### 5. 移除已安裝的 skill
 
 Codex:
@@ -377,7 +383,10 @@ skill-toolkit/
   - 從 canonical source 產出 Codex 或 Claude target artifact
 - `install`
   - 安裝 rendered package 到目標專案
-  - 若目標已有同名 managed package，會直接覆蓋
+  - `up_to_date` 與 `update_available` 的 managed package 會直接覆蓋
+  - `broken` 的 managed package 會要求確認後修復
+  - `drift` 的 managed package 需加 `--force`，且仍會要求確認
+  - `unmanaged` package 會拒絕覆蓋
 - `list`
   - 列出已安裝 package 與狀態
   - 可加 `--json` 輸出機器可解析格式
@@ -412,9 +421,13 @@ skill-toolkit/
 
 ## 安裝與更新規則
 
-- `install` 對既有 managed package 直接覆蓋。
+- `install` 對 `up_to_date` 與 `update_available` 的 managed package 直接覆蓋。
+- `install` 遇到 `broken` 時會要求確認，再覆蓋修復。
+- `install` 遇到 `drift` 時必須加 `--force`，並在覆蓋前要求確認。
+- `install` 會拒絕覆蓋 `unmanaged` package。
 - `update` 只處理已安裝且可辨識為 managed 的 package。
 - `update` 遇到 `drift` 時必須加 `--force`，並在覆蓋前要求確認。
+- `update` 遇到 `broken` 時會要求確認，再覆蓋修復。
 - `remove` 會拒絕刪除 `unmanaged` package。
 
 ## Public Skills vs Maintainer Skills

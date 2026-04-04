@@ -20,8 +20,7 @@ def target_root(project_dir: Path, target: str) -> Path:
     raise ValueError(f"unsupported target: {target}")
 
 
-def install_skill(repo_root: Path, project_dir: Path, skill_name: str, target: str) -> Path:
-    skill = load_skill(repo_root, skill_name, target_filter={target})
+def _materialize_install(skill: CanonicalSkill, project_dir: Path, target: str) -> Path:
     destination = Path(skill.targets[target].install_path.format(name=skill.name))
     final_path = project_dir / destination
 
@@ -203,6 +202,42 @@ def _confirm_overwrite(prompt: str, confirm: Callable[[str], bool] | None) -> No
         raise RuntimeError("Update aborted by user.")
 
 
+def install_skill(
+    repo_root: Path,
+    project_dir: Path,
+    skill_name: str,
+    target: str,
+    *,
+    force: bool = False,
+    confirm: Callable[[str], bool] | None = None,
+) -> Path:
+    skill = load_skill(repo_root, skill_name, target_filter={target})
+    statuses = {status.name: status for status in list_installed(repo_root, project_dir, target)}
+    status = statuses.get(skill_name)
+
+    if status is not None:
+        if not status.managed:
+            raise ValueError(
+                f"{skill_name} already exists for target {target} but is unmanaged; refusing to overwrite it"
+            )
+        if status.status == "drift":
+            if not force:
+                raise ValueError(
+                    f"{skill_name} has drifted from canonical source for target {target}; rerun install with --force to overwrite local changes"
+                )
+            _confirm_overwrite(
+                f"{skill_name} has drifted from canonical source for target {target}. Install will overwrite local changes. Continue? [y/N]: ",
+                confirm,
+            )
+        elif status.status == "broken":
+            _confirm_overwrite(
+                f"{skill_name} is broken for target {target}. Install will repair it by overwriting the installed files. Continue? [y/N]: ",
+                confirm,
+            )
+
+    return _materialize_install(skill, project_dir, target)
+
+
 def update_skill(
     repo_root: Path,
     project_dir: Path,
@@ -233,7 +268,8 @@ def update_skill(
             confirm,
         )
 
-    return install_skill(repo_root, project_dir, skill_name, target)
+    skill = load_skill(repo_root, skill_name, target_filter={target})
+    return _materialize_install(skill, project_dir, target)
 
 
 def remove_skill(repo_root: Path, project_dir: Path, skill_name: str, target: str) -> Path:

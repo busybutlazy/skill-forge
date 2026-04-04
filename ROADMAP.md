@@ -8,8 +8,17 @@
 2. [Phase 2: 建立中立 skill source 與 adapter](TODO/phase2.md)
 3. [Phase 3: 重構 manager/validator/render pipeline](TODO/phase3.md)
 4. [Phase 3.5: 收斂 pipeline 缺口並固定 CLI 契約](TODO/phase3.5.md)
-5. [Phase 4: 容器化開發與測試環境](TODO/phase4.md)
-6. [Phase 5: 將 toolkit 發布為容器化 CLI](TODO/phase5.md)
+5. [Phase 3.6: 補齊 install safety 與 phase 完成紀錄](TODO/phase3.6.md)
+6. [Phase 4: 容器化開發與測試環境](TODO/phase4.md)
+7. [Phase 5: 將 toolkit 發布為容器化 CLI](TODO/phase5.md)
+
+## 完成狀態
+
+- Phase 2: 已完成
+- Phase 3: 已完成
+- Phase 3.5: 已完成
+- Phase 3.6: 已完成
+- Phase 4: 已完成
 
 ## 已決定方向
 

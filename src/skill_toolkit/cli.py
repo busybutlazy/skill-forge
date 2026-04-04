@@ -36,6 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     install_parser.add_argument("skill", help="Skill name")
     install_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     install_parser.add_argument("--project", required=True, help="Target project root")
+    install_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
 
     list_parser = subparsers.add_parser("list", help="List installed packages and their status")
     list_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
@@ -89,7 +90,14 @@ def run_render(args: argparse.Namespace) -> int:
 
 def run_install(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
-    installed = install_skill(repo_root, Path(args.project).resolve(), args.skill, args.target)
+    installed = install_skill(
+        repo_root,
+        Path(args.project).resolve(),
+        args.skill,
+        args.target,
+        force=args.force,
+        confirm=_prompt_yes_no,
+    )
     print(installed)
     return 0
 

@@ -126,6 +126,18 @@ class WorkflowTests(unittest.TestCase):
             statuses = list_installed(REPO_ROOT, project_root, "codex")
             self.assertEqual(statuses[0].status, "update_available")
 
+            reinstalled = self.run_cli(
+                "install",
+                "commit",
+                "--target",
+                "codex",
+                "--project",
+                str(project_root),
+            )
+            self.assertEqual(reinstalled.returncode, 0, reinstalled.stderr)
+            statuses = list_installed(REPO_ROOT, project_root, "codex")
+            self.assertEqual(statuses[0].status, "up_to_date")
+
             updated = self.run_cli(
                 "update",
                 "commit",
@@ -145,6 +157,17 @@ class WorkflowTests(unittest.TestCase):
             statuses = list_installed(REPO_ROOT, project_root, "codex")
             self.assertEqual(statuses[0].status, "drift")
 
+            rejected_install = self.run_cli(
+                "install",
+                "commit",
+                "--target",
+                "codex",
+                "--project",
+                str(project_root),
+            )
+            self.assertEqual(rejected_install.returncode, 1)
+            self.assertIn("rerun install with --force", rejected_install.stderr)
+
             rejected = self.run_cli(
                 "update",
                 "commit",
@@ -155,6 +178,20 @@ class WorkflowTests(unittest.TestCase):
             )
             self.assertEqual(rejected.returncode, 1)
             self.assertIn("rerun update with --force", rejected.stderr)
+
+            forced_install = self.run_cli(
+                "install",
+                "commit",
+                "--target",
+                "codex",
+                "--project",
+                str(project_root),
+                "--force",
+                input_text="yes\n",
+            )
+            self.assertEqual(forced_install.returncode, 0, forced_install.stderr)
+            statuses = list_installed(REPO_ROOT, project_root, "codex")
+            self.assertEqual(statuses[0].status, "up_to_date")
 
             forced = self.run_cli(
                 "update",
@@ -175,6 +212,19 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(statuses[0].status, "broken")
             self.assertTrue(statuses[0].managed)
 
+            repaired_install = self.run_cli(
+                "install",
+                "commit",
+                "--target",
+                "codex",
+                "--project",
+                str(project_root),
+                input_text="yes\n",
+            )
+            self.assertEqual(repaired_install.returncode, 0, repaired_install.stderr)
+            statuses = list_installed(REPO_ROOT, project_root, "codex")
+            self.assertEqual(statuses[0].status, "up_to_date")
+
             removed = self.run_cli(
                 "remove",
                 "commit",
@@ -186,28 +236,53 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(removed.returncode, 0, removed.stderr)
             self.assertFalse(installed_dir.exists())
 
-    def test_unmanaged_codex_install_is_detected_and_not_removed(self) -> None:
+    def test_unmanaged_codex_install_is_detected_and_not_overwritten_or_removed(self) -> None:
         with tempfile.TemporaryDirectory(
             prefix="skill-toolkit-test-"
         ) as tmp_dir:
             project_root = Path(tmp_dir) / "project"
             unmanaged_dir = (
-                project_root / ".agents" / "skills" / "manual-skill"
+                project_root / ".agents" / "skills" / "commit"
             )
             unmanaged_dir.mkdir(parents=True)
             (unmanaged_dir / "SKILL.md").write_text(
                 "manual\n",
                 encoding="utf-8",
             )
+            (unmanaged_dir / "metadata.json").write_text(
+                json.dumps(
+                    {
+                        "name": "commit",
+                        "version": "1.0.0",
+                        "rendered_from": "somewhere-else/commit",
+                        "source_package_sha256": "foreign",
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
 
             statuses = list_installed(REPO_ROOT, project_root, "codex")
-            self.assertEqual(statuses[0].name, "manual-skill")
+            self.assertEqual(statuses[0].name, "commit")
             self.assertEqual(statuses[0].status, "unmanaged")
             self.assertFalse(statuses[0].managed)
 
+            rejected_install = self.run_cli(
+                "install",
+                "commit",
+                "--target",
+                "codex",
+                "--project",
+                str(project_root),
+            )
+            self.assertEqual(rejected_install.returncode, 1)
+            self.assertIn("is unmanaged; refusing to overwrite it", rejected_install.stderr)
+
             removed = self.run_cli(
                 "remove",
-                "manual-skill",
+                "commit",
                 "--target",
                 "codex",
                 "--project",
@@ -271,11 +346,11 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(statuses[0].status, "up_to_date")
 
             manual_agent = (
-                project_root / ".claude" / "agents" / "manual-agent.md"
+                project_root / ".claude" / "agents" / "commit.md"
             )
             manual_agent.parent.mkdir(parents=True, exist_ok=True)
             manual_agent.write_text(
-                "---\nname: manual-agent\n---\nmanual\n",
+                "---\nname: commit\n---\nmanual\n",
                 encoding="utf-8",
             )
 
@@ -292,10 +367,21 @@ class WorkflowTests(unittest.TestCase):
             manual_status = next(
                 item
                 for item in statuses_json
-                if item["name"] == "manual-agent"
+                if item["name"] == "commit"
             )
             self.assertEqual(manual_status["status"], "unmanaged")
             self.assertFalse(manual_status["managed"])
+
+            rejected_install = self.run_cli(
+                "install",
+                "commit",
+                "--target",
+                "claude",
+                "--project",
+                str(project_root),
+            )
+            self.assertEqual(rejected_install.returncode, 1)
+            self.assertIn("is unmanaged; refusing to overwrite it", rejected_install.stderr)
 
             removed = self.run_cli(
                 "remove",
