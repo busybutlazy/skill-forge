@@ -1,0 +1,13 @@
+{
+  "name": "install-manager-skill",
+  "version": "1.0.0",
+  "description": "Install or refresh manager-only skills plus shared regular skills into this repository's local agent targets",
+  "updated_at": "2026-04-04",
+  "tags": [
+    "maintainer",
+    "catalog",
+    "install"
+  ],
+  "source_package_sha256": "ef194de32f8331be487e6c00681c1b62aec86fa8b380f7b9457b7b52e2affc83",
+  "rendered_from": "canonical-skills/manager-skills/install-manager-skill"
+}

@@ -1,24 +1,27 @@
 ---
-name: create-skill
-description: "Public canonical skill creation specialist. Use proactively when the user wants to add a new skill under canonical-skills/, scaffold package.json and manifest.json, or define Codex and Claude target overrides."
-tools: Bash, Read, Grep, Glob
+name: "create-skill"
+description: "Canonical skill scaffolding specialist for this repository. Use when a maintainer needs to create a new public canonical skill package."
+tools: "Bash, Read, Grep, Glob, Edit"
 ---
+<!-- skill-toolkit: {"name": "create-skill", "rendered_from": "canonical-skills/manager-skills/create-skill", "source_package_sha256": "560b2285b1d47711fb4fddc9edd6a2ebe7a11920bf90c82f8af54b200b531f8e", "version": "1.0.0"} -->
 
 # Create Public Skill
 
-用來在這個 repo 的 `canonical-skills/` 中建立新的公開 skill。
+用來在這個 repo 的 `canonical-skills/regular-skills/` 中建立新的公開 skill。
 
 ## Use This For
 
 - 新增一個可分發的公開 skill
 - 草擬 `package.json`、`manifest.json`、`instruction.md` 與 target overrides
 - 建立 skill 所需的基本資料夾結構
+- 視需要替 regular skill 加上 `shared` tag，讓 manager install flow 也能同步它
 
 ## Do Not Use This For
 
-- 修改 repo 維護者專用的 `.agents/skills/` 或 `.claude/agents/`
+- 修改 repo 維護者專用的 `.agents/skills/`
 - 安裝 skill 到其他專案
 - 只做小幅文字修正或版本調整
+- 把 skill 同步到本 repo 的 `.agents/` 或 `.claude/`
 
 ## Workflow
 
@@ -39,13 +42,13 @@ tools: Bash, Read, Grep, Glob
 
 - `AGENTS.md`
 - `README.md`
-- `docs/phase2/canonical-package-spec.md`
-- `docs/phase2/adapter-contract.md`
-- 至少一個 `canonical-skills/` 既有 skill 作為結構參考
+- `docs/reference/canonical-package-spec.md`
+- `docs/reference/adapter-contract.md`
+- 至少一個 `canonical-skills/regular-skills/` 既有 skill 作為結構參考
 
 ### 3. Create the public skill
 
-在 `canonical-skills/<skill-name>/` 建立：
+在 `canonical-skills/regular-skills/<skill-name>/` 建立：
 
 - `package.json`
 - `manifest.json`
@@ -62,6 +65,8 @@ tools: Bash, Read, Grep, Glob
 - `identity.description`
 - `identity.updated_at`
 - `identity.tags`
+- 若這個 regular skill 也要給 manager workflow 使用，可加入 `shared` tag
+- `distribution.scope`
 - `content.instruction_file`，固定為 `instruction.md`
 - `targets.codex.frontmatter_file`
 - `targets.codex.install_path`，固定為 `.agents/skills/{name}/`
@@ -104,11 +109,15 @@ target override 要求：
 - `manifest.json`、`integrity.package_sha256`、版本與日期彼此一致
 - 內容屬於公開可分發 skill，而不是 repo 管理技能
 
-建立完後一定要跑：
+建立完 canonical source 後，下一步應提醒使用者執行 `finalize-skill`。
 
-- `PYTHONPATH=src python -m skill_toolkit --repo-root . validate <skill-name>`
+建議互動收尾：
 
-若 validate 失敗，先修 canonical package，不要跳過。
+- 問使用者是否現在就要 finalize 這個 skill
+- 若使用者回答 `yes`，立即切換到 `finalize-skill`
+- 若使用者回答 `no`，明確提醒之後要執行 `finalize-skill <skill-name>`
+
+是否同步到本 repo 的 `.agents/` 或 `.claude/` 不由這個 skill 處理，改由 `install-manager-skill` 負責。
 
 ### 5. Smoke-check target behavior
 

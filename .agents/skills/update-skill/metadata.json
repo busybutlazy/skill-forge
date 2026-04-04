@@ -1,0 +1,13 @@
+{
+  "name": "update-skill",
+  "version": "1.0.0",
+  "description": "Update an existing canonical skill package and keep its metadata in sync",
+  "updated_at": "2026-04-04",
+  "tags": [
+    "maintainer",
+    "canonical-skills",
+    "workflow"
+  ],
+  "source_package_sha256": "a510c844ead72488699990a86edfa231bc975d806d40afdd4b24ca363a4b5310",
+  "rendered_from": "canonical-skills/manager-skills/update-skill"
+}

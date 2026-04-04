@@ -1,0 +1,13 @@
+{
+  "name": "create-skill",
+  "version": "1.0.0",
+  "description": "Create and scaffold a new public canonical skill for this repository",
+  "updated_at": "2026-04-04",
+  "tags": [
+    "maintainer",
+    "canonical-skills",
+    "scaffolding"
+  ],
+  "source_package_sha256": "560b2285b1d47711fb4fddc9edd6a2ebe7a11920bf90c82f8af54b200b531f8e",
+  "rendered_from": "canonical-skills/manager-skills/create-skill"
+}

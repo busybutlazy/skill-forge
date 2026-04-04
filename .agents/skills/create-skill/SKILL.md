@@ -1,23 +1,24 @@
 ---
-name: create-skill
+name: "create-skill"
 description: "Use this skill when the user wants to create a new public skill in this repository's canonical-skills, scaffold its package, or draft the first version of its package and instructions."
 ---
-
 # Create Public Skill
 
-用來在這個 repo 的 `canonical-skills/` 中建立新的公開 skill。
+用來在這個 repo 的 `canonical-skills/regular-skills/` 中建立新的公開 skill。
 
 ## Use This For
 
 - 新增一個可分發的公開 skill
 - 草擬 `package.json`、`manifest.json`、`instruction.md` 與 target overrides
 - 建立 skill 所需的基本資料夾結構
+- 視需要替 regular skill 加上 `shared` tag，讓 manager install flow 也能同步它
 
 ## Do Not Use This For
 
 - 修改 repo 維護者專用的 `.agents/skills/`
 - 安裝 skill 到其他專案
 - 只做小幅文字修正或版本調整
+- 把 skill 同步到本 repo 的 `.agents/` 或 `.claude/`
 
 ## Workflow
 
@@ -40,11 +41,11 @@ description: "Use this skill when the user wants to create a new public skill in
 - `README.md`
 - `docs/reference/canonical-package-spec.md`
 - `docs/reference/adapter-contract.md`
-- 至少一個 `canonical-skills/` 既有 skill 作為結構參考
+- 至少一個 `canonical-skills/regular-skills/` 既有 skill 作為結構參考
 
 ### 3. Create the public skill
 
-在 `canonical-skills/<skill-name>/` 建立：
+在 `canonical-skills/regular-skills/<skill-name>/` 建立：
 
 - `package.json`
 - `manifest.json`
@@ -61,6 +62,8 @@ description: "Use this skill when the user wants to create a new public skill in
 - `identity.description`
 - `identity.updated_at`
 - `identity.tags`
+- 若這個 regular skill 也要給 manager workflow 使用，可加入 `shared` tag
+- `distribution.scope`
 - `content.instruction_file`，固定為 `instruction.md`
 - `targets.codex.frontmatter_file`
 - `targets.codex.install_path`，固定為 `.agents/skills/{name}/`
@@ -103,11 +106,15 @@ target override 要求：
 - `manifest.json`、`integrity.package_sha256`、版本與日期彼此一致
 - 內容屬於公開可分發 skill，而不是 repo 管理技能
 
-建立完後一定要跑：
+建立完 canonical source 後，下一步應提醒使用者執行 `finalize-skill`。
 
-- `PYTHONPATH=src python -m skill_toolkit --repo-root . validate <skill-name>`
+建議互動收尾：
 
-若 validate 失敗，先修 canonical package，不要跳過。
+- 問使用者是否現在就要 finalize 這個 skill
+- 若使用者回答 `yes`，立即切換到 `finalize-skill`
+- 若使用者回答 `no`，明確提醒之後要執行 `finalize-skill <skill-name>`
+
+是否同步到本 repo 的 `.agents/` 或 `.claude/` 不由這個 skill 處理，改由 `install-manager-skill` 負責。
 
 ### 5. Smoke-check target behavior
 

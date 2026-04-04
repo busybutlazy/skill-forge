@@ -1,7 +1,10 @@
 ---
 name: "commit"
-description: "Use this skill when the user wants help reviewing local changes, deciding commit boundaries, or creating one or more git commits."
+description: "Git commit planning specialist. Use proactively when the user asks to review local changes, separate commit boundaries, or prepare one or more commits."
+tools: "Bash, Read, Grep, Glob"
 ---
+<!-- skill-toolkit: {"name": "commit", "rendered_from": "canonical-skills/regular-skills/commit", "source_package_sha256": "304603224c1f980212b0ac20b8570bb3ceaa0dac6acfb7f318b37c069a1eafe4", "version": "1.0.0"} -->
+
 # Commit Assistant
 
 幫使用者把目前工作區整理成乾淨、可理解、可追蹤的 git commit。
