@@ -35,7 +35,6 @@ skill-manager
 這個 wrapper 會：
 
 - 自動把目前目錄當成 target project
-- 自動建立 `./.skill-toolkit-output`
 - 自動帶入目前使用者的檔案權限對映
 - 啟動 phase 6 的互動式 menu
 
@@ -53,6 +52,7 @@ skill-manager
 menu 會直接顯示：
 
 - 方框式主畫面與 target / status summary
+- 每次切頁會清空舊畫面後重繪，不會一直累積舊 log
 - 以顏色區分 `up_to_date`、`update_available`、`drift`、`broken`、`unmanaged`
 - 每個 skill 的版本、描述與部分 tags
 - 安裝 / 更新 / 移除時的多選模式，可用逗號選多個，安裝與更新也可用 `a` 一次全選

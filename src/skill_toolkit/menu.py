@@ -16,6 +16,7 @@ GREEN = "\033[32m"
 YELLOW = "\033[33m"
 BLUE = "\033[34m"
 CYAN = "\033[36m"
+CLEAR_SCREEN = "\033[2J\033[H"
 
 
 def _color(text: str, *styles: str) -> str:
@@ -37,18 +38,17 @@ def _status_style(status: str) -> tuple[str, ...]:
 
 
 class InteractiveMenu:
-    def __init__(self, repo_root: Path, project_dir: Path, output_dir: Path, *, shell_rc: Path | None = None) -> None:
+    def __init__(self, repo_root: Path, project_dir: Path, *, shell_rc: Path | None = None) -> None:
         self.repo_root = repo_root
         self.project_dir = project_dir
-        self.output_dir = output_dir
         self.shell_rc = shell_rc
         self.target = "codex"
         self.project_display_dir = Path(os.environ.get("SKILL_TOOLKIT_PROJECT_HOST_DIR", str(project_dir)))
-        self.output_display_dir = Path(os.environ.get("SKILL_TOOLKIT_OUTPUT_HOST_DIR", str(output_dir)))
 
     def run(self) -> int:
         self.target = self._choose_target(initial=True)
         while True:
+            self._clear_screen()
             self._print_header()
             choice = self._prompt_choice(
                 "Choose an action:",
@@ -64,19 +64,28 @@ class InteractiveMenu:
             )
             if choice == 1:
                 self._show_statuses()
+                self._pause()
             elif choice == 2:
                 self._install_skill()
+                self._pause()
             elif choice == 3:
                 self._update_skill()
+                self._pause()
             elif choice == 4:
                 self._remove_skill()
+                self._pause()
             elif choice == 5:
                 self.target = self._choose_target(initial=False)
             elif choice == 6:
                 self._open_expert_terminal()
+                self._pause()
             else:
+                self._clear_screen()
                 print("Exiting skill manager.")
                 return 0
+
+    def _clear_screen(self) -> None:
+        print(CLEAR_SCREEN, end="")
 
     def _statuses(self):
         return list_installed(self.repo_root, self.project_dir, self.target)
@@ -103,7 +112,6 @@ class InteractiveMenu:
         print(_color("║", CYAN) + f" Skills : {len(self._canonical_skills()):<{width - 10}}" + _color("║", CYAN))
         print(_color("╚" + "═" * width + "╝", CYAN))
         print(_color("Project", DIM) + f" {self.project_display_dir}")
-        print(_color("Output ", DIM) + f" {self.output_display_dir}")
         print(_color("Status ", DIM) + f" {summary}")
         print()
 
@@ -128,9 +136,10 @@ class InteractiveMenu:
         return f"{skill.name:<16} {source_version:<18} {badge}{version_note}\n  {skill.description}\n  {tags}"
 
     def _show_statuses(self) -> None:
+        self._clear_screen()
+        self._print_header()
         statuses = self._statuses()
         sources = self._canonical_index()
-        print()
         if not statuses:
             print(_color(f"No installed skills found for target {self.target}.", YELLOW))
             return
@@ -175,6 +184,8 @@ class InteractiveMenu:
         return selections or None
 
     def _prompt_multi_choice(self, title: str, labels: list[str], *, allow_all: bool = False) -> list[int] | None:
+        self._clear_screen()
+        self._print_header()
         print()
         print(title)
         for index, label in enumerate(labels, start=1):
@@ -193,8 +204,6 @@ class InteractiveMenu:
             print(_color("No canonical skills available.", YELLOW))
             return
         statuses = {item.name: item for item in self._statuses()}
-        print()
-        print(_color(f"Available skills for {self.target}:", BOLD))
         labels = []
         for skill in skills:
             labels.append(self._render_skill_line(skill, installed=statuses.get(skill.name)))
@@ -208,6 +217,8 @@ class InteractiveMenu:
             return
 
         selected_skills = [skills[index] for index in selections]
+        self._clear_screen()
+        self._print_header()
         print()
         print(_color("Will install/update:", BOLD))
         for skill in selected_skills:
@@ -251,6 +262,8 @@ class InteractiveMenu:
             print(_color("Update cancelled.", DIM))
             return
 
+        self._clear_screen()
+        self._print_header()
         successes: list[str] = []
         for index in selections:
             status = statuses[index]
@@ -280,6 +293,8 @@ class InteractiveMenu:
             return
 
         selected = [statuses[index] for index in selections]
+        self._clear_screen()
+        self._print_header()
         print()
         print(_color("Will remove:", BOLD))
         for status in selected:
@@ -393,6 +408,7 @@ class InteractiveMenu:
         if self.shell_rc is None:
             print(_color("Expert terminal is not available in this environment.", YELLOW))
             return
+        self._clear_screen()
         print(_color("Opening expert terminal. Exit the shell to return to the menu.", CYAN))
         subprocess.run(["bash", "--noprofile", "--rcfile", str(self.shell_rc)], check=False)
 
@@ -413,7 +429,10 @@ class InteractiveMenu:
         response = input(prompt).strip().lower()
         return response in {"y", "yes"}
 
+    def _pause(self) -> None:
+        input(_color("Press Enter to continue...", DIM))
 
-def run_menu(repo_root: Path, project_dir: Path, output_dir: Path, *, shell_rc: Path | None = None) -> int:
-    manager = InteractiveMenu(repo_root, project_dir, output_dir, shell_rc=shell_rc)
+
+def run_menu(repo_root: Path, project_dir: Path, *, shell_rc: Path | None = None) -> int:
+    manager = InteractiveMenu(repo_root, project_dir, shell_rc=shell_rc)
     return manager.run()

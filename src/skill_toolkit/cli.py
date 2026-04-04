@@ -57,7 +57,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     menu_parser = subparsers.add_parser("menu", help="Open the interactive skill manager")
     menu_parser.add_argument("--project", required=True, help="Target project root")
-    menu_parser.add_argument("--output", required=True, help="Output directory for rendered files")
     menu_parser.add_argument("--shell-rc", help="Shell rc file used by expert terminal mode")
 
     return parser
@@ -157,7 +156,6 @@ def run_menu_command(args: argparse.Namespace) -> int:
     return run_menu(
         repo_root,
         Path(args.project).resolve(),
-        Path(args.output).resolve(),
         shell_rc=shell_rc,
     )
 

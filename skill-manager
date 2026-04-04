@@ -103,19 +103,15 @@ done
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd)
 PROJECT_DIR=$(pwd)
-OUTPUT_DIR="${SKILL_TOOLKIT_OUTPUT_HOST_DIR:-$PROJECT_DIR/.skill-toolkit-output}"
 HOST_UID=$(id -u)
 HOST_GID=$(id -g)
 
 maybe_update_repo "$@"
 
-mkdir -p "$OUTPUT_DIR"
-
 exec env \
     HOST_UID="$HOST_UID" \
     HOST_GID="$HOST_GID" \
     SKILL_TOOLKIT_PROJECT_HOST_DIR="$PROJECT_DIR" \
-    SKILL_TOOLKIT_OUTPUT_HOST_DIR="$OUTPUT_DIR" \
     docker compose \
     -f "$SCRIPT_DIR/compose.yaml" \
     run --build --rm toolkit "$@"

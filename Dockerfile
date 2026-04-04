@@ -7,7 +7,6 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV SKILL_TOOLKIT_REPO_ROOT=/opt/skill-toolkit
 ENV SKILL_TOOLKIT_PROJECT_DIR=/workspace/project
-ENV SKILL_TOOLKIT_OUTPUT_DIR=/workspace/output
 
 LABEL org.opencontainers.image.title="skill-toolkit"
 LABEL org.opencontainers.image.description="Containerized CLI for validating, rendering, and installing canonical skills"

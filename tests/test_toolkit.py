@@ -405,23 +405,20 @@ class WorkflowTests(unittest.TestCase):
     def test_menu_installs_and_lists_codex_skill(self) -> None:
         with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
-            output_root = Path(tmp_dir) / "output"
             project_root.mkdir()
-            output_root.mkdir()
 
             result = self.run_cli(
                 "menu",
                 "--project",
                 str(project_root),
-                "--output",
-                str(output_root),
-                input_text="1\n2\n1\n1\n7\n",
+                input_text="1\n2\n1\n\n7\n",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             clean_output = self.strip_ansi(result.stdout)
             self.assertIn("Skill Toolkit Manager", clean_output)
             self.assertIn("Installed commit", clean_output)
             self.assertIn("Select skills to install or refresh:", clean_output)
+            self.assertIn("Press Enter to continue...", clean_output)
             statuses = list_installed(REPO_ROOT, project_root, "codex")
             self.assertEqual(statuses[0].name, "commit")
             self.assertEqual(statuses[0].status, "up_to_date")
@@ -429,46 +426,37 @@ class WorkflowTests(unittest.TestCase):
     def test_menu_can_batch_install_skills(self) -> None:
         with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
-            output_root = Path(tmp_dir) / "output"
             project_root.mkdir()
-            output_root.mkdir()
 
             result = self.run_cli(
                 "menu",
                 "--project",
                 str(project_root),
-                "--output",
-                str(output_root),
-                input_text="1\n2\na\n7\n",
+                input_text="1\n2\na\n\n7\n",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             statuses = list_installed(REPO_ROOT, project_root, "codex")
             installed_names = [status.name for status in statuses]
             self.assertEqual(installed_names, ["commit", "create-pr", "dto-organizer"])
 
-    def test_menu_prefers_host_paths_in_header_when_present(self) -> None:
+    def test_menu_prefers_host_project_path_in_header_when_present(self) -> None:
         with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
-            output_root = Path(tmp_dir) / "output"
             project_root.mkdir()
-            output_root.mkdir()
 
             result = self.run_cli(
                 "menu",
                 "--project",
                 str(project_root),
-                "--output",
-                str(output_root),
                 input_text="1\n7\n",
                 extra_env={
                     "SKILL_TOOLKIT_PROJECT_HOST_DIR": "/host/project",
-                    "SKILL_TOOLKIT_OUTPUT_HOST_DIR": "/host/output",
                 },
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             clean_output = self.strip_ansi(result.stdout)
             self.assertIn("Project /host/project", clean_output)
-            self.assertIn("Output  /host/output", clean_output)
+            self.assertNotIn(".skill-toolkit-output", clean_output)
 
 
 if __name__ == "__main__":
