@@ -1,4 +1,4 @@
-# Maintainer Terminal Guide
+# Terminal Operations Guide
 
 ## English
 
