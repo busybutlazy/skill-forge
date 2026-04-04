@@ -393,7 +393,7 @@ Codex, Claude, and similar tools still own their in-product execution experience
 
 ## Current version focus
 
-Version `1.1.1` extends the `1.0.0` end-user baseline with a formal maintainer workflow and canonical manager skill model.
+Version `1.1.2` extends the `1.0.0` end-user baseline with a formal maintainer workflow and canonical manager skill model.
 
 This stage focuses on:
 
@@ -804,7 +804,7 @@ Codex、Claude 等工具仍然負責各自產品內的執行體驗。
 
 ## 目前版本重點
 
-`1.1.1` 是在 `1.0.0` 一般使用者基礎體驗之上，正式補齊 maintainer workflow 與 canonical manager skill model 的版本。
+`1.1.2` 是在 `1.0.0` 一般使用者基礎體驗之上，正式補齊 maintainer workflow 與 canonical manager skill model 的版本。
 
 這個版本的重點包括：
 
