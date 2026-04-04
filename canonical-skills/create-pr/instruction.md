@@ -1,8 +1,3 @@
----
-name: create-pr
-description: "Use this skill when the user wants to prepare a pull request, summarize branch changes, draft PR text, or create a PR with the GitHub CLI."
----
-
 # Pull Request Writer
 
 協助使用者把 branch 上的工作整理成 reviewer 看得懂的 Pull Request。

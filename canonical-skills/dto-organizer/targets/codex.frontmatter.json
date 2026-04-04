@@ -1,0 +1,4 @@
+{
+  "name": "dto-organizer",
+  "description": "Use this skill when the user wants to inventory API request and response shapes, generate DTO documentation, or compare current schemas with earlier docs."
+}

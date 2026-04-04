@@ -1,0 +1,5 @@
+{
+  "name": "dto-organizer",
+  "description": "DTO documentation specialist. Use proactively when the user wants to inventory API request and response schemas, generate DTO docs, or compare schema changes against earlier documents.",
+  "tools": "Bash, Read, Grep, Glob"
+}

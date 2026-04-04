@@ -14,6 +14,8 @@
 # Test artifacts
 .tmp/
 tmp/
+__pycache__/
+*.pyc
 
 # Local project installs used only for smoke tests
 test-project/

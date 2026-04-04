@@ -1,0 +1,5 @@
+{
+  "name": "create-pr",
+  "description": "Pull request writing specialist. Use proactively when the user wants to summarize branch changes, draft reviewer-friendly PR text, or create a PR with GitHub CLI.",
+  "tools": "Bash, Read, Grep, Glob"
+}

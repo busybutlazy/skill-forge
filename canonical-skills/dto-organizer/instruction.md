@@ -1,8 +1,3 @@
----
-name: dto-organizer
-description: "Use this skill when the user wants to inventory API request and response shapes, generate DTO documentation, or compare current schemas with earlier docs."
----
-
 # DTO Inventory Builder
 
 把專案中的 API request / response 結構整理成可讀文件，方便維護、review 與跨團隊溝通。

@@ -1,9 +1,0 @@
-{
-  "name": "commit",
-  "version": "1.0.0",
-  "category": "git",
-  "description": "Plan commit boundaries, review staged content, and craft concise commit messages",
-  "author": "Toolkit Maintainer",
-  "updated_at": "2026-04-03",
-  "tags": ["git", "commit", "workflow"]
-}

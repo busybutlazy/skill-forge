@@ -1,9 +1,0 @@
-{
-  "name": "dto-organizer",
-  "version": "1.0.0",
-  "category": "documentation",
-  "description": "Inventory API request and response shapes and generate structured DTO documentation",
-  "author": "Toolkit Maintainer",
-  "updated_at": "2026-04-03",
-  "tags": ["documentation", "api", "dto", "schema", "inventory"]
-}

@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "examples/DTO_2026-04-02.md",
+      "sha256": "22cb062941ee734a9884b91073200625042367906b19d3bceb5581c500d62ec5"
+    },
+    {
+      "path": "instruction.md",
+      "sha256": "824f3cf072b493f4ab958f138d9943388aebcc2acf1fb8fdd63846a68f1c2c8f"
+    },
+    {
+      "path": "targets/claude.frontmatter.json",
+      "sha256": "61d3eca6be778259ee39a86f9ab8734453d0cd21446deb2df05cf24ef4defe92"
+    },
+    {
+      "path": "targets/codex.frontmatter.json",
+      "sha256": "fd93e974d607810a4b03aef0c63714d0ae22551e2134cee17b46a9d3b6a62559"
+    }
+  ],
+  "package_sha256": "9527dce730cc75d962fdfca070e00814b2debaa63f82fa172f4458d2be556d40"
+}
