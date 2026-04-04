@@ -2,6 +2,35 @@
 
 set -eu
 
+print_help() {
+    cat <<'EOF'
+Usage:
+  skill-manager
+  skill-manager shell
+  skill-manager help
+  skill-manager <skill-toolkit arguments>
+
+Behavior:
+  - No arguments: open the interactive menu for the current project directory
+  - shell: open the runtime container's expert terminal
+  - help, -h, --help: show this help text locally without starting Docker
+  - any other arguments: pass them through to the containerized skill-toolkit CLI
+
+Examples:
+  skill-manager
+  skill-manager shell
+  skill-manager validate
+  skill-manager list --target codex --project /workspace/project --json
+EOF
+}
+
+case "${1:-}" in
+    help|-h|--help)
+        print_help
+        exit 0
+        ;;
+esac
+
 SCRIPT_PATH=$0
 while [ -L "$SCRIPT_PATH" ]; do
     LINK_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd)

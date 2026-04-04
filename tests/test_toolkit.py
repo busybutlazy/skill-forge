@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,7 @@ from skill_toolkit.repository import (
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 
 class ValidationTests(unittest.TestCase):
@@ -31,6 +33,9 @@ class ValidationTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def strip_ansi(self, text: str) -> str:
+        return ANSI_ESCAPE_RE.sub("", text)
+
     def run_cli(
         self,
         *args: str,
@@ -410,11 +415,33 @@ class WorkflowTests(unittest.TestCase):
                 input_text="1\n2\n1\n1\n7\n",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn("Installed commit", result.stdout)
-            self.assertIn("Target: codex", result.stdout)
+            clean_output = self.strip_ansi(result.stdout)
+            self.assertIn("Skill Toolkit Manager", clean_output)
+            self.assertIn("Installed commit", clean_output)
+            self.assertIn("Select skills to install or refresh:", clean_output)
             statuses = list_installed(REPO_ROOT, project_root, "codex")
             self.assertEqual(statuses[0].name, "commit")
             self.assertEqual(statuses[0].status, "up_to_date")
+
+    def test_menu_can_batch_install_skills(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-toolkit-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            output_root = Path(tmp_dir) / "output"
+            project_root.mkdir()
+            output_root.mkdir()
+
+            result = self.run_cli(
+                "menu",
+                "--project",
+                str(project_root),
+                "--output",
+                str(output_root),
+                input_text="1\n2\na\n7\n",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            statuses = list_installed(REPO_ROOT, project_root, "codex")
+            installed_names = [status.name for status in statuses]
+            self.assertEqual(installed_names, ["commit", "create-pr", "dto-organizer"])
 
 
 if __name__ == "__main__":
