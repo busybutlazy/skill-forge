@@ -1,6 +1,7 @@
 ---
 name: create-skill
-description: "Use this skill when the user wants to create a new public skill in this repository's canonical-skills, scaffold its package, or draft the first version of its package and instructions."
+description: "Public canonical skill creation specialist. Use proactively when the user wants to add a new skill under canonical-skills/, scaffold package.json and manifest.json, or define Codex and Claude target overrides."
+tools: Bash, Read, Grep, Glob
 ---
 
 # Create Public Skill
@@ -15,7 +16,7 @@ description: "Use this skill when the user wants to create a new public skill in
 
 ## Do Not Use This For
 
-- 修改 repo 維護者專用的 `.agents/skills/`
+- 修改 repo 維護者專用的 `.agents/skills/` 或 `.claude/agents/`
 - 安裝 skill 到其他專案
 - 只做小幅文字修正或版本調整
 

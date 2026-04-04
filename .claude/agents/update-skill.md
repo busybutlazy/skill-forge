@@ -1,6 +1,7 @@
 ---
 name: update-skill
-description: "Use this skill when the user wants to modify an existing public skill in this repository's canonical-skills, revise its workflow, or update its package metadata and version."
+description: "Public canonical skill update specialist. Use proactively when the user wants to revise an existing skill under canonical-skills/, change workflow or trigger wording, or bump package metadata while keeping manifest and package hashes in sync."
+tools: Bash, Read, Grep, Glob
 ---
 
 # Update Public Skill
@@ -16,7 +17,7 @@ description: "Use this skill when the user wants to modify an existing public sk
 
 ## Do Not Use This For
 
-- 修改 `.agents/skills/` 的管理者技能
+- 修改 `.agents/skills/` 或 `.claude/agents/` 的管理者技能
 - 安裝或移除其他專案的 skills
 - 建立全新的 skill
 
