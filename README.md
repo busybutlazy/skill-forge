@@ -44,11 +44,18 @@ skill-manager
 啟動後先選 `codex` 或 `claude`，再用數字選單操作：
 
 - 檢查目前 project 已安裝 skill 狀態
-- 安裝 skill
-- 更新或修復 skill
-- 移除 skill
+- 批次安裝或更新多個 skill
+- 批次更新或修復多個 skill
+- 批次移除 skill
 - 切換 target
 - 進入 expert terminal
+
+menu 會直接顯示：
+
+- 方框式主畫面與 target / status summary
+- 以顏色區分 `up_to_date`、`update_available`、`drift`、`broken`、`unmanaged`
+- 每個 skill 的版本、描述與部分 tags
+- 安裝 / 更新 / 移除時的多選模式，可用逗號選多個，安裝與更新也可用 `a` 一次全選
 
 如果你只是要確認現在專案裡哪些 skill 需要更新，直接進入 menu 後選 target，再選 `Check installed skill status` 即可。
 
@@ -57,7 +64,8 @@ skill-manager
 - `skill-toolkit ...`
   - 需要先執行 `python3 -m pip install -e .`
 - `python3 -m skill_toolkit ...`
-  - 也需要先安裝到目前 Python 環境
+  - 預設也需要先安裝到目前 Python 環境
+  - 如果尚未安裝套件，直接執行通常會出現 `No module named skill_toolkit`
   - 如果你只是要在 repo 內直接跑開發版本測試，可改用 `PYTHONPATH=src python3 -m skill_toolkit ...`
 
 ## 安裝教學
@@ -134,6 +142,12 @@ python3 -m skill_toolkit --help
 ```
 
 也可以正常工作。
+
+如果你還沒安裝 editable package，請改用：
+
+```bash
+PYTHONPATH=src python3 -m skill_toolkit --help
+```
 
 ### 5. 先驗證 toolkit repo 內的 canonical skills
 
@@ -381,6 +395,12 @@ skill-manager
 
 ```bash
 skill-manager shell
+```
+
+如果你只是忘了 wrapper 的用法，可直接在 host 上查：
+
+```bash
+skill-manager --help
 ```
 
 ### 維護者入口

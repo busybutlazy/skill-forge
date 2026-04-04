@@ -15,6 +15,7 @@
 
 ## 完成狀態
 
+- Phase 1: 已完成（歷史 shell manager 穩定化；目前已由 Python CLI 與 `skill-manager` wrapper 取代）
 - Phase 2: 已完成
 - Phase 3: 已完成
 - Phase 3.5: 已完成
