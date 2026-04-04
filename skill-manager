@@ -1,0 +1,117 @@
+#!/usr/bin/env sh
+
+set -eu
+
+print_help() {
+    cat <<'EOF'
+Usage:
+  skill-manager
+  skill-manager shell
+  skill-manager help
+  skill-manager <skill-toolkit arguments>
+
+Behavior:
+  - No arguments: open the interactive menu for the current project directory
+  - shell: open the runtime container's expert terminal
+  - help, -h, --help: show this help text locally without starting Docker
+  - check whether the local toolkit repo is behind its upstream branch
+  - offer to update with git pull --ff-only, then restart if the update succeeds
+  - rebuild the runtime image automatically before each run
+  - any other arguments: pass them through to the containerized skill-toolkit CLI
+
+Examples:
+  skill-manager
+  skill-manager shell
+  skill-manager validate
+  skill-manager list --target codex --project /workspace/project --json
+EOF
+}
+
+case "${1:-}" in
+    help|-h|--help)
+        print_help
+        exit 0
+        ;;
+esac
+
+confirm_yes_no() {
+    prompt="$1"
+    printf "%s" "$prompt"
+    read -r response || return 1
+    case "$response" in
+        y|Y|yes|YES|Yes) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+maybe_update_repo() {
+    if ! command -v git >/dev/null 2>&1; then
+        return
+    fi
+
+    if ! git -C "$SCRIPT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        return
+    fi
+
+    if ! upstream_ref="$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)"; then
+        return
+    fi
+
+    current_branch="$(git -C "$SCRIPT_DIR" branch --show-current 2>/dev/null || true)"
+    if [ -z "$current_branch" ]; then
+        return
+    fi
+
+    if ! git -C "$SCRIPT_DIR" fetch --quiet >/dev/null 2>&1; then
+        return
+    fi
+
+    local_ref="refs/heads/$current_branch"
+    ahead_behind="$(git -C "$SCRIPT_DIR" rev-list --left-right --count "$local_ref...$upstream_ref" 2>/dev/null || true)"
+    if [ -z "$ahead_behind" ]; then
+        return
+    fi
+
+    behind_count="$(printf "%s" "$ahead_behind" | awk '{print $2}')"
+    if [ "${behind_count:-0}" -eq 0 ]; then
+        return
+    fi
+
+    echo "A newer skill-toolkit version is available from $upstream_ref."
+    if ! confirm_yes_no "Update now with 'git pull --ff-only'? [y/N] "; then
+        return
+    fi
+
+    echo "Updating toolkit repo..."
+    if git -C "$SCRIPT_DIR" pull --ff-only; then
+        echo "Update complete. Restarting skill-manager..."
+        exec "$0" "$@"
+    fi
+
+    echo "Update failed. Continuing with the current local version."
+}
+
+SCRIPT_PATH=$0
+while [ -L "$SCRIPT_PATH" ]; do
+    LINK_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd)
+    SCRIPT_PATH=$(readlink "$SCRIPT_PATH")
+    case "$SCRIPT_PATH" in
+        /*) ;;
+        *) SCRIPT_PATH="$LINK_DIR/$SCRIPT_PATH" ;;
+    esac
+done
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd)
+PROJECT_DIR=$(pwd)
+HOST_UID=$(id -u)
+HOST_GID=$(id -g)
+
+maybe_update_repo "$@"
+
+exec env \
+    HOST_UID="$HOST_UID" \
+    HOST_GID="$HOST_GID" \
+    SKILL_TOOLKIT_PROJECT_HOST_DIR="$PROJECT_DIR" \
+    docker compose \
+    -f "$SCRIPT_DIR/compose.yaml" \
+    run --build --rm toolkit "$@"

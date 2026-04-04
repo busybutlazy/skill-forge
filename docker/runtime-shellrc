@@ -1,0 +1,7 @@
+export SKILL_TOOLKIT_REPO_ROOT="${SKILL_TOOLKIT_REPO_ROOT:-/opt/skill-toolkit}"
+export SKILL_TOOLKIT_PROJECT_DIR="${SKILL_TOOLKIT_PROJECT_DIR:-/workspace/project}"
+
+alias st='skill-toolkit --repo-root "$SKILL_TOOLKIT_REPO_ROOT"'
+alias project='cd "$SKILL_TOOLKIT_PROJECT_DIR"'
+
+PS1='skill-toolkit> '

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 from . import __version__
-from .install import install_skill, list_installed, remove_skill
+from .install import install_skill, list_installed, remove_skill, update_skill
+from .menu import run_menu
+from .models import ValidationFailure
 from .render import render_skill
 from .repository import SUPPORTED_TARGETS, iter_skill_dirs, load_skill, validate_skill_dir
 
@@ -34,15 +37,27 @@ def build_parser() -> argparse.ArgumentParser:
     install_parser.add_argument("skill", help="Skill name")
     install_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     install_parser.add_argument("--project", required=True, help="Target project root")
+    install_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
 
     list_parser = subparsers.add_parser("list", help="List installed packages and their status")
     list_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     list_parser.add_argument("--project", required=True, help="Target project root")
+    list_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
 
     remove_parser = subparsers.add_parser("remove", help="Remove a managed installed package")
     remove_parser.add_argument("skill", help="Skill name")
     remove_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     remove_parser.add_argument("--project", required=True, help="Target project root")
+
+    update_parser = subparsers.add_parser("update", help="Update a managed installed package from canonical source")
+    update_parser.add_argument("skill", help="Skill name")
+    update_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
+    update_parser.add_argument("--project", required=True, help="Target project root")
+    update_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
+
+    menu_parser = subparsers.add_parser("menu", help="Open the interactive skill manager")
+    menu_parser.add_argument("--project", required=True, help="Target project root")
+    menu_parser.add_argument("--shell-rc", help="Shell rc file used by expert terminal mode")
 
     return parser
 
@@ -80,7 +95,14 @@ def run_render(args: argparse.Namespace) -> int:
 
 def run_install(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
-    installed = install_skill(repo_root, Path(args.project).resolve(), args.skill, args.target)
+    installed = install_skill(
+        repo_root,
+        Path(args.project).resolve(),
+        args.skill,
+        args.target,
+        force=args.force,
+        confirm=_prompt_yes_no,
+    )
     print(installed)
     return 0
 
@@ -88,6 +110,9 @@ def run_install(args: argparse.Namespace) -> int:
 def run_list(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
     statuses = list_installed(repo_root, Path(args.project).resolve(), args.target)
+    if args.json:
+        print(json.dumps([status.to_dict() for status in statuses], ensure_ascii=False, indent=2))
+        return 0
     if not statuses:
         print("No installed packages found.")
         return 0
@@ -106,6 +131,35 @@ def run_remove(args: argparse.Namespace) -> int:
     return 0
 
 
+def _prompt_yes_no(prompt: str) -> bool:
+    response = input(prompt).strip().lower()
+    return response in {"y", "yes"}
+
+
+def run_update(args: argparse.Namespace) -> int:
+    repo_root = _repo_root_from_args(args)
+    updated = update_skill(
+        repo_root,
+        Path(args.project).resolve(),
+        args.skill,
+        args.target,
+        force=args.force,
+        confirm=_prompt_yes_no,
+    )
+    print(updated)
+    return 0
+
+
+def run_menu_command(args: argparse.Namespace) -> int:
+    repo_root = _repo_root_from_args(args)
+    shell_rc = Path(args.shell_rc).resolve() if args.shell_rc else None
+    return run_menu(
+        repo_root,
+        Path(args.project).resolve(),
+        shell_rc=shell_rc,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -116,8 +170,14 @@ def main(argv: list[str] | None = None) -> int:
         "install": run_install,
         "list": run_list,
         "remove": run_remove,
+        "update": run_update,
+        "menu": run_menu_command,
     }
-    return command_handlers[args.command](args)
+    try:
+        return command_handlers[args.command](args)
+    except (ValidationFailure, FileNotFoundError, RuntimeError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

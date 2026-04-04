@@ -54,3 +54,16 @@ class InstalledStatus:
     version: str | None = None
     source_package_sha256: str | None = None
     details: str | None = None
+    managed: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "target": self.target,
+            "status": self.status,
+            "location": str(self.location),
+            "version": self.version,
+            "source_package_sha256": self.source_package_sha256,
+            "details": self.details,
+            "managed": self.managed,
+        }
