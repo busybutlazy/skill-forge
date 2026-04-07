@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "commit",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Plan commit boundaries, review staged content, and craft concise commit messages",
-    "updated_at": "2026-04-03",
+    "updated_at": "2026-04-07",
     "tags": [
       "git",
       "commit",
@@ -25,7 +25,7 @@
     },
     "claude": {
       "frontmatter_file": "targets/claude.frontmatter.json",
-      "install_path": ".claude/agents/{name}.md"
+      "install_path": ".claude/skills/{name}/"
     }
   },
   "integrity": {

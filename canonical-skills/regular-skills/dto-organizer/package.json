@@ -2,10 +2,16 @@
   "schema_version": 1,
   "identity": {
     "name": "dto-organizer",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Inventory API request and response shapes and generate structured DTO documentation",
-    "updated_at": "2026-04-03",
-    "tags": ["documentation", "api", "dto", "schema", "inventory"]
+    "updated_at": "2026-04-07",
+    "tags": [
+      "documentation",
+      "api",
+      "dto",
+      "schema",
+      "inventory"
+    ]
   },
   "content": {
     "instruction_file": "instruction.md"
@@ -20,7 +26,7 @@
     },
     "claude": {
       "frontmatter_file": "targets/claude.frontmatter.json",
-      "install_path": ".claude/agents/{name}.md"
+      "install_path": ".claude/skills/{name}/"
     }
   },
   "integrity": {

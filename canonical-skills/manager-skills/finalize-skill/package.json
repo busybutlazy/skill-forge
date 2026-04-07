@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "finalize-skill",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Refresh metadata and validate a canonical skill package after source changes",
-    "updated_at": "2026-04-04",
+    "updated_at": "2026-04-07",
     "tags": [
       "maintainer",
       "validation",
@@ -24,11 +24,11 @@
     },
     "claude": {
       "frontmatter_file": "targets/claude.frontmatter.json",
-      "install_path": ".claude/agents/{name}.md"
+      "install_path": ".claude/skills/{name}/"
     }
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "901244ddd74ab1b7524faeacffbbcaae6109b125ba722f6b53448fac742fb9ae"
+    "package_sha256": "ef95cd1e0ffd287289a8abb1971a80509a48463c5a587602227051b0a5fa577e"
   }
 }

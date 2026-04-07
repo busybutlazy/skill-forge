@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "create-skill",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Create and scaffold a new public canonical skill for this repository",
-    "updated_at": "2026-04-04",
+    "updated_at": "2026-04-07",
     "tags": [
       "maintainer",
       "canonical-skills",
@@ -24,11 +24,11 @@
     },
     "claude": {
       "frontmatter_file": "targets/claude.frontmatter.json",
-      "install_path": ".claude/agents/{name}.md"
+      "install_path": ".claude/skills/{name}/"
     }
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "560b2285b1d47711fb4fddc9edd6a2ebe7a11920bf90c82f8af54b200b531f8e"
+    "package_sha256": "1e2090bda2cd7a2e2379d2baa12d09964e4e8fdebf80b759d65e7bc515375e25"
   }
 }

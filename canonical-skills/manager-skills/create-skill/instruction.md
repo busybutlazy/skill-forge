@@ -64,7 +64,7 @@
 - `targets.codex.frontmatter_file`
 - `targets.codex.install_path`，固定為 `.agents/skills/{name}/`
 - `targets.claude.frontmatter_file`
-- `targets.claude.install_path`，固定為 `.claude/agents/{name}.md`
+- `targets.claude.install_path`，固定為 `.claude/skills/{name}/`
 - `integrity.manifest_file`，固定為 `manifest.json`
 - `integrity.package_sha256`
 
@@ -118,7 +118,7 @@ target override 要求：
 
 - 這個 skill 之後會由 Python CLI render 並安裝到其他專案
 - Codex 目標是 `.agents/skills/<name>/`
-- Claude 目標是 `.claude/agents/<name>.md`
+- Claude 目標是 `.claude/skills/<name>/SKILL.md`
 - 因此 canonical source 不應依賴這個 repo 自己的 maintainer workflow
 
 如果這次建立的 skill 使用了 `examples/`、`references/`、`scripts/`、`assets/`，要再檢查它們在 Codex 與 Claude output 的相對路徑是否合理。

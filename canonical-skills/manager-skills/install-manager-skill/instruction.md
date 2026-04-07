@@ -7,14 +7,14 @@
 - 列出目前可供管理者同步的 skills
 - 從 `manager-skills/` 中挑選 manager-only skills
 - 額外納入帶有 `shared` tag 的 regular skills
-- 讓管理者選擇要同步到 `.agents/skills/`、`.claude/agents/` 或兩者都同步
+- 讓管理者選擇要同步到 `.agents/skills/`、`.claude/skills/` 或兩者都同步
 - 呼叫 repo CLI 完成 install、refresh 或 update
 
 ## Do Not Use This For
 
 - 建立新的 canonical skill
 - 修改既有 canonical skill 的內容
-- 手動編輯 `.agents/skills/` 或 `.claude/agents/`
+- 手動編輯 `.agents/skills/` 或 `.claude/skills/`
 - 取代 `create-skill` 或 `update-skill`
 
 ## Workflow
@@ -38,7 +38,7 @@
 詢問要同步到哪裡：
 
 - Codex：`.agents/skills/`
-- Claude：`.claude/agents/`
+- Claude：`.claude/skills/`
 - All：兩者都同步
 
 ### 3. Choose what to sync

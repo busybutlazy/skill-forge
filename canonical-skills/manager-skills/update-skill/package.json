@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "update-skill",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Update an existing canonical skill package and keep its metadata in sync",
-    "updated_at": "2026-04-04",
+    "updated_at": "2026-04-07",
     "tags": [
       "maintainer",
       "canonical-skills",
@@ -24,11 +24,11 @@
     },
     "claude": {
       "frontmatter_file": "targets/claude.frontmatter.json",
-      "install_path": ".claude/agents/{name}.md"
+      "install_path": ".claude/skills/{name}/"
     }
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "a510c844ead72488699990a86edfa231bc975d806d40afdd4b24ca363a4b5310"
+    "package_sha256": "1e96c6e65960cbd808c225dc5eedca818d9bb60a327cf1a38ffb28a39a340233"
   }
 }

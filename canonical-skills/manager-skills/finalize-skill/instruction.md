@@ -13,7 +13,7 @@
 
 - 建立新的 canonical skill
 - 修改 canonical instruction 內容
-- 同步 `.agents/skills/` 或 `.claude/agents/`
+- 同步 `.agents/skills/` 或 `.claude/skills/`
 - 取代 `install-manager-skill`
 
 ## Workflow
