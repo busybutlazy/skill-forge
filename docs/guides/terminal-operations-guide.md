@@ -333,6 +333,7 @@ PYTHONPATH=src python -m skill_forge --repo-root .
 - 下載來源放在 `tmp/foreign_skills/`
 - 轉換後的 draft 放在 `tmp/import-candidates/`
 - promotion 前先做 maintainer decision review，不只看風險，也看 skill 類型、trigger 邊界、permission model、failure mode、canonicalization 與 maintenance cost
+- 先讓使用者審查 review report 與 staged draft；若要修改，先比照 `update-skill` 原則修完再問 promote
 - promote 時要明確選擇 `regular-skills/` 或 `manager-skills/`
 - promote 後直接完成 finalize 與 Codex smoke test
 - 只有整個 intake flow 成功後才刪除對應的 `tmp/import-candidates/` draft

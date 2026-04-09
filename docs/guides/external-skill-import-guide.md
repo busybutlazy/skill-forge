@@ -37,9 +37,10 @@ If the source does not match either shape, stop and review it manually before at
 3. Produce a structured maintainer decision review in Traditional Chinese, including skill type, trigger boundary, permission model, failure modes, canonicalization guidance, maintenance cost, and a risk table.
 4. If the verdict is `needs_human_review` or `block`, stop promotion and keep only review output plus remediation notes.
 5. If the verdict is `allow`, stage the converted draft in `tmp/import-candidates/<source-name>/<skill-name>/`.
-6. On explicit approval, ask whether the skill belongs in `canonical-skills/regular-skills/<skill-name>/` or `canonical-skills/manager-skills/<skill-name>/`.
-7. Promote into the chosen canonical layer, then run `refresh-metadata`, `validate`, and a Codex smoke test.
-8. Delete the matching `tmp/import-candidates/...` draft only after the full flow succeeds.
+6. Let the user review the report and staged draft first; if changes are needed, revise the draft before promotion.
+7. On explicit approval, ask whether the skill belongs in `canonical-skills/regular-skills/<skill-name>/` or `canonical-skills/manager-skills/<skill-name>/`.
+8. Promote into the chosen canonical layer, then run `refresh-metadata`, `validate`, and a Codex smoke test.
+9. Delete the matching `tmp/import-candidates/...` draft only after the full flow succeeds.
 
 ### Rules
 
@@ -88,9 +89,10 @@ tmp/
 3. 產出結構化的維護決策審查，且 `review-report.md` 必須用繁體中文撰寫，內容包含 skill 類型、trigger 邊界、permission model、failure mode、canonicalization 建議、maintenance cost 與風險表
 4. 若 verdict 是 `needs_human_review` 或 `block`，就停止 promotion，只保留 review 輸出與 remediation notes
 5. 若 verdict 是 `allow`，就把轉換後的 draft 放到 `tmp/import-candidates/<source-name>/<skill-name>/`
-6. 在明確確認後，詢問正式納管到 `canonical-skills/regular-skills/<skill-name>/` 還是 `canonical-skills/manager-skills/<skill-name>/`
-7. 提升到選定的 canonical layer 後，直接執行 `refresh-metadata`、`validate` 與 Codex smoke test
-8. 只有在整個流程都成功後，才刪除對應的 `tmp/import-candidates/...` draft
+6. 先讓使用者審查 `review-report.md` 與 staged draft；若要修改，先改完再決定是否 promote
+7. 在明確確認後，詢問正式納管到 `canonical-skills/regular-skills/<skill-name>/` 還是 `canonical-skills/manager-skills/<skill-name>/`
+8. 提升到選定的 canonical layer 後，直接執行 `refresh-metadata`、`validate` 與 Codex smoke test
+9. 只有在整個流程都成功後，才刪除對應的 `tmp/import-candidates/...` draft
 
 ### 規則
 
