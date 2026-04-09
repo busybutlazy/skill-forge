@@ -276,7 +276,7 @@ Maintainers should use `import-plugin-skill` to:
 - inspect one local external skill source
 - run a maintainer decision review before promotion, covering skill type, trigger boundary, permission model, failure modes, canonicalization, and maintenance cost
 - stage a draft outside canonical source
-- let the user review the report and staged draft, and revise it before promotion when needed
+- let the user review the report and staged draft, and if changes are needed, write `change-request.md`, revise the draft, and require a reviewer pass before promotion
 - choose explicitly whether approved content belongs in `regular-skills/` or `manager-skills/`
 - finish intake with finalize plus a Codex smoke test
 - clean the matching `tmp/import-candidates/` draft only after the full intake flow succeeds
@@ -746,7 +746,7 @@ canonical-skills/regular-skills/<name>/
 - 檢查單一本機外部 skill 來源
 - 在提升前先做 maintainer decision review，評估 skill 類型、trigger 邊界、權限模型、failure mode、canonicalization 與 maintenance cost
 - 先把 draft 放在 canonical source 之外
-- 先讓使用者審查 review report 與 staged draft；若要修改，先改完再決定 promote
+- 先讓使用者審查 review report 與 staged draft；若要修改，先整理 `change-request.md`、修 draft，再交給 reviewer 產出 `draft-review.md`
 - 明確決定正式納管到 `regular-skills/` 或 `manager-skills/`
 - promote 後直接完成 finalize 與 Codex smoke test
 - 只有在整個 intake flow 成功後才清掉對應的 staging draft
