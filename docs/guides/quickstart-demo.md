@@ -36,13 +36,13 @@ canonical-skills/regular-skills/commit/
 1. Clone the skill-forge repo.
 
 ```bash
-git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
+git clone https://github.com/busybutlazy/skill-forge.git ~/skill-forge
 ```
 
 PowerShell:
 
 ```powershell
-git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
 ```
 
 2. Open your target project.
@@ -188,13 +188,13 @@ canonical-skills/regular-skills/commit/
 1. 複製 skill-forge repo。
 
 ```bash
-git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
+git clone https://github.com/busybutlazy/skill-forge.git ~/skill-forge
 ```
 
 PowerShell:
 
 ```powershell
-git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
 ```
 
 2. 打開你的 target project。

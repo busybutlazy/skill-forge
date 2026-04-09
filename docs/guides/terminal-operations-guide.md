@@ -54,6 +54,13 @@ Windows path notes:
 - keep the host mount path in Windows form for Docker invocation; the launcher normalizes it for Compose
 - keep container paths such as `/workspace/project` in CLI arguments because those paths are resolved inside the Linux container
 
+If PowerShell blocks `.ps1` execution, allow the current session and retry:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& "$HOME\skill-forge\skill-manager.ps1"
+```
+
 ### Interactive Menu
 
 The menu wraps the core CLI behavior for consumers.
@@ -237,6 +244,13 @@ Windows 路徑注意事項：
 - 啟動器請用 `$HOME\skill-forge\skill-manager.ps1`，不要預設寫成 `~/skill-forge/skill-manager`
 - host 端掛載路徑維持 Windows 路徑語意，由啟動器轉成 Compose 較穩定的格式
 - CLI 參數中的 `/workspace/project` 這類容器內路徑仍然保留正斜線，因為它是在 Linux container 內解析
+
+如果 PowerShell 擋住 `.ps1` 執行，可以先放行目前這個 session 再重試：
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& "$HOME\skill-forge\skill-manager.ps1"
+```
 
 ### Interactive Menu
 

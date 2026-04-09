@@ -108,13 +108,13 @@ Recommended user path: `CLI/TUI`.
 ### 1. Clone the repo
 
 ```bash
-git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
+git clone https://github.com/busybutlazy/skill-forge.git ~/skill-forge
 ```
 
 PowerShell:
 
 ```powershell
-git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
 ```
 
 ### 2. Go to your target project
@@ -142,6 +142,13 @@ skill-manager
 ```
 
 On Windows PowerShell, prefer `$HOME\skill-forge\skill-manager.ps1` over `~`, and keep container-internal paths such as `/workspace/project` unchanged when passing CLI arguments through Docker.
+
+If PowerShell blocks the launcher with an execution-policy error, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& "$HOME\skill-forge\skill-manager.ps1"
+```
 
 ### 4. Use the interactive menu
 
@@ -536,13 +543,13 @@ The real workflow is now:
 ### 1. Clone repo
 
 ```bash
-git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
+git clone https://github.com/busybutlazy/skill-forge.git ~/skill-forge
 ```
 
 PowerShell:
 
 ```powershell
-git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
 ```
 
 ### 2. 進入你的 target project
@@ -570,6 +577,13 @@ skill-manager
 ```
 
 在 Windows PowerShell 請優先使用 `$HOME\skill-forge\skill-manager.ps1`，不要把 `~` 當成預設寫法；但像 `/workspace/project` 這種容器內路徑在 CLI 參數中仍應保留斜線形式，不要全部改成反斜線。
+
+如果 PowerShell 因為 execution policy 擋住啟動器，可以先執行：
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& "$HOME\skill-forge\skill-manager.ps1"
+```
 
 ### 4. 在互動式選單中完成操作
 
