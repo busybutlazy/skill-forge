@@ -1,0 +1,4 @@
+{
+  "name": "import-plugin-skill",
+  "description": "Use this skill when a maintainer wants to review one local Codex plugin skill, stage a canonical draft, and promote only safe imports into canonical-skills."
+}

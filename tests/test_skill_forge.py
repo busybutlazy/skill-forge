@@ -43,6 +43,7 @@ class ValidationTests(unittest.TestCase):
         self.assertNotIn("create-skill", public_skills)
         self.assertIn("create-skill", maintainer_skills)
         self.assertIn("finalize-skill", maintainer_skills)
+        self.assertIn("import-plugin-skill", maintainer_skills)
         self.assertIn("install-manager-skill", maintainer_skills)
         self.assertIn("update-skill", maintainer_skills)
 
@@ -181,6 +182,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("VALID create-skill", result.stdout)
         self.assertIn("VALID dto-organizer", result.stdout)
         self.assertIn("VALID finalize-skill", result.stdout)
+        self.assertIn("VALID import-plugin-skill", result.stdout)
         self.assertIn("VALID install-manager-skill", result.stdout)
         self.assertIn("VALID update-skill", result.stdout)
 

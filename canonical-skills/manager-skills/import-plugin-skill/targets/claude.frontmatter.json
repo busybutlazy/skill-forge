@@ -1,0 +1,5 @@
+{
+  "name": "import-plugin-skill",
+  "description": "Canonical plugin skill import specialist. Use when a maintainer wants to inspect one local Codex plugin skill, block risky behavior, and convert safe content into a staged canonical draft.",
+  "tools": "Bash, Read, Grep, Glob"
+}

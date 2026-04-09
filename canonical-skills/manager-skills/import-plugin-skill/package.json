@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "import-plugin-skill",
+    "version": "1.0.0",
+    "description": "Review one local Codex plugin skill, stage a canonical draft, and promote safe imports into canonical-skills",
+    "updated_at": "2026-04-09",
+    "tags": [
+      "maintainer",
+      "import",
+      "plugin-review",
+      "canonical-skills"
+    ]
+  },
+  "distribution": {
+    "scope": "maintainer"
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "bf5bca29026efbf0803811efd5423cf3e913e6877e8658129b0e2b738bf505c6"
+  }
+}
