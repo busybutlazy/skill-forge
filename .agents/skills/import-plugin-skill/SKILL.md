@@ -4,13 +4,13 @@ description: "Use this skill when a maintainer wants to review one local plugin 
 ---
 # Import Plugin Skill
 
-用來把一個本機 plugin skill 來源先做風險審查，再轉成這個 repo 可治理的 canonical draft。
+用來把一個本機 plugin skill 來源先做維護決策審查，再轉成這個 repo 可治理的 canonical draft。
 
 ## Use This For
 
 - 讀取一個本機 Codex plugin 目錄，或一個本機單一 skill folder
 - 在 plugin 內選定單一 skill 作為匯入來源，或直接使用該單一 skill folder
-- 先做更嚴格的 LLM review，清楚列出風險、證據與限制建議
+- 先做 maintainer-oriented LLM review，評估是否值得、是否適合被 canonical 化
 - 把安全的 skill 轉成 staged canonical draft
 - 在使用者明確同意後，將 draft 提升到 `canonical-skills/regular-skills/` 或 `canonical-skills/manager-skills/`
 - 在提升後直接完成 finalize 與 smoke test，並在成功後清理 staging draft
@@ -63,31 +63,88 @@ description: "Use this skill when a maintainer wants to review one local plugin 
 
 如果是單一 skill folder，預設只匯入該資料夾代表的這一個 skill，不要往外層遞迴搜尋其他 skill。
 
-### 3. Run the risk review first
+### 3. Run the maintainer review first
 
-在產生 canonical draft 前，先做 structured review，至少回報：
+在產生 canonical draft 前，先做結構化的維護決策審查。`review-report.md` 必須使用繁體中文撰寫，且至少回報：
 
-- source summary
+- 來源摘要
 - inspected files
 - extracted capabilities
-- risk table
+- Skill 類型判定
+- Trigger 邊界分析
+- Permission model 分析
+- Failure mode 分析
+- Canonicalization 建議
+- Maintenance cost
+- 風險表
 - final verdict：`allow`、`needs_human_review` 或 `block`
 - recommended restrictions or rewrites
 
-`review-report.md` 應使用固定結構，風險段落至少要有這些欄位：
+Skill 類型必須先從這些類別中選出主分類：
 
-- `Risk`
-- `Evidence`
-- `Severity`
-- `Why it matters`
-- `Mitigation / required restriction`
+- `task skill`
+- `orchestration skill`
+- `policy / governance skill`
+- `domain adapter`
+- `meta-skill`
+
+必要時可再補一行 secondary characterization，例如：
+
+- `policy-governed operations meta-skill`
+
+因為不同類型的 skill，觸發邊界、權限模型與維護標準都不同，不能跳過這一步。
+
+`Trigger 邊界分析` 至少要明列：
+
+- 應觸發
+- 不應觸發
+- 需先升級審查
+
+`Permission model 分析` 至少要回答：
+
+- 它預設是 read-oriented mindset 還是 act-first mindset
+- 哪些操作主要落在 L1 / L2 / L3
+- 是否存在 implicit escalation
+- approval gate 是弱文字提示，還是流程上真的卡得住
+
+`Failure mode 分析` 至少要回答：
+
+- 最可能怎麼被誤用
+- 最糟會造成什麼後果
+- 哪些 wording 或 examples 容易導致 agent overreach
+- 哪些 examples 可能被誤讀成 blanket permission
+
+`Canonicalization 建議` 至少要回答：
+
+- 是否應拆成兩個 skill
+- 是否應抽出共用 policy section
+- examples 哪些保留、哪些應降級成 controlled examples、哪些應移除
+- name 是否應改得更精準
+- trigger text 應如何收窄
+
+`Maintenance cost` 至少要回答：
+
+- `low` / `medium` / `high maintenance`
+- 主要維護來源是什麼
+- 哪些段落最容易 drift
+- 是否需要 regression review checklist
+
+風險表仍應保留結構化欄位，但欄位名稱用繁體中文：
+
+- `風險`
+- `證據`
+- `嚴重度`
+- `影響原因`
+- `限制／修正建議`
 
 預設規則：
 
 - 任何未解除的 `medium` 或 `high` 風險都不可 promote
-- `allow` 才可繼續產生 staged canonical draft
-- `needs_human_review` 只能產出 review report 與修正建議，不可提升到 `canonical-skills/`
+- `allow` 才可繼續產生 staged canonical draft，而且代表這個 skill 在可接受的維護成本下適合納管
+- `needs_human_review` 用於 trigger 邊界、權限模型、canonicalization 或維護成本仍未收斂的情況
 - `block` 不可產生可安裝的 canonical package，只能留下 review report 與 remediation checklist
+
+不要把 review 只理解成安全檢查。維護不可治理、trigger 過寬、approval gate 太軟、名稱與定位模糊，也都可以成為不 promote 的理由。
 
 高風險訊號包括：
 
@@ -98,13 +155,15 @@ description: "Use this skill when a maintainer wants to review one local plugin 
 - 不透明 hooks
 - 混淆過的 instruction 或 scripts
 
-若有風險，不要只說「有問題」。要補上具體 remediation 建議，例如：
+若有風險或維護治理問題，不要只說「有問題」。要補上具體 remediation 建議，例如：
 
 - 收窄 instruction 權限範圍
 - 新增 destructive / production / network 操作前的人工確認
 - 禁止 secret 或 credential 蒐集
 - 移除危險 examples、scripts、hooks 或把它們隔離到不納管的區域
 - 把高風險操作改成只允許產出 plan、checklist 或 dry-run 指令
+- 把 production-adjacent examples 明確標成 controlled examples
+- 把過度泛化的 trigger text 改成更窄、更可治理的觸發條件
 
 ### 4. Stage a canonical draft
 
@@ -153,6 +212,7 @@ staged draft 至少包含：
 
 - maintainer-only workflow 卻想放進 `regular-skills/`
 - 一般可分發 skill 卻想放進 `manager-skills/`
+- maintenance cost 很高、卻想當成低維護 public skill 直接納管
 
 ### 6. Complete the intake flow
 
@@ -192,7 +252,7 @@ smoke test 規則：
 
 - source name 與最終 canonical skill name
 - 採納 layer：`regular-skills` 或 `manager-skills`
-- review verdict 與主要風險摘要
+- review verdict 與主要維護決策摘要
 - 最終 package hash
 - validate 結果
 - smoke test 結果
