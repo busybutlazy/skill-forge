@@ -87,6 +87,9 @@ class ValidationTests(unittest.TestCase):
         self.assertIn("Canonicalization 建議", import_instruction)
         self.assertIn("Maintenance cost", import_instruction)
         self.assertIn("`review-report.md` 必須使用繁體中文撰寫", import_instruction)
+        self.assertIn("先把這些內容交給使用者審查", import_instruction)
+        self.assertIn("應依照 `update-skill` 的修改原則處理 staged draft", import_instruction)
+        self.assertIn("只有在使用者明確表示 draft 不再需要修改時，才進入 promote 決策", import_instruction)
         self.assertIn("`canonical-skills/manager-skills/<skill-name>/`", import_instruction)
         self.assertIn("至少做一個 Codex target smoke test", import_instruction)
         self.assertIn("只有在這些步驟全部成功後，才刪除", import_instruction)
@@ -677,7 +680,10 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             statuses = list_installed(REPO_ROOT, project_root, "codex")
             installed_names = [status.name for status in statuses]
-            self.assertEqual(installed_names, ["commit", "create-pr", "dto-organizer"])
+            expected_names = [
+                skill.name for skill in load_all_skills(REPO_ROOT, target_filter={"codex"}, scopes={"public"})
+            ]
+            self.assertEqual(installed_names, expected_names)
 
     def test_menu_prefers_host_project_path_in_header_when_present(self) -> None:
         with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:

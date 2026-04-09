@@ -189,7 +189,40 @@ staged draft 至少包含：
 
 如果 verdict 是 `needs_human_review` 或 `block`，可在對應 staging 位置保留 `review-report.md` 與 remediation notes，但不要建立可安裝 package 檔案。
 
-### 5. Promote only with explicit approval
+### 5. Review the staged draft before promotion
+
+產出 `review-report.md` 與 staged draft 後，不要立刻問 promote。
+
+先把這些內容交給使用者審查：
+
+- `review-report.md`
+- staged `instruction.md`
+- target frontmatter
+- 被帶入的 examples / references / assets
+
+接著明確詢問使用者：
+
+- 是否接受這份 review 結論
+- 是否要先修改 staged draft
+
+如果使用者要修改，先不要 promote。應依照 `update-skill` 的修改原則處理 staged draft，至少可修改：
+
+- trigger description
+- 不適用情境
+- 流程步驟
+- 限制與輸出要求
+- target-specific wording
+- canonical 名稱、description、examples 保留策略
+
+修改完成後要重新：
+
+- refresh staged draft metadata
+- validate staged draft
+- 把更新後的 draft 再交回給使用者審查
+
+只有在使用者明確表示 draft 不再需要修改時，才進入 promote 決策。
+
+### 6. Ask whether to promote, and where
 
 若使用者要正式匯入，先再次確認：
 
@@ -210,7 +243,7 @@ staged draft 至少包含：
 - 一般可分發 skill 卻想放進 `manager-skills/`
 - maintenance cost 很高、卻想當成低維護 public skill 直接納管
 
-### 6. Complete the intake flow
+### 7. Complete the intake flow
 
 在使用者明確同意後，應直接把 intake flow 做完，不要只停在 promote。
 
@@ -227,7 +260,7 @@ smoke test 規則：
 - 若採納到 `manager-skills/`，用臨時專案跑 `sync-manager-catalog <skill-name> --target codex`
 - 若 smoke test 失敗，要明確列出失敗步驟與錯誤，不可假裝完成
 
-### 7. Clean up staging only after full success
+### 8. Clean up staging only after full success
 
 只有在這些步驟全部成功後，才刪除：
 
@@ -242,7 +275,7 @@ smoke test 規則：
 
 若其中任一步失敗，保留 staging draft 供排查與重跑。
 
-### 8. Report the final result
+### 9. Report the final result
 
 收尾時至少回報：
 
