@@ -214,6 +214,7 @@ Detailed references:
   * `create-skill`
   * `update-skill`
   * `finalize-skill`
+  * `import-plugin-skill`
   * `install-manager-skill`
 
 ### `shared` tag
@@ -250,6 +251,7 @@ Recommended flow:
    * `create-skill`
    * `update-skill`
    * `finalize-skill`
+   * `import-plugin-skill`
    * `install-manager-skill`
 4. Fall back to terminal commands only when needed.
 5. Do not hand-edit rendered artifacts such as:
@@ -261,8 +263,37 @@ Recommended responsibility split:
 
 * add a new skill → `create-skill`
 * revise an existing skill → `update-skill`
+* import a downloaded external skill → `import-plugin-skill`
 * finalize and validate changes → `finalize-skill`
 * sync manager targets → `install-manager-skill` or `sync-manager-catalog`
+
+### External Skill Import Policy
+
+Downloaded external skills should not be copied straight into `canonical-skills/`.
+
+Maintainers should use `import-plugin-skill` to:
+
+- inspect one local external skill source
+- run an LLM risk review before promotion
+- stage a draft outside canonical source
+- promote only reviewed content into `canonical-skills/regular-skills/`
+
+Recommended local workspace layout:
+
+```text
+tmp/
+├── foreign_skills/
+└── import-candidates/
+```
+
+- `tmp/foreign_skills/`: downloaded external skill sources
+- `tmp/import-candidates/`: staged canonical drafts after review
+
+After promotion into canonical source, run `finalize-skill`.
+
+Detailed workflow:
+
+* [docs/guides/external-skill-import-guide.md](docs/guides/external-skill-import-guide.md)
 
 ### Fallback: terminal workflow
 
@@ -388,6 +419,7 @@ Recommended reading order:
 3. [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md)
 4. [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md)
 5. [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md)
+6. [docs/guides/external-skill-import-guide.md](docs/guides/external-skill-import-guide.md)
 
 For normal users, start with quickstart and the `skill-manager` flow.
 For maintainers, then go deeper into governance and terminal operations.
@@ -649,6 +681,7 @@ canonical-skills/regular-skills/<name>/
   * `create-skill`
   * `update-skill`
   * `finalize-skill`
+  * `import-plugin-skill`
   * `install-manager-skill`
 
 ### `shared` tag
@@ -685,6 +718,7 @@ canonical-skills/regular-skills/<name>/
    * `create-skill`
    * `update-skill`
    * `finalize-skill`
+   * `import-plugin-skill`
    * `install-manager-skill`
 4. 只有在必要時才退回 terminal 命令。
 5. 不要手動修改 rendered artifacts，例如：
@@ -696,8 +730,37 @@ canonical-skills/regular-skills/<name>/
 
 * 新增 skill → `create-skill`
 * 修改 skill → `update-skill`
+* 匯入下載回來的外部 skill → `import-plugin-skill`
 * 收尾與驗證 → `finalize-skill`
 * 同步 manager targets → `install-manager-skill` 或 `sync-manager-catalog`
+
+### 外部 skill 匯入策略
+
+下載回來的外部 skill 不應直接複製進 `canonical-skills/`。
+
+維護者應透過 `import-plugin-skill`：
+
+- 檢查單一本機外部 skill 來源
+- 在提升前先做 LLM 風險審查
+- 先把 draft 放在 canonical source 之外
+- 只有 review 通過後才提升到 `canonical-skills/regular-skills/`
+
+建議本機工作區結構：
+
+```text
+tmp/
+├── foreign_skills/
+└── import-candidates/
+```
+
+- `tmp/foreign_skills/`：下載回來的外部 skill 來源
+- `tmp/import-candidates/`：review 後產生的 canonical draft
+
+提升進 canonical source 後，再執行 `finalize-skill`。
+
+詳細流程請參考：
+
+* [docs/guides/external-skill-import-guide.md](docs/guides/external-skill-import-guide.md)
 
 ### fallback：terminal workflow
 

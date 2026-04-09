@@ -114,10 +114,23 @@ Commands:
 Recommended manager-skill-first flow:
 
 - `create-skill` or `update-skill` for source edits
+- `import-plugin-skill` for reviewed external skill imports
 - `finalize-skill` for refresh + validate
 - `install-manager-skill` for local target sync
 
 Use direct CLI commands as the fallback path, not the primary path.
+
+### External Skill Imports
+
+Use `import-plugin-skill` when a maintainer needs to bring a downloaded external skill into the canonical workflow without bypassing review.
+
+Policy:
+
+- keep downloaded sources under `tmp/foreign_skills/`
+- stage converted drafts under `tmp/import-candidates/`
+- do not copy external content directly into `canonical-skills/`
+- require an LLM review before promotion
+- run `finalize-skill` after promotion
 
 ### Maintainer-Only Commands
 
@@ -305,10 +318,22 @@ PYTHONPATH=src python -m skill_forge --repo-root .
 推薦的 manager-skill-first 流程：
 
 - source 編輯用 `create-skill` 或 `update-skill`
+- 外部匯入用 `import-plugin-skill`
 - 收尾用 `finalize-skill`
 - 本地同步用 `install-manager-skill`
 
 直接 CLI 指令保留作 fallback，不是主要推薦路徑。
+
+### 外部 skill 匯入
+
+當 maintainer 要把下載回來的外部 skill 納入 canonical workflow 時，應使用 `import-plugin-skill`，不要直接把內容搬進 `canonical-skills/`。
+
+策略：
+
+- 下載來源放在 `tmp/foreign_skills/`
+- 轉換後的 draft 放在 `tmp/import-candidates/`
+- promotion 前先做 LLM review
+- promotion 完成後再跑 `finalize-skill`
 
 ### 維護者專用命令
 
