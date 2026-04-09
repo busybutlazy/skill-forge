@@ -23,6 +23,14 @@ ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 
 class ValidationTests(unittest.TestCase):
+    def test_windows_powershell_launcher_exists(self) -> None:
+        launcher = REPO_ROOT / "skill-manager.ps1"
+        content = launcher.read_text(encoding="utf-8")
+        self.assertTrue(launcher.is_file())
+        self.assertIn('docker compose', content)
+        self.assertIn('$HOME\\skill-forge\\skill-manager.ps1', content)
+        self.assertIn('/workspace/project', content)
+
     def test_all_canonical_skills_validate(self) -> None:
         for skill in load_all_skills(REPO_ROOT):
             result = validate_skill_dir(skill.root)

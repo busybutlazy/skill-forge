@@ -39,6 +39,12 @@ canonical-skills/regular-skills/commit/
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
 ```
 
+PowerShell:
+
+```powershell
+git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+```
+
 2. Open your target project.
 
 ```bash
@@ -49,6 +55,12 @@ cd /path/to/target-project
 
 ```bash
 ~/skill-forge/skill-manager
+```
+
+PowerShell:
+
+```powershell
+& "$HOME\skill-forge\skill-manager.ps1"
 ```
 
 4. Choose a target.
@@ -117,6 +129,13 @@ cd /path/to/target-project
 ~/skill-forge/skill-manager
 ```
 
+PowerShell:
+
+```powershell
+Set-Location C:\path\to\target-project
+& "$HOME\skill-forge\skill-manager.ps1"
+```
+
 Then:
 
 - select target
@@ -172,6 +191,12 @@ canonical-skills/regular-skills/commit/
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
 ```
 
+PowerShell:
+
+```powershell
+git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+```
+
 2. 打開你的 target project。
 
 ```bash
@@ -182,6 +207,12 @@ cd /path/to/target-project
 
 ```bash
 ~/skill-forge/skill-manager
+```
+
+PowerShell:
+
+```powershell
+& "$HOME\skill-forge\skill-manager.ps1"
 ```
 
 4. 選擇 target。
@@ -248,6 +279,13 @@ PYTHONPATH=src python -m skill_forge --repo-root . render commit --target claude
 ```bash
 cd /path/to/target-project
 ~/skill-forge/skill-manager
+```
+
+PowerShell:
+
+```powershell
+Set-Location C:\path\to\target-project
+& "$HOME\skill-forge\skill-manager.ps1"
 ```
 
 接著：

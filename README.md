@@ -111,6 +111,12 @@ Recommended user path: `CLI/TUI`.
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
 ```
 
+PowerShell:
+
+```powershell
+git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+```
+
 ### 2. Go to your target project
 
 ```bash
@@ -123,11 +129,19 @@ cd /path/to/target-project
 ~/skill-forge/skill-manager
 ```
 
+PowerShell:
+
+```powershell
+& "$HOME\skill-forge\skill-manager.ps1"
+```
+
 Or add `~/skill-forge` to your `PATH` and run:
 
 ```bash
 skill-manager
 ```
+
+On Windows PowerShell, prefer `$HOME\skill-forge\skill-manager.ps1` over `~`, and keep container-internal paths such as `/workspace/project` unchanged when passing CLI arguments through Docker.
 
 ### 4. Use the interactive menu
 
@@ -352,7 +366,8 @@ skill-forge/
 ├── Dockerfile.dev
 ├── compose.yaml
 ├── Makefile
-└── skill-manager
+├── skill-manager
+└── skill-manager.ps1
 ```
 
 ---
@@ -424,6 +439,7 @@ See `ROADMAP.md` for current priorities and direction.
 ## Compatibility note
 
 `skill-manager.sh` remains a compatibility shim only.
+`skill-manager.ps1` is the Windows PowerShell launcher.
 
 The real workflow is now:
 
@@ -523,6 +539,12 @@ The real workflow is now:
 git clone git@github.com:busybutlazy/skill-forge.git ~/skill-forge
 ```
 
+PowerShell:
+
+```powershell
+git clone git@github.com:busybutlazy/skill-forge.git "$HOME\skill-forge"
+```
+
 ### 2. 進入你的 target project
 
 ```bash
@@ -535,11 +557,19 @@ cd /path/to/target-project
 ~/skill-forge/skill-manager
 ```
 
+PowerShell:
+
+```powershell
+& "$HOME\skill-forge\skill-manager.ps1"
+```
+
 如果你已經把 `~/skill-forge` 加進 `PATH`，也可以直接執行：
 
 ```bash
 skill-manager
 ```
+
+在 Windows PowerShell 請優先使用 `$HOME\skill-forge\skill-manager.ps1`，不要把 `~` 當成預設寫法；但像 `/workspace/project` 這種容器內路徑在 CLI 參數中仍應保留斜線形式，不要全部改成反斜線。
 
 ### 4. 在互動式選單中完成操作
 
@@ -764,7 +794,8 @@ skill-forge/
 ├── Dockerfile.dev
 ├── compose.yaml
 ├── Makefile
-└── skill-manager
+├── skill-manager
+└── skill-manager.ps1
 ```
 
 ---
@@ -835,6 +866,7 @@ Codex、Claude 等工具仍然負責各自產品內的執行體驗。
 ## 相容性說明
 
 `skill-manager.sh` 目前只保留相容提示用途。
+`skill-manager.ps1` 是給 Windows PowerShell 的啟動器。
 
 真正的工作流程已經是：
 
