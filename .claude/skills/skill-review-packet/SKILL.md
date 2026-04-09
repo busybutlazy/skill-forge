@@ -71,6 +71,8 @@ tools: "Bash, Read, Grep, Glob"
 - unresolved risks
 - open questions for human review
 
+`skill-review-packet.md` 應使用繁體中文撰寫。若上游材料含有英文欄位名稱、verdict 或檔名，可保留原始識別字，但敘述、摘要、判讀與給人工審核者看的說明都應以繁體中文為主。
+
 必要時可補一段 revision history，整理：
 
 - 這一輪是第幾次 revision phase
