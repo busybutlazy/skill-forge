@@ -4,7 +4,7 @@ description: "Use this skill when a maintainer wants to review one local plugin 
 ---
 # Import Plugin Skill
 
-用來把一個本機 plugin skill 來源先做維護決策審查，再轉成這個 repo 可治理的 canonical draft。
+用來把一個本機 plugin skill 來源先做維護決策審查，再轉成這個 repo 可治理的 canonical draft，並在 draft 改寫階段加入 importer / reviewer 雙階段審查，避免改寫錯誤直接流入 promote。
 
 ## Use This For
 
@@ -12,6 +12,7 @@ description: "Use this skill when a maintainer wants to review one local plugin 
 - 在 plugin 內選定單一 skill 作為匯入來源，或直接使用該單一 skill folder
 - 先做 maintainer-oriented LLM review，評估是否值得、是否適合被 canonical 化
 - 把安全的 skill 轉成 staged canonical draft
+- 在使用者要求修改 staged draft 時，先整理結構化 change request，再由 reviewer 做第二道差異審查
 - 在使用者明確同意後，將 draft 提升到 `canonical-skills/regular-skills/` 或 `canonical-skills/manager-skills/`
 - 在提升後直接完成 finalize 與 smoke test，並在成功後清理 staging draft
 
@@ -22,6 +23,7 @@ description: "Use this skill when a maintainer wants to review one local plugin 
 - 直接把外部 skill 安裝到 `.agents/` 或 `.claude/`
 - 略過 review 直接寫入 `canonical-skills/`
 - 在風險未解除時強行 promote
+- 讓 reviewer 接手重寫整份 staged draft
 
 ## Workflow
 
@@ -182,6 +184,11 @@ staged draft 至少包含：
 - `targets/codex.frontmatter.json`
 - `targets/claude.frontmatter.json`
 
+如果後續使用者要求修改 draft，還必須新增：
+
+- `change-request.md`
+- `draft-review.md`
+
 必要規則：
 
 - canonical body 只保留 shared instruction
@@ -218,13 +225,44 @@ staged draft 至少包含：
 - target-specific wording
 - canonical 名稱、description、examples 保留策略
 
-修改完成後要重新：
+但在 importer 動手修改前，先把使用者要求整理成結構化的 `change-request.md`。至少包含：
+
+- 修改目標
+- 不可改動的部分
+- 預期要收窄、保留或移除的方向
+- 哪些 examples 要改成 controlled examples
+- 哪些 wording 必須保留
+- 完成條件
+
+接著才由 importer 修改 staged draft。修改完成後要重新：
 
 - refresh staged draft metadata
 - validate staged draft
-- 把更新後的 draft 再交回給使用者審查
+- 產出 `draft-review.md`
 
-只有在使用者明確表示 draft 不再需要修改時，才進入 promote 決策。
+`draft-review.md` 必須由 reviewer 角色產出，且 reviewer 的任務不是重做整份 import，而是專門審查這次修改是否正確落地。至少要回報：
+
+- 審查對象是哪一版 staged draft
+- 審查依據是哪一份 `change-request.md`
+- 已正確落地的修改
+- 尚未落地的修改
+- 誤改、過改或與使用者要求無關的改動
+- 是否引入新的權限放寬、trigger 擴張或 overreach wording
+- reviewer verdict：`pass` 或 `revise`
+
+reviewer 規則：
+
+- reviewer 只做差異審查，不自行重寫整份 draft
+- `revise` 時，必須回到 importer 再修一次 staged draft
+- `pass` 前，不可進入 promote 問題
+
+把更新後的 draft、`change-request.md` 與 `draft-review.md` 一起交回給使用者審查。
+
+只有在這些條件同時成立時，才進入 promote 決策：
+
+- 使用者明確表示 draft 不再需要修改
+- `review-report.md` verdict 仍為 `allow`
+- 若 draft 曾修改過，最新 `draft-review.md` verdict 必須是 `pass`
 
 ### 6. Ask whether to promote, and where
 
@@ -233,6 +271,7 @@ staged draft 至少包含：
 - 最終 canonical skill name
 - review verdict 仍為 `allow`
 - draft 內容已完成人工確認
+- 若 draft 曾修改過，reviewer verdict 已為 `pass`
 - 這次要納入哪一層：
   - `canonical-skills/regular-skills/<skill-name>/`
   - `canonical-skills/manager-skills/<skill-name>/`
@@ -286,6 +325,7 @@ smoke test 規則：
 - source name 與最終 canonical skill name
 - 採納 layer：`regular-skills` 或 `manager-skills`
 - review verdict 與主要維護決策摘要
+- 若 draft 曾修改過，`change-request.md` 與 `draft-review.md` 的結論
 - 最終 package hash
 - validate 結果
 - smoke test 結果

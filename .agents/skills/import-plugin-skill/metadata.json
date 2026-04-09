@@ -1,6 +1,6 @@
 {
   "name": "import-plugin-skill",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Review one local plugin skill source, stage a canonical draft, and promote safe imports into canonical-skills",
   "updated_at": "2026-04-09",
   "tags": [
@@ -10,6 +10,6 @@
     "canonical-skills",
     "skill-folder"
   ],
-  "source_package_sha256": "1989796e7510cbe57cbc9f01423fc4a2839274bcd6c335ce0e061766269f39c1",
+  "source_package_sha256": "5b0976438236d44fa2d51fb9e34a4d8248993e9ba5af4523fde9790351c976fc",
   "rendered_from": "canonical-skills/manager-skills/import-plugin-skill"
 }
