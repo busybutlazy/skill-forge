@@ -1,0 +1,4 @@
+{
+  "name": "task-plan",
+  "description": "Use this skill when the user wants to create, update, query, or manage a persistent hierarchical project task list stored in docs/task-plan/task-plan.json."
+}

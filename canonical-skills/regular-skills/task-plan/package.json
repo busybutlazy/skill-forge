@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "task-plan",
+    "version": "1.0.0",
+    "description": "Manage a persistent hierarchical project task plan via script-based CRUD; stores tasks in docs/task-plan/task-plan.json",
+    "updated_at": "2026-04-18",
+    "tags": [
+      "task",
+      "planning",
+      "project-management",
+      "workflow"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "783c5781dd1927013f7400c3c4729bced8454519fbc2b0dfc47920a768e89421"
+  }
+}

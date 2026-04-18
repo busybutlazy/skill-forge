@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "path": "instruction.md",
+      "sha256": "aecf2c00a6c3a00d97849966f3f3b5499228c0d2b9168da7e550664716403d70"
+    },
+    {
+      "path": "targets/claude.frontmatter.json",
+      "sha256": "73a9c7a8e4484f263662ae0534a69a5e15643b45dfdb823ada963e6ddc8678ba"
+    },
+    {
+      "path": "targets/codex.frontmatter.json",
+      "sha256": "7698914eb7644ebf258c6ea4bac8a1a6e3ff9d573933414faea821da456a8fc9"
+    },
+    {
+      "path": "scripts/task-plan-core.py",
+      "sha256": "143f3b8a9bd8d5cabe20127078d8e98bb6a7cc0d164b46465f869ae9c56f6a13"
+    },
+    {
+      "path": "scripts/task-plan.ps1",
+      "sha256": "32478873a7ae10d73259747fbbc69a1abe2701ff4bfe65645086eebb43b1bac0"
+    },
+    {
+      "path": "scripts/task-plan.sh",
+      "sha256": "b605a1b274ece84d69f428acf1be5ae31d6c0ef9f11d62ad3e6f3fe56a0db8f1"
+    }
+  ],
+  "package_sha256": "783c5781dd1927013f7400c3c4729bced8454519fbc2b0dfc47920a768e89421"
+}

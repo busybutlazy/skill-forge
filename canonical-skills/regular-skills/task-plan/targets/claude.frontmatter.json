@@ -1,0 +1,5 @@
+{
+  "name": "task-plan",
+  "description": "Hierarchical project task manager. Use when the user wants to plan, track, or manage project tasks in docs/task-plan/task-plan.json via a script-based CRUD interface.",
+  "tools": "Bash"
+}
