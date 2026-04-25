@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "task-plan",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "description": "Manage a persistent hierarchical project task plan via script-based CRUD; stores tasks in docs/task-plan/task-plan.json",
-    "updated_at": "2026-04-18",
+    "updated_at": "2026-04-25",
     "tags": [
       "task",
       "planning",
@@ -30,6 +30,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "ebfbc04a7155d5dcbf4b4d24f50e538bc06d7cfd142cf3c7c4236d40fc987be4"
+    "package_sha256": "4b04a6e6b3d115553fdd36cc3a7665175ae4cca30e8ad6cc7816f5e3dfca0fdb"
   }
 }

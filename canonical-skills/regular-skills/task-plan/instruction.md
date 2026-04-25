@@ -64,6 +64,8 @@ uname -s 2>/dev/null
 
 階層最多 **3 層**：`1` → `1.1` → `1.1.1`。
 
+**深度使用原則**：depth 3 只適用於 depth-2 subtask 預計跨越多個 session、或由不同人分工執行的情況。一般情況下保持 depth 2，細節放 `description` 欄位或外部設計 doc，不要為了完整而強行展開到 depth 3。
+
 ## Commands
 
 ### ls — 列出所有任務
@@ -168,16 +170,36 @@ task-plan help
 
 在使用任何指令前，確認 script 存在且 Python 3 可用（script 會自行檢查）。
 
-### 2. 操作任務
+### 2. 接續既有工作（新 session）
+
+在新 session 開始、且使用者提到有進行中的工作時，先執行 `check` 確認當前狀態：
+
+- `in_progress` 的任務是接續起點
+- `todo` 中 order 最小的任務是下一步
+- 最後一筆 completion_note 提供前次工作的脈絡
+
+`in_progress` 同時是給使用者看的進度標記與 session 間的接續線索；標記 `in_progress` 代表「已開工但未完成」，在完成前不要清掉。
+
+### 3. 操作任務
 
 完全依靠 script 執行 CRUD，不直接讀寫 `docs/task-plan/task-plan.json`。
 
-### 3. 呈現結果
+### 4. 呈現結果
 
 - 每次操作後，根據輸出向使用者摘要結果
 - 若 script 回傳 warning（如 position collision），清楚說明問題並提供建議指令
 
-### 4. 規劃大型任務
+### 5. 階段驗收
+
+當某個頂層任務的所有子任務都完成時，在執行 `done` 標記父任務之前，進行階段驗收：
+
+1. 回顧這個 phase 有哪些計畫外的發現或調整
+2. 確認下一個 phase 的任務描述與順序是否仍然適用
+3. 若有需要，先用 `update` 或 `detail` 修正後續任務，再執行 `done`
+
+這個步驟讓計畫在每個里程碑有機會修正，而非事後補救。
+
+### 6. 規劃大型任務
 
 當使用者要規劃全新專案時，建議先討論任務切割方式，確認頂層任務後逐層建立，避免事後大量移動 order。
 
@@ -187,3 +209,5 @@ task-plan help
 - 呼叫 script 時一律從專案根目錄執行
 - 在使用 `add` 之前，先用 `ls` 確認當前狀態，避免 position collision
 - 任務刪除前提醒使用者，因為會連同子任務一起移除
+- **task-plan 管狀態與順序，設計 doc 管理由與決策**：`description` 欄位只記錄「要做什麼」，不重複外部 doc 的內容
+- 已有詳細設計 doc 時，task-plan 只維護頂層任務與順序排列，depth-2 的 description 保持簡短；task-plan 作為 checklist，doc 作為 source of truth
