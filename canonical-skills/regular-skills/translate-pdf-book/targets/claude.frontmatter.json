@@ -1,0 +1,5 @@
+{
+  "name": "translate-pdf-book",
+  "description": "PDF-to-Traditional-Chinese Markdown translator. Use when the user asks to translate a PDF book or article into zh-TW, split chapters, maintain a glossary, parallelize with subagents, or produce a merged Markdown output.",
+  "tools": "Bash, Read, Write, Edit, Agent"
+}

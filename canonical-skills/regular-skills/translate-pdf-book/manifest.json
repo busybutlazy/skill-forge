@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "path": "instruction.md",
+      "sha256": "ce89b3b5b0aecd300052076b013b1bc799c65af29a872cd235c7dece8163982e"
+    },
+    {
+      "path": "targets/claude.frontmatter.json",
+      "sha256": "9f0ac692824020e044a75bd905cf0da263026a808cfc02d616787fab1009ea73"
+    },
+    {
+      "path": "targets/codex.frontmatter.json",
+      "sha256": "d25580350f5d332561d82d47de0b41ee0e25b5798295ac5cc603023fc225e882"
+    },
+    {
+      "path": "references/zh-TW-style.md",
+      "sha256": "9c4d45390cb7ce2ff91a8a18e60dfd712abb5379de3a5ec640997ebb2748e45d"
+    },
+    {
+      "path": "scripts/extract_pdf_text.py",
+      "sha256": "4e3781f1a219ba18e3f92c66ae973d536c9aacf9c59f50048d3aeff55cb27824"
+    },
+    {
+      "path": "scripts/merge_markdown.py",
+      "sha256": "0249938f2a76a73196697f6cd837eb3a69e3825a46492abc11fc182600a9fb6f"
+    },
+    {
+      "path": "scripts/split_chapters.py",
+      "sha256": "57660a180d7de24bd80b795ad0158c88adcedc05da6bfaecf33348d73bcdc011"
+    }
+  ],
+  "package_sha256": "cb12114cd63ac6ecf15bd94758c9040608e3715425e08516f2223c43349f042d"
+}
