@@ -1,0 +1,5 @@
+{
+  "name": "experience-card",
+  "description": "Session knowledge sedimentation skill. Use when the user wants to save problems solved, decisions made, or how-to knowledge from the current session into structured YAML experience cards under docs/experience-cards/.",
+  "tools": "Bash,Read,Write"
+}

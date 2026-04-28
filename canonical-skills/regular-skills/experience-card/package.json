@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "experience-card",
+    "version": "0.1.0",
+    "description": "Extracts reusable knowledge from the current session and saves it as structured YAML experience cards under docs/experience-cards/",
+    "updated_at": "2026-04-29",
+    "tags": [
+      "knowledge-management",
+      "session",
+      "documentation",
+      "experience"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "a8b90a2c76f6dae5171361f68448849cc7f2779fb720bfca27e508b6507b0658"
+  }
+}
