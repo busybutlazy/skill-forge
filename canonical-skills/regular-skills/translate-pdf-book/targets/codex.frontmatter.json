@@ -1,0 +1,4 @@
+{
+  "name": "translate-pdf-book",
+  "description": "Use this skill when the user wants to translate a long PDF book or article into Traditional Chinese Markdown, including text extraction, chapter splitting, glossary management, optional subagent parallelization, and a merged output file."
+}
