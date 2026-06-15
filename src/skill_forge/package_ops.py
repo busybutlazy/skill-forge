@@ -66,6 +66,11 @@ def refresh_skill_metadata(
         package_data["identity"]["updated_at"] = next_updated_at
         fields.append("identity.updated_at")
 
+    # NOTE: this hash is a drift-detection checksum, not a tamper-proof signature.
+    # refresh-metadata recomputes it from the current files, so an attacker who can
+    # write to the canonical source and also run refresh-metadata can forge a valid hash.
+    # Supply-chain integrity requires signing (e.g., git commit signatures or a
+    # separate out-of-band signing step) — that is out of scope here.
     if package_data["integrity"].get("package_sha256") != package_sha:
         package_data["integrity"]["package_sha256"] = package_sha
         fields.append("integrity.package_sha256")

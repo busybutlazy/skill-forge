@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from .models import CanonicalSkill, TargetConfig, ValidationFailure, ValidationResult
@@ -14,6 +15,8 @@ CANONICAL_BUCKETS = {
     "regular-skills": "public",
     "manager-skills": "maintainer",
 }
+
+_SKILL_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 
 def canonical_root(repo_root: Path) -> Path:
@@ -106,8 +109,11 @@ def validate_skill_dir(skill_dir: Path, target_filter: set[str] | None = None) -
         if not isinstance(identity, dict):
             issues.append("package.json missing identity object")
         else:
-            if identity.get("name") != skill_dir.name:
+            name = identity.get("name")
+            if name != skill_dir.name:
                 issues.append("identity.name must match directory name")
+            if not isinstance(name, str) or not _SKILL_NAME_RE.match(name):
+                issues.append("identity.name must be lowercase letters, digits, hyphens, or underscores (no leading hyphen/underscore)")
             for field in ("version", "description", "updated_at", "tags"):
                 if field not in identity:
                     issues.append(f"identity missing {field}")
@@ -169,6 +175,14 @@ def validate_skill_dir(skill_dir: Path, target_filter: set[str] | None = None) -
                                 issues.append(f"{frontmatter_file} name must match directory name")
                 if not isinstance(install_path, str):
                     issues.append(f"{target_name} install_path must be a string")
+                else:
+                    try:
+                        _ip = Path(install_path.format(name="x"))
+                    except (KeyError, ValueError):
+                        issues.append(f"{target_name} install_path template must use only {{name}} placeholder")
+                    else:
+                        if _ip.is_absolute() or ".." in _ip.parts:
+                            issues.append(f"{target_name} install_path must be a relative path without '..' components")
 
     if manifest_data:
         manifest_files = manifest_data.get("files")

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import sys
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
@@ -20,21 +22,61 @@ def target_root(project_dir: Path, target: str) -> Path:
     raise ValueError(f"unsupported target: {target}")
 
 
+def _safe_remove(path: Path) -> None:
+    """Remove a file, directory, or symlink without following symlinks."""
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+    elif path.is_dir():
+        shutil.rmtree(path)
+
+
 def _materialize_install(skill: CanonicalSkill, project_dir: Path, target: str) -> Path:
     destination = Path(skill.targets[target].install_path.format(name=skill.name))
     final_path = project_dir / destination
 
-    with tempfile.TemporaryDirectory(prefix="skill-forge-render-") as tmp_dir:
+    # [HIGH-1] Path containment: reject absolute install_paths and .. traversals.
+    # pathlib silently discards project_dir when destination is absolute, so we
+    # must resolve and verify before touching the filesystem.
+    resolved_final = final_path.resolve()
+    resolved_project = project_dir.resolve()
+    if not resolved_final.is_relative_to(resolved_project):
+        raise ValueError(
+            f"install_path '{skill.targets[target].install_path}' for skill '{skill.name}' "
+            f"resolves outside the project directory"
+        )
+
+    final_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # [HIGH-2] Render into a temp dir on the same filesystem as the destination
+    # so that shutil.move can use os.rename (atomic) instead of copy+delete.
+    with tempfile.TemporaryDirectory(prefix=".skill-forge-render-", dir=final_path.parent) as tmp_dir:
         temp_root = Path(tmp_dir)
         rendered_path = render_skill(skill, target, temp_root)
-        if final_path.exists():
-            if final_path.is_dir():
-                shutil.rmtree(final_path)
-            else:
-                final_path.unlink()
-        final_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(rendered_path), str(final_path))
 
+        # Move rendered output to a staging path adjacent to the destination.
+        staging = final_path.with_name(f".skill-forge-stage-{final_path.name}")
+        _safe_remove(staging)
+        shutil.move(str(rendered_path), str(staging))
+    # tmp_dir (and any empty scaffold dirs left by render_skill) is cleaned up here.
+
+    # Atomic swap: rename old → backup, put new in place, then discard backup.
+    # The old skill is never absent during this window.
+    backup = final_path.with_name(f".skill-forge-bak-{final_path.name}")
+    _safe_remove(backup)
+
+    if final_path.is_symlink() or final_path.exists():
+        os.rename(str(final_path), str(backup))
+
+    try:
+        os.rename(str(staging), str(final_path))
+    except Exception:
+        # Rollback: restore backup so the installed skill is not lost.
+        if backup.is_symlink() or backup.exists():
+            os.rename(str(backup), str(final_path))
+        _safe_remove(staging)
+        raise
+
+    _safe_remove(backup)
     return final_path
 
 
@@ -222,10 +264,15 @@ def install_skill(
 
     if status is not None:
         if not status.managed:
-            raise ValueError(
-                f"{skill_name} already exists for target {target} but is unmanaged; refusing to overwrite it"
-            )
-        if status.status == "drift":
+            if status.status == "broken" and force:
+                # broken + no metadata means we can't confirm ownership, but the user
+                # has explicitly passed --force so allow the overwrite to proceed.
+                pass
+            else:
+                raise ValueError(
+                    f"{skill_name} already exists for target {target} but is unmanaged; refusing to overwrite it"
+                )
+        elif status.status == "drift":
             if not force:
                 raise ValueError(
                     f"{skill_name} has drifted from canonical source for target {target}; rerun install with --force to overwrite local changes"
@@ -239,6 +286,13 @@ def install_skill(
                 f"{skill_name} is broken for target {target}. Install will repair it by overwriting the installed files. Continue? [y/N]: ",
                 confirm,
             )
+
+    if "scripts" in skill.asset_dirs:
+        print(
+            f"notice: {skill_name} includes a scripts/ directory with executable content "
+            f"that will be installed to {target} and may run automatically.",
+            file=sys.stderr,
+        )
 
     return _materialize_install(skill, project_dir, target)
 
@@ -288,13 +342,11 @@ def remove_skill(repo_root: Path, project_dir: Path, skill_name: str, target: st
     if status is None:
         raise FileNotFoundError(f"{skill_name} is not installed for target {target}")
     if not status.managed:
-        raise ValueError(f"{skill_name} is not a managed skill-forge install for target {target}; refusing to remove it")
+        if status.status != "broken":
+            raise ValueError(f"{skill_name} is not a managed skill-forge install for target {target}; refusing to remove it")
+        # broken with no readable metadata — allow removal so the user can reinstall cleanly
 
-    if target == "codex":
-        shutil.rmtree(status.location)
-        return status.location
-
-    shutil.rmtree(status.location)
+    _safe_remove(status.location)
     return status.location
 
 

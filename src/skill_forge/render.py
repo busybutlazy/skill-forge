@@ -12,7 +12,8 @@ def _copy_assets(skill: CanonicalSkill, destination: Path) -> None:
     for asset_dir in skill.asset_dirs:
         src = skill.root / asset_dir
         dest = destination / asset_dir
-        shutil.copytree(src, dest, dirs_exist_ok=True)
+        # symlinks=True preserves symlinks as symlinks instead of following them.
+        shutil.copytree(src, dest, dirs_exist_ok=True, symlinks=True)
 
 
 def _metadata_payload(skill: CanonicalSkill) -> dict[str, object]:
