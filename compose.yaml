@@ -24,4 +24,3 @@ services:
       SKILL_FORGE_PROJECT_HOST_DIR: ${SKILL_FORGE_PROJECT_HOST_DIR:-.}
     stdin_open: true
     tty: true
-    user: "${HOST_UID:-0}:${HOST_GID:-0}"

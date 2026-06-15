@@ -21,7 +21,7 @@ COPY docker/runtime-entrypoint.sh /usr/local/bin/skill-forge-container
 COPY docker/runtime-shellrc /opt/skill-forge/docker/runtime-shellrc
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends bash \
+    && apt-get install -y --no-install-recommends bash gosu \
     && rm -rf /var/lib/apt/lists/* \
     && python -m pip install . \
     && chmod +x /usr/local/bin/skill-forge-container

@@ -4,7 +4,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from .install import install_skill, list_installed, remove_skill, update_skill
+from .install import install_skill, list_installed, remove_skill, target_root, update_skill
 from .models import CanonicalSkill, InstalledStatus
 from .repository import SUPPORTED_TARGETS, load_all_skills
 from .security_check import (
@@ -245,6 +245,9 @@ class InteractiveMenu:
                 f"{self._render_status_badge(current.status)}"
             )
 
+        if not self._check_skills_dir_writable():
+            return
+
         successes: list[str] = []
         for skill in selected_skills:
             outcome = self._run_install(skill.name)
@@ -276,6 +279,10 @@ class InteractiveMenu:
 
         self._clear_screen()
         self._print_header()
+
+        if not self._check_skills_dir_writable():
+            return
+
         successes: list[str] = []
         for index in selections:
             status = statuses[index]
@@ -328,6 +335,24 @@ class InteractiveMenu:
         if successes:
             print()
             print(_color(f"Removed {len(successes)} skill(s): {', '.join(successes)}", GREEN, BOLD))
+
+    def _check_skills_dir_writable(self) -> bool:
+        skills_dir = target_root(self.project_dir, self.target)
+        skills_dir.mkdir(parents=True, exist_ok=True)
+        if not os.access(skills_dir, os.W_OK):
+            try:
+                os.chmod(skills_dir, skills_dir.stat().st_mode | 0o700)
+            except PermissionError:
+                cmd = f"chmod -R u+w {skills_dir}"
+                print(
+                    _color(
+                        f"Skills directory '{skills_dir}' is not writable.\n"
+                        f"Suggested fix:  {cmd}",
+                        RED,
+                    )
+                )
+                return False
+        return True
 
     def _run_install(self, skill_name: str) -> bool:
         try:
