@@ -15,6 +15,7 @@
 - 安裝 skill 到其他專案
 - 只做小幅文字修正或版本調整
 - 把 skill 同步到本 repo 的 `.agents/` 或 `.claude/`
+- 把現有的本機 plugin skill（Codex plugin 目錄或單一 skill folder）轉成 canonical skill → 請改用 `import-plugin-skill`，它會先做準入審查、高保真改寫與 reviewer 驗證，再產出 canonical draft
 
 ## Workflow
 

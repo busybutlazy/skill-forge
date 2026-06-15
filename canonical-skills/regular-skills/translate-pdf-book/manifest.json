@@ -26,8 +26,8 @@
     },
     {
       "path": "scripts/split_chapters.py",
-      "sha256": "57660a180d7de24bd80b795ad0158c88adcedc05da6bfaecf33348d73bcdc011"
+      "sha256": "2e97d746e1040245310180570ee103ace8679782c51b9678a3584026b3a49573"
     }
   ],
-  "package_sha256": "cb12114cd63ac6ecf15bd94758c9040608e3715425e08516f2223c43349f042d"
+  "package_sha256": "c6a8b8b4cc670dc7009dccbd9e43b596c5364f241a7d4d5ceaabd4967aa9428b"
 }

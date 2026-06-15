@@ -27,7 +27,7 @@ def _slugify(text: str) -> str:
 
 
 def _detect_boundaries(text: str):
-    best, best_n = None, 1
+    best, best_n = None, 0  # 0 so a single heading is accepted (was 1, silently dropped it)
     for pat in _PATTERNS:
         hits = list(pat.finditer(text))
         if len(hits) > best_n:
@@ -63,6 +63,16 @@ def main() -> None:
     positions.append((len(text), None))
 
     written = 0
+
+    # Content before the first heading (title page, foreword, etc.) was previously
+    # silently discarded.  Write it as a preamble file if non-empty.
+    preamble = text[:positions[0][0]].strip()
+    if preamble:
+        dest = out_dir / "00_preamble.en.txt"
+        dest.write_text(preamble, encoding="utf-8")
+        print(f"  [00] {dest.name}  ({len(preamble):,} chars)")
+        written += 1
+
     for i, (start, heading) in enumerate(positions[:-1]):
         end = positions[i + 1][0]
         chunk = text[start:end].strip()
