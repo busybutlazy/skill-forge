@@ -1,6 +1,6 @@
 # Verified Operator
 
-Operate across live systems with verification, evidence, recovery, and state tracking. Use this skill when Codex must coordinate files, terminals, browsers, APIs, devices, or external services; take actions instead of only advising; prove each change with receipts such as logs, screenshots, diffs, or API responses; manage approvals for risky steps; or recover from drift in long-running, high-stakes, or multi-step tasks.
+Operate across live systems with verification, evidence, recovery, and state tracking. Use this skill when the agent must coordinate files, terminals, browsers, APIs, devices, or external services; take actions instead of only advising; prove each change with receipts such as logs, screenshots, diffs, or API responses; manage approvals for risky steps; or recover from drift in long-running, high-stakes, or multi-step tasks.
 
 ## Goal
 

@@ -30,19 +30,23 @@
 
 直接呼叫 repo CLI：
 
-- `PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata <skill-name>`
+```
+PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata <skill-name>
+```
 
-如果這次也要更新日期或版本，可以加上：
+如果這次也要更新日期或版本，可以加上以下其中一個或多個 flag（`--today` 與 `--updated-at` 互斥，不可同時使用）：
 
-- `--today`
-- `--updated-at`
-- `--version`
+- `--today` — 將 `identity.updated_at` 設為今天日期
+- `--updated-at YYYY-MM-DD` — 手動指定日期
+- `--version X.Y.Z` — 更新 `identity.version`
 
 ### 3. Validate the canonical package
 
 接著執行：
 
-- `PYTHONPATH=src python -m skill_forge --repo-root . validate <skill-name>`
+```
+PYTHONPATH=src python -m skill_forge --repo-root . validate <skill-name>
+```
 
 若 validate 失敗，要明確列出 validator issues，不要假裝完成。
 

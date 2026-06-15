@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "create-pr",
-    "version": "1.1.0",
+    "version": "1.3.0",
     "description": "Summarize branch changes, draft reviewer-friendly PR text, and optionally create a PR with gh",
-    "updated_at": "2026-04-07",
+    "updated_at": "2026-06-15",
     "tags": [
       "git",
       "pull-request",
@@ -31,6 +31,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "bc583bedfbb224f745c6bc55572bef4c4ceb50be78d679d91544b48aeb5094ef"
+    "package_sha256": "6d7db0cd67c00e469e9b32bb804946ffd485fea1c7bcd4b1bddd6d0699660a4e"
   }
 }

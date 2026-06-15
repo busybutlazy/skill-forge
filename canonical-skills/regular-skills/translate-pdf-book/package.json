@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "translate-pdf-book",
-    "version": "1.0.0",
+    "version": "1.3.0",
     "description": "Translate long PDF books or articles into Traditional Chinese Markdown. Extracts text, splits chapters, maintains a glossary, optionally parallelizes with subagents, and produces both per-chapter files and one merged output.",
-    "updated_at": "2026-04-29",
+    "updated_at": "2026-06-15",
     "tags": [
       "translation",
       "pdf",
@@ -31,6 +31,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "c6a8b8b4cc670dc7009dccbd9e43b596c5364f241a7d4d5ceaabd4967aa9428b"
+    "package_sha256": "76bdbe5ccf8b9fd09546f59e87314ff44f20e8b6e0c9219025ef2c5eba0669b6"
   }
 }

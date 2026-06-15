@@ -110,7 +110,7 @@ task-plan done -id <task_id> [completion_note]
 task-plan check
 ```
 
-列出所有任務的 order、id、status、title，最後顯示整體完成進度與最後一筆完成任務的備註。
+列出所有任務的 order、id、status、title（已完成任務額外顯示 completion_note 前 40 字），最後顯示整體完成進度與最後一筆完成任務的備註。
 
 ```
 task-plan check -id <task_id>
@@ -208,6 +208,7 @@ task-plan help
 - 所有資料異動都透過 script，不直接操作 JSON
 - 呼叫 script 時一律從專案根目錄執行
 - 在使用 `add` 之前，先用 `ls` 確認當前狀態，避免 position collision
-- 任務刪除前提醒使用者，因為會連同子任務一起移除
+- 任務刪除前提醒使用者，因為會連同子任務一起移除；若任務是刻意跳過而非錯誤建立，優先用 `update -state skipped` 保留紀錄，而非直接刪除
+- `blocked` 用於外部依賴尚未解除（例如等待他人 review 或環境未備妥）；`skipped` 用於確定不做的任務；不要用 `todo` 替代這兩個語意
 - **task-plan 管狀態與順序，設計 doc 管理由與決策**：`description` 欄位只記錄「要做什麼」，不重複外部 doc 的內容
 - 已有詳細設計 doc 時，task-plan 只維護頂層任務與順序排列，depth-2 的 description 保持簡短；task-plan 作為 checklist，doc 作為 source of truth

@@ -49,7 +49,7 @@
 - `instruction.md`
 - `targets/codex.frontmatter.json`
 - `targets/claude.frontmatter.json`
-- 視需要建立輔助目錄
+- 視需要建立輔助目錄（`examples/`、`references/`、`scripts/`、`assets/`）
 
 `package.json` 必須遵守目前 canonical schema：
 
@@ -84,14 +84,12 @@ target override 要求：
 - `targets/claude.frontmatter.json` 至少包含 `name` 與 `description`
 - Claude 如需 target-specific 欄位，例如 `tools`，只能放在 Claude frontmatter
 
-`manifest.json` 必須列出 render-driving content：
+`manifest.json` 在 scaffold 階段先建立為佔位檔案（空物件 `{}`）即可；實際的檔案 hash 與 `package_sha256` 由後續 `finalize-skill` 步驟計算並填入，不應手動填寫。最終 `manifest.json` 必須列出 render-driving content：
 
 - `instruction.md`
 - `targets/codex.frontmatter.json`
 - `targets/claude.frontmatter.json`
 - 若有其他會影響 render 的受管檔案，也要一併納入
-
-`manifest.json` 與 `package.json.integrity.package_sha256` 必須同步對應同一個 package hash。
 
 ### 4. Validate consistency
 
@@ -100,7 +98,7 @@ target override 要求：
 - 目錄名稱、`identity.name`、兩個 target override 的 `name` 一致
 - `description` 足以讓 target 判斷是否該觸發
 - `package.json` 結構符合目前 validator 契約
-- `manifest.json`、`integrity.package_sha256`、版本與日期彼此一致
+- `package.json` 的版本與日期已填入
 - 內容屬於公開可分發 skill，而不是 repo 管理技能
 
 建立完 canonical source 後，下一步應提醒使用者執行 `finalize-skill`。

@@ -51,18 +51,23 @@
 
 如果使用者沒有指定清單，預設可同步整個 manager catalog。
 
+只同步已經 finalize 完成的 canonical skills。若某個 skill 尚未 finalize（缺少 manifest.json 或 package_sha256 無效），應從這次同步中排除並告知使用者。
+
 ### 4. Execute through the skill-forge CLI
 
 不要自己重寫安裝邏輯，直接呼叫 repo CLI：
 
 - `PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog ...`
 
-必要時加入：
+必填參數：
 
-- `--project .`
-- `--target codex|claude|all`
-- `--force`
-- 指定的 skill 名單
+- `--project .`（永遠必填，指定要同步進去的 project 根目錄）
+
+選用參數：
+
+- `--target codex|claude|all`（預設為 `all`）
+- `--force`（允許覆蓋有 drift 或 unmanaged 的安裝）
+- 在指令結尾列出指定的 skill 名單（不列則預設同步整個 manager catalog）
 
 ### 5. Report the outcome
 
@@ -70,8 +75,8 @@
 
 - 哪些 skills 已同步
 - 同步到哪些 target
-- 是否有任何 skip、repair、force overwrite
-- 若某 skill 不在 manager catalog，直接明講原因
+- 是否有任何 skip、force overwrite、update（列出實際發生的情況，不要用模糊的「repair」）
+- 若某 skill 不在 manager catalog 或尚未 finalize，直接明講原因
 
 ## Rules
 

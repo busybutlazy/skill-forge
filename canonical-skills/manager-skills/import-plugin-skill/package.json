@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "import-plugin-skill",
-    "version": "1.7.0",
+    "version": "1.3.0",
     "description": "Review one local plugin skill source through skillkeeper, imitator, reviewer, and a review packet before promotion",
-    "updated_at": "2026-04-10",
+    "updated_at": "2026-06-15",
     "tags": [
       "maintainer",
       "import",
@@ -31,6 +31,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "826af56f15390bd55fc5307fdbf63350a65794e84d89f46b034afb6d555bd063"
+    "package_sha256": "211ba793d08d45b6035cb2e9ccda80d7ce81e2162483d438f27154c8b19f7ded"
   }
 }

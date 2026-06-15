@@ -34,9 +34,10 @@ Do not use this skill when:
 
 - Locate front matter, introduction, chapters, appendices, and index.
 - Create `source_chapters/`.
-- Write one English source slice per chapter:
+- Run `split_chapters.py` (or split manually) to write one English source slice per chapter:
   - `source_chapters/01_chapter_slug.en.txt`
   - `source_chapters/02_chapter_slug.en.txt`
+- If any content exists before the first chapter heading (title page, foreword, copyright), `split_chapters.py` writes it to `source_chapters/00_preamble.en.txt` instead of discarding it. Translate this file as a front-matter section if it contains meaningful prose.
 
 ### 4. Create Translation Workspace
 
@@ -128,12 +129,12 @@ Populate the actual glossary by reading the source text first, not by copying th
 ├── Book_Title_zh-TW.md           ← root index
 ├── Book_Title_zh-TW_full.md      ← merged full output
 ├── source_chapters/
+│   ├── 00_preamble.en.txt        ← pre-chapter content (title page, foreword, etc.); only present if non-empty
 │   ├── 01_chapter_slug.en.txt
 │   └── ...
 └── translated/
     ├── TERMS.md
-    ├── 00_front_matter.zh-TW.md
-    ├── 00_introduction.zh-TW.md
+    ├── 00_preamble.zh-TW.md      ← translated from 00_preamble.en.txt if present
     ├── 01_chapter_slug.zh-TW.md
     └── ...
 ```

@@ -336,8 +336,7 @@ promote 前仍要再次確認：
 
 - 把 staged draft 複製到使用者選定的 canonical layer
 - 把 review artifacts 複製到 `reviews/<skill-name>/`
-- 執行 `refresh-metadata`
-- 執行 `validate`
+- 呼叫 `finalize-skill` 對新採納的 canonical skill 執行 `refresh-metadata` 與 `validate`
 - 至少做一個 Codex target smoke test
 - 只有在上述步驟都成功後，才刪除對應的 `tmp/import-candidates/<source-name>/<skill-name>/`
 

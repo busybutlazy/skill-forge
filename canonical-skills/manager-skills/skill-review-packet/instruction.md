@@ -17,11 +17,11 @@
 
 ## Required Inputs
 
-至少應具備下列材料中的大部分：
+這些材料通常由 `import-plugin-skill` 工作流程產生。至少應具備下列材料中的三份核心材料（`skillkeeper-initial.md`、`source-inventory.md`、`reviewer-report.md`），其餘為補充材料：
 
-- `skillkeeper-initial.md`
-- `source-inventory.md`
-- `reviewer-report.md`
+- `skillkeeper-initial.md`（核心）
+- `source-inventory.md`（核心）
+- `reviewer-report.md`（核心）
 - `skillkeeper-final.md`
 - 若有人工回饋，另含 `change-request.md`
 - 若有 revision summary，另含 `draft-review.md`
@@ -55,7 +55,7 @@
 
 ### 3. Produce the packet
 
-輸出 `skill-review-packet.md`，至少包含：
+以對話回覆的形式輸出 `skill-review-packet.md` 的完整內容（不另存為獨立檔案，除非 maintainer 明確要求）。packet 至少包含：
 
 - source overview
 - intake decision summary
@@ -68,7 +68,7 @@
 
 `skill-review-packet.md` 應使用繁體中文撰寫。若上游材料含有英文欄位名稱、verdict 或檔名，可保留原始識別字，但敘述、摘要、判讀與給人工審核者看的說明都應以繁體中文為主。
 
-必要時可補一段 revision history，整理：
+若存在多輪 revision（即有 `change-request.md` 或多份 `draft-review.md`），應補一段 revision history，整理：
 
 - 這一輪是第幾次 revision phase
 - 是否有 `change-request.md`
@@ -80,3 +80,4 @@
 - 這個 skill 只整理和包裝上游結論，不新增新的政策判斷
 - 若上游 verdict 互相衝突，要在 packet 中明講矛盾，而不是自行裁決
 - packet 重點是幫人工快速審核，不是重寫整份 review
+- packet 完成的標準：所有八個必要欄位都有內容，缺口以「材料不足，無法判斷」明確標注，不留空白欄位

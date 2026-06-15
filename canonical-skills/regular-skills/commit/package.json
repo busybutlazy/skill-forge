@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "commit",
-    "version": "1.1.0",
+    "version": "1.3.0",
     "description": "Plan commit boundaries, review staged content, and craft concise commit messages",
-    "updated_at": "2026-04-07",
+    "updated_at": "2026-06-15",
     "tags": [
       "git",
       "commit",
@@ -30,6 +30,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "304603224c1f980212b0ac20b8570bb3ceaa0dac6acfb7f318b37c069a1eafe4"
+    "package_sha256": "ffbb3df22d4e23aac03aa8579521fda7417514e99b5575ab5318a57c79731136"
   }
 }

@@ -2,10 +2,13 @@
 
 把專案中的 API request / response 結構整理成可讀文件，方便維護、review 與跨團隊溝通。
 
+**使用時機**：需要產生或更新 API DTO 文件、盤點現有 schema 結構、或比對新舊版本差異時。
+**不適用**：修改程式碼邏輯、重構 schema 設計——這些應另開獨立工作。
+
 ## Default Output
 
 - 路徑：`docs/DTOs/DTO_{YYYY-MM-DD}.md`
-- 如果目錄不存在，可以建立
+- 若 `docs/DTOs/` 目錄不存在，先建立再寫入
 
 ## Operating Principles
 
@@ -18,7 +21,7 @@
 
 ### 1. Discover endpoints and schemas
 
-搜尋專案中的：
+如果使用者有指定範圍（特定資料夾、模組或端點），先以該範圍為主；否則搜尋整個專案的：
 
 - router / controller / handler
 - request schema
@@ -26,14 +29,14 @@
 - DTO class、type、interface
 - 相關 decorator、annotation、serializer 定義
 
-先列出找到的端點範圍，必要時請使用者補充遺漏來源。
+列出找到的端點清單，必要時請使用者補充遺漏來源，再繼續後續步驟。
 
 ### 2. Check existing DTO docs
 
 查看 `docs/DTOs/` 是否已有舊文件。
 
-- 如果是第一次產生，標記為新建文件
-- 如果已有舊版，讀最新一份作為比對基準，整理新增、刪除、變更的概要
+- **首次建立**：標記文件標頭為「初次建立」，跳過 diff。
+- **已有舊版**：讀最新一份作為比對基準，在新文件標頭以 changelog 格式整理新增、刪除、變更的端點與欄位摘要。
 
 ### 3. Build endpoint sections
 
@@ -64,14 +67,13 @@
 
 如果問題需要改程式碼才能解決，先向使用者說明，再決定是否另開修改工作。
 
-### 6. Write the document
+### 6. Write the document and confirm
 
-輸出完成後，回報：
+寫入文件後，向使用者回報：
 
 - 產生的檔案路徑
-- 涵蓋的端點數
-- 尚未釐清的欄位或風險
+- 涵蓋的端點數量
+- changelog 摘要（如有舊版比對）
+- 尚未釐清的欄位或風險（若無則明確說明「無待釐清項目」）
 
-## Optional Scope Input
-
-如果使用者有提供額外參數，可當作篩選範圍，例如特定資料夾、模組或端點。
+**完成標準**：所有已發現端點均有對應章節、共用型別已抽出、風險已標記、回報訊息已送出。
