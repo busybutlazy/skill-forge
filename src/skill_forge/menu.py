@@ -7,6 +7,13 @@ from pathlib import Path
 from .install import install_skill, list_installed, remove_skill, update_skill
 from .models import CanonicalSkill, InstalledStatus
 from .repository import SUPPORTED_TARGETS, load_all_skills
+from .security_check import (
+    check_security_settings,
+    format_applied_report,
+    format_created_report,
+    init_security_settings,
+    merge_security_defaults,
+)
 
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -44,9 +51,11 @@ class InteractiveMenu:
         self.shell_rc = shell_rc
         self.target = "codex"
         self.project_display_dir = Path(os.environ.get("SKILL_FORGE_PROJECT_HOST_DIR", str(project_dir)))
+        self._security_notice: str | None = None
 
     def run(self) -> int:
         self.target = self._choose_target(initial=True)
+        self._run_security_check()
         while True:
             self._clear_screen()
             self._print_header()
@@ -114,6 +123,9 @@ class InteractiveMenu:
         print(_color("Project", DIM) + f" {self.project_display_dir}")
         print(_color("Status ", DIM) + f" {summary}")
         print()
+        if self._security_notice is not None:
+            print(self._security_notice)
+            print()
 
     def _render_status_badge(self, status: str, count: int | None = None) -> str:
         label = status if count is None else f"{status}={count}"
@@ -431,6 +443,20 @@ class InteractiveMenu:
 
     def _pause(self) -> None:
         input(_color("Press Enter to continue...", DIM))
+
+    def _run_security_check(self) -> None:
+        """Auto-detect and init/merge security settings when target is claude."""
+        if self.target != "claude":
+            self._security_notice = None
+            return
+        result = check_security_settings(self.project_dir)
+        if not result.exists:
+            path = init_security_settings(self.project_dir)
+            self._security_notice = format_created_report(path)
+        elif result.missing_keys:
+            applied = merge_security_defaults(self.project_dir)
+            if applied:
+                self._security_notice = format_applied_report(applied, result.settings_path)
 
 
 def run_menu(repo_root: Path, project_dir: Path, *, shell_rc: Path | None = None) -> int:

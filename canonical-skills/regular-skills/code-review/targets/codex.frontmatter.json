@@ -1,0 +1,4 @@
+{
+  "name": "code-review",
+  "description": "Use this skill when the user wants to review code for security vulnerabilities, audit the codebase for logic or performance issues, or generate a structured code review report with fix tracking."
+}

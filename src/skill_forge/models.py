@@ -43,6 +43,17 @@ class ValidationResult:
 
 
 @dataclass(frozen=True)
+class SecurityCheckResult:
+    settings_path: Path
+    exists: bool
+    missing_keys: list[str]
+
+    @property
+    def needs_attention(self) -> bool:
+        return not self.exists or bool(self.missing_keys)
+
+
+@dataclass(frozen=True)
 class InstalledStatus:
     name: str
     target: str

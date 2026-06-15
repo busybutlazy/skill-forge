@@ -11,6 +11,13 @@ from .install import install_skill, list_installed, remove_skill, sync_manager_c
 from .menu import run_menu
 from .models import ValidationFailure
 from .package_ops import refresh_skill_metadata
+from .security_check import (
+    check_security_settings,
+    format_applied_report,
+    format_created_report,
+    init_security_settings,
+    merge_security_defaults,
+)
 from .render import render_skill
 from .repository import (
     SUPPORTED_SCOPES,
@@ -88,6 +95,10 @@ def build_parser() -> argparse.ArgumentParser:
     manager_catalog_parser.add_argument("--project", required=True, help="Target project root")
     manager_catalog_parser.add_argument("--target", choices=[*SUPPORTED_TARGETS, "all"], default="all")
     manager_catalog_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted or unmanaged local installs after confirmation")
+
+    security_parser = subparsers.add_parser("check-security", help="Check and optionally initialise security settings for a project")
+    security_parser.add_argument("--project", required=True, help="Target project root")
+    security_parser.add_argument("--init", action="store_true", help="Create or merge default security settings if missing")
 
     return parser
 
@@ -275,6 +286,56 @@ def run_menu_command(args: argparse.Namespace) -> int:
     )
 
 
+def _auto_security_check(args: argparse.Namespace) -> None:
+    """Run security settings check at startup for claude-related commands."""
+    project = getattr(args, "project", None)
+    target = getattr(args, "target", None)
+    if project is None:
+        return
+    if target not in ("claude", "all"):
+        return
+
+    project_dir = Path(project).resolve()
+    result = check_security_settings(project_dir)
+    if not result.exists:
+        path = init_security_settings(project_dir)
+        print(format_created_report(path), file=sys.stderr)
+    elif result.missing_keys:
+        applied = merge_security_defaults(project_dir)
+        if applied:
+            print(format_applied_report(applied, result.settings_path), file=sys.stderr)
+
+
+def run_check_security(args: argparse.Namespace) -> int:
+    project_dir = Path(args.project).resolve()
+    result = check_security_settings(project_dir)
+
+    if not result.exists:
+        if args.init:
+            path = init_security_settings(project_dir)
+            print(format_created_report(path))
+        else:
+            print(f"Missing: {result.settings_path}", file=sys.stderr)
+            print("Run with --init to create default security settings.", file=sys.stderr)
+            return 1
+    elif result.missing_keys:
+        if args.init:
+            applied = merge_security_defaults(project_dir)
+            if applied:
+                print(format_applied_report(applied, result.settings_path))
+            else:
+                print("Security settings are complete.")
+        else:
+            print(f"Incomplete: {result.settings_path}", file=sys.stderr)
+            for key in result.missing_keys:
+                print(f"  - {key}", file=sys.stderr)
+            print("Run with --init to auto-apply missing defaults.", file=sys.stderr)
+            return 1
+    else:
+        print("Security settings are complete.")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -290,7 +351,9 @@ def main(argv: list[str] | None = None) -> int:
         "refresh-metadata": run_refresh_metadata,
         "sync-maintainer": run_sync_maintainer,
         "sync-manager-catalog": run_sync_manager_catalog,
+        "check-security": run_check_security,
     }
+    _auto_security_check(args)
     try:
         return command_handlers[args.command](args)
     except (ValidationFailure, FileNotFoundError, RuntimeError, ValueError) as exc:

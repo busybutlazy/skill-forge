@@ -660,7 +660,7 @@ class WorkflowTests(unittest.TestCase):
                 "menu",
                 "--project",
                 str(project_root),
-                input_text="1\n2\n1\n\n7\n",
+                input_text="1\n2\n2\n\n7\n",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             clean_output = self.strip_ansi(result.stdout)

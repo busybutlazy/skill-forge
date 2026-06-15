@@ -1,0 +1,5 @@
+{
+  "name": "code-review",
+  "description": "Code review specialist for security, logic, performance, and maintainability. Use proactively when the user asks to review code for security vulnerabilities, audit the codebase, check for logic or performance issues, or generate a code review report with interactive fix tracking.",
+  "tools": "Bash, Read, Grep, Glob, Write, Edit, Agent"
+}
