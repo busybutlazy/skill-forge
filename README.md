@@ -250,6 +250,16 @@ This means the skill remains a regular skill, but may also be synced through man
 
 There are two maintainer paths, but only one should be the default.
 
+### First-time maintainer setup
+
+After cloning, run once to activate the pre-commit skill hash validation hook:
+
+```bash
+bash scripts/setup-hooks.sh
+```
+
+This blocks commits that modify `canonical-skills/` with stale hashes. Requires Docker.
+
 ### Preferred: AI collaboration
 
 Use this path when working inside Codex or Claude.
@@ -735,6 +745,16 @@ canonical-skills/regular-skills/<name>/
 ## 維護者工作流程
 
 維護者其實有兩條路，但只有一條應該是主路徑。
+
+### 維護者初次設定
+
+Clone 後執行一次，啟用 pre-commit skill hash 驗證 hook：
+
+```bash
+bash scripts/setup-hooks.sh
+```
+
+這個 hook 會在 `canonical-skills/` 下的檔案有 hash 不一致時擋住 commit。需要 Docker。
 
 ### 首選：AI 協作
 
