@@ -373,18 +373,18 @@ make up
 
 ## Installing skills from within Claude or Codex
 
-The `install-skill` skill lets you install and update skills without leaving your AI session.
+The `install-my-skill` skill lets you install and update skills without leaving your AI session.
 
 ### Prerequisites
 
-- `install-skill` must be installed first. On first setup, install it via `skill-manager`:
+- `install-my-skill` must be installed first. On first setup, install it via `skill-manager`:
 
   ```bash
   ~/skill-forge/skill-manager
-  # Choose Install / Update skills → select install-skill
+  # Choose Install / Update skills → select install-my-skill
   ```
 
-  Or, if `install-skill` is already in your shared catalog, it is included automatically when you run `sync-manager-catalog`.
+  Or, if `install-my-skill` is already in your shared catalog, it is included automatically when you run `sync-manager-catalog`.
 
 ### Usage
 
@@ -905,18 +905,18 @@ make up
 
 ## 在 Claude 或 Codex 內安裝 skills
 
-`install-skill` 讓你不需要離開 AI session，直接在對話中安裝和更新 skills。
+`install-my-skill` 讓你不需要離開 AI session，直接在對話中安裝和更新 skills。
 
 ### 前置條件
 
-- `install-skill` 本身需先安裝一次。首次使用時，透過 `skill-manager` 安裝：
+- `install-my-skill` 本身需先安裝一次。首次使用時，透過 `skill-manager` 安裝：
 
   ```bash
   ~/skill-forge/skill-manager
-  # 選 Install / Update skills → 選取 install-skill
+  # 選 Install / Update skills → 選取 install-my-skill
   ```
 
-  若 `install-skill` 已在 shared catalog 中，執行 `sync-manager-catalog` 時會自動納入。
+  若 `install-my-skill` 已在 shared catalog 中，執行 `sync-manager-catalog` 時會自動納入。
 
 ### 使用方式
 

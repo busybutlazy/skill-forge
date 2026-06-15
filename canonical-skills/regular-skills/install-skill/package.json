@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "identity": {
-    "name": "install-skill",
+    "name": "install-my-skill",
     "version": "1.0.0",
     "description": "Install, update, and review available skills from within a Claude or Codex session",
     "updated_at": "2026-06-15",

@@ -40,7 +40,7 @@ class ValidationTests(unittest.TestCase):
         public_skills = {skill.name for skill in load_all_skills(REPO_ROOT, scopes={"public"})}
         maintainer_skills = {skill.name for skill in load_all_skills(REPO_ROOT, scopes={"maintainer"})}
         self.assertIn("commit", public_skills)
-        self.assertIn("install-skill", public_skills)
+        self.assertIn("install-my-skill", public_skills)
         self.assertNotIn("create-skill", public_skills)
         self.assertIn("create-skill", maintainer_skills)
         self.assertIn("finalize-skill", maintainer_skills)
@@ -49,7 +49,7 @@ class ValidationTests(unittest.TestCase):
         self.assertIn("update-skill", maintainer_skills)
 
     def test_install_skill_has_shared_tag(self) -> None:
-        skill = load_skill(REPO_ROOT, "install-skill")
+        skill = load_skill(REPO_ROOT, "install-my-skill")
         self.assertEqual(skill.scope, "public")
         self.assertIn("shared", skill.tags)
 
@@ -216,7 +216,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("VALID finalize-skill", result.stdout)
         self.assertIn("VALID import-plugin-skill", result.stdout)
         self.assertIn("VALID install-manager-skill", result.stdout)
-        self.assertIn("VALID install-skill", result.stdout)
+        self.assertIn("VALID install-my-skill", result.stdout)
         self.assertIn("VALID update-skill", result.stdout)
 
     def test_catalog_json_lists_public_skills_for_target(self) -> None:
@@ -225,7 +225,7 @@ class WorkflowTests(unittest.TestCase):
         skills = json.loads(result.stdout)
         names = [s["name"] for s in skills]
         self.assertIn("commit", names)
-        self.assertIn("install-skill", names)
+        self.assertIn("install-my-skill", names)
         # maintainer-only skills must not appear in public catalog
         self.assertNotIn("create-skill", names)
         for entry in skills:
@@ -247,7 +247,7 @@ class WorkflowTests(unittest.TestCase):
         result = self.run_cli("catalog", "--target", "claude")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("commit", result.stdout)
-        self.assertIn("install-skill", result.stdout)
+        self.assertIn("install-my-skill", result.stdout)
 
     def test_wrapper_no_interactive_flag_stripped_from_help_text(self) -> None:
         wrapper = REPO_ROOT / "skill-manager"

@@ -47,9 +47,9 @@ JSON schema emitted by `catalog --json`:
 
 Agent stable entry point: `skill-manager --no-interactive catalog --target claude --json`
 
-### Phase 3 — `install-skill` canonical skill
+### Phase 3 — `install-my-skill` canonical skill
 
-**New directory:** `canonical-skills/regular-skills/install-skill/`
+**New directory:** `canonical-skills/regular-skills/install-my-skill/`
 
 Files: `package.json`, `instruction.md`, `targets/claude.frontmatter.json`, `targets/codex.frontmatter.json`, `manifest.json`
 
@@ -68,15 +68,15 @@ Scope: `public`, tagged `shared` (automatically included in manager catalog).
 
 Add "Installing skills from within Claude / Codex" section:
 - Trigger phrase and example output
-- Bootstrap note: `install-skill` itself must be installed once via `skill-manager` (or is included in the default shared catalog)
+- Bootstrap note: `install-my-skill` itself must be installed once via `skill-manager` (or is included in the default shared catalog)
 - Known limit: reload session after install for skills to take effect
 
 ### Phase 5 — Tests
 
 - `catalog` subcommand: JSON schema, scope/target filtering, empty result
 - Wrapper non-interactive: `--no-interactive` flag strips correctly, no TTY error, no self-exec
-- `install-skill` package validates (added to `test_all_canonical_skills_validate`)
-- `install-skill` has `shared` tag (added to shared-tag test)
+- `install-my-skill` package validates (added to `test_all_canonical_skills_validate`)
+- `install-my-skill` has `shared` tag (added to shared-tag test)
 - Smoke test: `catalog --target claude --json` round-trips against `list --json` status fields
 
 ## Constraints

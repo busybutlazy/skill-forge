@@ -1,4 +1,4 @@
 {
-  "name": "install-skill",
+  "name": "install-my-skill",
   "description": "Skill catalog and install manager. Use when the user wants to install, update, or review available skills without leaving the Claude session."
 }

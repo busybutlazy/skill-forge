@@ -1,9 +1,9 @@
 ---
-name: install-skill
+name: install-my-skill
 description: Skill catalog and install manager. Use when the user wants to install, update, or review available skills without leaving the Claude session.
 ---
 
-# install-skill
+# install-my-skill
 
 ## Trigger
 
@@ -59,7 +59,7 @@ Present as a numbered list. Include name, catalog version, and badge. Example:
  1. commit        v1.3.0  ✓ 已安裝（最新）
  2. create-pr     v1.2.0  ⬆ 有更新（1.1.0 → 1.2.0）
  3. dto-organizer v0.3.0  ○ 未安裝
- 4. install-skill v1.0.0  ✓ 已安裝（最新）
+ 4. install-my-skill v1.0.0  ✓ 已安裝（最新）
 ```
 
 Wait for the user's selection. If nothing is chosen, exit.
