@@ -80,25 +80,26 @@ class ValidationTests(unittest.TestCase):
             REPO_ROOT / "canonical-skills" / "manager-skills" / "import-plugin-skill" / "instruction.md"
         ).read_text(encoding="utf-8")
 
-        self.assertIn("Skill 類型判定", import_instruction)
-        self.assertIn("Trigger 邊界分析", import_instruction)
-        self.assertIn("Permission model 分析", import_instruction)
-        self.assertIn("Failure mode 分析", import_instruction)
-        self.assertIn("Canonicalization 建議", import_instruction)
-        self.assertIn("Maintenance cost", import_instruction)
-        self.assertIn("`review-report.md` 必須使用繁體中文撰寫", import_instruction)
-        self.assertIn("先把這些內容交給使用者審查", import_instruction)
-        self.assertIn("應依照 `update-skill` 的修改原則處理 staged draft", import_instruction)
+        # Pipeline roles must be present
+        self.assertIn("skillkeeper", import_instruction)
+        self.assertIn("imitator", import_instruction)
+        self.assertIn("reviewer", import_instruction)
+        self.assertIn("skill-review-packet", import_instruction)
+        # Key artifacts produced by each role
+        self.assertIn("skillkeeper-initial.md", import_instruction)
+        self.assertIn("source-inventory.md", import_instruction)
+        self.assertIn("reviewer-report.md", import_instruction)
+        self.assertIn("skillkeeper-final.md", import_instruction)
+        self.assertIn("skill-review-packet.md", import_instruction)
         self.assertIn("change-request.md", import_instruction)
         self.assertIn("draft-review.md", import_instruction)
-        self.assertIn("reviewer 只做差異審查，不自行重寫整份 draft", import_instruction)
-        self.assertIn("reviewer verdict：`pass` 或 `revise`", import_instruction)
-        self.assertIn("`pass` 前，不可進入 promote 問題", import_instruction)
+        # Human review gate before promote
         self.assertIn("使用者明確表示 draft 不再需要修改", import_instruction)
-        self.assertIn("最新 `draft-review.md` verdict 必須是 `pass`", import_instruction)
+        # Promote destination includes manager-skills path
         self.assertIn("`canonical-skills/manager-skills/<skill-name>/`", import_instruction)
+        # Post-promote requirements
         self.assertIn("至少做一個 Codex target smoke test", import_instruction)
-        self.assertIn("只有在這些步驟全部成功後，才刪除", import_instruction)
+        self.assertIn("只有在上述步驟都成功後，才刪除", import_instruction)
 
     def test_refresh_skill_metadata_rebuilds_manifest_and_package_hash(self) -> None:
         with tempfile.TemporaryDirectory(prefix="skill-forge-refresh-") as tmp_dir:
