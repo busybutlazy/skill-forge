@@ -47,6 +47,16 @@ def _materialize_install(skill: CanonicalSkill, project_dir: Path, target: str) 
 
     final_path.parent.mkdir(parents=True, exist_ok=True)
 
+    if not os.access(final_path.parent, os.W_OK):
+        try:
+            current_mode = final_path.parent.stat().st_mode
+            os.chmod(final_path.parent, current_mode | 0o700)
+        except PermissionError:
+            raise RuntimeError(
+                f"Skills directory '{final_path.parent}' is not writable and permissions could not be fixed automatically. "
+                f"Please run: chmod -R u+w {final_path.parent}"
+            )
+
     # [HIGH-2] Render into a temp dir on the same filesystem as the destination
     # so that shutil.move can use os.rename (atomic) instead of copy+delete.
     with tempfile.TemporaryDirectory(prefix=".skill-forge-render-", dir=final_path.parent) as tmp_dir:
