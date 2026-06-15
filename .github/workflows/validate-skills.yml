@@ -18,6 +18,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install -e . -q
+      - run: pip install -e . pytest -q
 
       - run: python -m pytest tests/test_skill_forge.py::ValidationTests::test_all_canonical_skills_validate -v
