@@ -108,10 +108,39 @@ HOST_GID=$(id -g)
 
 maybe_update_repo "$@"
 
-exec env \
-    HOST_UID="$HOST_UID" \
-    HOST_GID="$HOST_GID" \
-    SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
-    docker compose \
-    -f "$SCRIPT_DIR/compose.yaml" \
-    run --build --rm forge "$@"
+# 'docker compose run --build' was added in Compose v2.13.0.
+# On older versions fall back to an explicit build step first.
+_compose_run_supports_build() {
+    _ver=$(docker compose version --short 2>/dev/null | sed 's/^v//')
+    _major=$(printf '%s' "$_ver" | cut -d. -f1)
+    _minor=$(printf '%s' "$_ver" | cut -d. -f2)
+    case "$_major" in *[!0-9]*) return 1 ;; esac
+    case "$_minor" in *[!0-9]*) return 1 ;; esac
+    [ "$_major" -gt 2 ] || { [ "$_major" -eq 2 ] && [ "$_minor" -ge 13 ]; }
+}
+
+if _compose_run_supports_build; then
+    exec env \
+        HOST_UID="$HOST_UID" \
+        HOST_GID="$HOST_GID" \
+        SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
+        docker compose \
+        -f "$SCRIPT_DIR/compose.yaml" \
+        run --build --rm forge "$@"
+else
+    printf 'note: Docker Compose < v2.13 — building image before run\n'
+    env \
+        HOST_UID="$HOST_UID" \
+        HOST_GID="$HOST_GID" \
+        SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
+        docker compose \
+        -f "$SCRIPT_DIR/compose.yaml" \
+        build forge
+    exec env \
+        HOST_UID="$HOST_UID" \
+        HOST_GID="$HOST_GID" \
+        SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
+        docker compose \
+        -f "$SCRIPT_DIR/compose.yaml" \
+        run --rm forge "$@"
+fi

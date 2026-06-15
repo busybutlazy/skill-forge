@@ -144,8 +144,11 @@ $previousHostGid = $env:HOST_GID
 
 try {
     $env:SKILL_FORGE_PROJECT_HOST_DIR = $projectHostDir
-    $env:HOST_UID = "0"
-    $env:HOST_GID = "0"
+    # Windows has no Unix UID/GID. Use 1000 (the conventional first non-root user
+    # in Debian-based Linux and WSL2) so that files rendered into a mounted project
+    # directory are not owned by root when the project is also accessed from Linux/WSL2.
+    $env:HOST_UID = "1000"
+    $env:HOST_GID = "1000"
 
     & docker compose -f $composeFile run --build --rm forge @CliArgs
     exit $LASTEXITCODE

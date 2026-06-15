@@ -101,6 +101,20 @@ Use them when you need:
 
 ---
 
+## Prerequisites
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| Docker | 20.10+ (Compose v2) | Required — `skill-manager` runs entirely inside a container |
+| Python | 3.11+ | Only needed if running `skill-forge` CLI directly outside Docker (dev / CI use) |
+| git | any recent | Needed for the auto-update check in `skill-manager` |
+
+The recommended end-user path (`skill-manager`) requires **only Docker**. You do not need a local Python installation for day-to-day use.
+
+Python 3.11+ is required inside the dev container (`Dockerfile.dev`) and when running `PYTHONPATH=src python -m skill_forge` commands directly — this is an advanced fallback, not the primary path.
+
+---
+
 ## Quickstart
 
 Recommended user path: `CLI/TUI`.
@@ -570,6 +584,20 @@ The real workflow is now:
 * 低階檢查
 * 自動化腳本整合
 * 維護者在協作流程中需要 fallback 時
+
+---
+
+## 環境需求
+
+| 需求 | 版本 | 說明 |
+|------|------|------|
+| Docker | 20.10+（Compose v2）| 必須 — `skill-manager` 完整執行在容器內 |
+| Python | 3.11+ | 僅在直接使用 `skill-forge` CLI（不透過 Docker）時需要，如 dev / CI |
+| git | 任意近期版本 | `skill-manager` 自動更新檢查所需 |
+
+推薦的一般使用者路徑（`skill-manager`）**只需要 Docker**，不需要在本機安裝 Python。
+
+Python 3.11+ 是 dev 容器（`Dockerfile.dev`）與直接執行 `PYTHONPATH=src python -m skill_forge` 命令時的需求——這是進階 fallback，不是主要路徑。
 
 ---
 
