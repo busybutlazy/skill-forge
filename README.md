@@ -371,6 +371,52 @@ make up
 
 ---
 
+## Installing skills from within Claude or Codex
+
+The `install-skill` skill lets you install and update skills without leaving your AI session.
+
+### Prerequisites
+
+- `install-skill` must be installed first. On first setup, install it via `skill-manager`:
+
+  ```bash
+  ~/skill-forge/skill-manager
+  # Choose Install / Update skills → select install-skill
+  ```
+
+  Or, if `install-skill` is already in your shared catalog, it is included automatically when you run `sync-manager-catalog`.
+
+### Usage
+
+Inside a Claude or Codex session, say:
+
+> "Help me install a skill" or "Update my skills"
+
+The agent will:
+
+1. Fetch the available skill catalog and your current install status
+2. Present a selection list with version and status badges
+3. Install or update the skills you choose
+4. Report results and remind you to reload the session
+
+Example output:
+
+```
+請選擇要安裝/更新的 skill（可複選）：
+
+ 1. commit        v1.3.0  ✓ 已安裝（最新）
+ 2. create-pr     v1.2.0  ⬆ 有更新（1.1.0→1.2.0）
+ 3. dto-organizer v0.3.0  ○ 未安裝
+```
+
+### Known limits
+
+- **Reload required:** skills load at session startup. After installing, restart your Claude or Codex session for new skills to take effect.
+- **Requires Docker:** the agent shells out to `skill-manager`, which runs inside Docker.
+- **Unmanaged skills are never overwritten:** if a skill exists but was not installed by skill-forge, the agent will refuse and explain.
+
+---
+
 ## CLI and safety model
 
 Core commands:
@@ -854,6 +900,52 @@ PYTHONPATH=src python -m unittest discover -s tests
 ```bash
 make up
 ```
+
+---
+
+## 在 Claude 或 Codex 內安裝 skills
+
+`install-skill` 讓你不需要離開 AI session，直接在對話中安裝和更新 skills。
+
+### 前置條件
+
+- `install-skill` 本身需先安裝一次。首次使用時，透過 `skill-manager` 安裝：
+
+  ```bash
+  ~/skill-forge/skill-manager
+  # 選 Install / Update skills → 選取 install-skill
+  ```
+
+  若 `install-skill` 已在 shared catalog 中，執行 `sync-manager-catalog` 時會自動納入。
+
+### 使用方式
+
+在 Claude 或 Codex session 中，說：
+
+> 「幫我安裝 skill」或「更新我的 skills」
+
+Agent 將會：
+
+1. 取得可安裝清單與目前的安裝狀態
+2. 呈現含版本與狀態標記的選單
+3. 安裝或更新你選取的 skills
+4. 回報結果並提醒你 reload session
+
+範例畫面：
+
+```
+請選擇要安裝/更新的 skill（可複選）：
+
+ 1. commit        v1.3.0  ✓ 已安裝（最新）
+ 2. create-pr     v1.2.0  ⬆ 有更新（1.1.0→1.2.0）
+ 3. dto-organizer v0.3.0  ○ 未安裝
+```
+
+### 已知限制
+
+- **需要 reload：** skills 在 session 啟動時載入。安裝完成後，需重新開啟 Claude 或 Codex session，新 skill 才會生效。
+- **需要 Docker：** agent 透過 shell 呼叫 `skill-manager`，後者在 Docker 容器內執行。
+- **不覆蓋 unmanaged skills：** 若 skill 已存在但非由 skill-forge 管理，agent 會拒絕安裝並說明原因。
 
 ---
 

@@ -51,11 +51,17 @@ def build_parser() -> argparse.ArgumentParser:
     render_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     render_parser.add_argument("--output", required=True, help="Output directory root")
 
+    catalog_parser = subparsers.add_parser("catalog", help="List all available canonical skills in the repository")
+    catalog_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
+    catalog_parser.add_argument("--scope", choices=[*SUPPORTED_SCOPES, "all"], default="public", help="Which canonical source scope to include")
+    catalog_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
+
     install_parser = subparsers.add_parser("install", help="Install a rendered package into a project")
     install_parser.add_argument("skill", help="Skill name")
     install_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     install_parser.add_argument("--project", required=True, help="Target project root")
     install_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
+    install_parser.add_argument("--yes", action="store_true", help="Auto-confirm drift/broken overwrite prompts (for non-interactive use)")
 
     list_parser = subparsers.add_parser("list", help="List installed packages and their status")
     list_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
@@ -73,6 +79,7 @@ def build_parser() -> argparse.ArgumentParser:
     update_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     update_parser.add_argument("--project", required=True, help="Target project root")
     update_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
+    update_parser.add_argument("--yes", action="store_true", help="Auto-confirm drift/broken overwrite prompts (for non-interactive use)")
 
     menu_parser = subparsers.add_parser("menu", help="Open the interactive skill manager")
     menu_parser.add_argument("--project", required=True, help="Target project root")
@@ -124,6 +131,26 @@ def run_validate(args: argparse.Namespace) -> int:
     return exit_code
 
 
+def run_catalog(args: argparse.Namespace) -> int:
+    repo_root = _repo_root_from_args(args)
+    source_scopes = set(SUPPORTED_SCOPES) if args.scope == "all" else {args.scope}
+    skills = load_all_skills(repo_root, target_filter={args.target}, scopes=source_scopes)
+    if args.json:
+        print(json.dumps(
+            [{"name": s.name, "version": s.version, "description": s.description, "scope": s.scope, "tags": s.tags} for s in skills],
+            ensure_ascii=False,
+            indent=2,
+        ))
+        return 0
+    if not skills:
+        print("No canonical skills found.")
+        return 0
+    for skill in skills:
+        tags = ", ".join(skill.tags) if skill.tags else "-"
+        print(f"{skill.name}\t{skill.version}\t{skill.scope}\t{skill.description}\t[{tags}]")
+    return 0
+
+
 def run_render(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
     skill = load_skill(repo_root, args.skill, target_filter={args.target})
@@ -134,13 +161,14 @@ def run_render(args: argparse.Namespace) -> int:
 
 def run_install(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
+    confirm = (lambda _: True) if args.yes else _prompt_yes_no
     installed = install_skill(
         repo_root,
         Path(args.project).resolve(),
         args.skill,
         args.target,
         force=args.force,
-        confirm=_prompt_yes_no,
+        confirm=confirm,
     )
     print(installed)
     return 0
@@ -178,13 +206,14 @@ def _prompt_yes_no(prompt: str) -> bool:
 
 def run_update(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
+    confirm = (lambda _: True) if args.yes else _prompt_yes_no
     updated = update_skill(
         repo_root,
         Path(args.project).resolve(),
         args.skill,
         args.target,
         force=args.force,
-        confirm=_prompt_yes_no,
+        confirm=confirm,
     )
     print(updated)
     return 0
@@ -343,6 +372,7 @@ def main(argv: list[str] | None = None) -> int:
     command_handlers = {
         "validate": run_validate,
         "render": run_render,
+        "catalog": run_catalog,
         "install": run_install,
         "list": run_list,
         "remove": run_remove,

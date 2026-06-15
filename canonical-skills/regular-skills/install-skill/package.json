@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "install-skill",
+    "version": "1.0.0",
+    "description": "Install, update, and review available skills from within a Claude or Codex session",
+    "updated_at": "2026-06-15",
+    "tags": [
+      "skills",
+      "install",
+      "workflow",
+      "shared"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "2712210142fdc5bdbf1f993ed274180b0d1dc5afa63e5fd1644eb0b3e1fe8632"
+  }
+}

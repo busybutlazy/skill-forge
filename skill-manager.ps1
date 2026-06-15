@@ -106,6 +106,11 @@ function Update-RepoIfNeeded {
             return
         }
 
+        if ($IsNonInteractive) {
+            [Console]::Error.WriteLine("note: A newer skill-forge version is available from $upstreamRef — run interactively to update.")
+            return
+        }
+
         Write-Host "A newer skill-forge version is available from $upstreamRef."
         if (-not (Confirm-YesNo "Update now with 'git pull --ff-only'? [y/N]")) {
             return
@@ -124,6 +129,14 @@ function Update-RepoIfNeeded {
     catch {
         return
     }
+}
+
+# Detect non-interactive mode: explicit flag or stdin redirected.
+# --no-interactive is consumed here and stripped from CliArgs before forwarding to Docker.
+$IsNonInteractive = [Console]::IsInputRedirected
+if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq "--no-interactive") {
+    $IsNonInteractive = $true
+    $CliArgs = @($CliArgs | Select-Object -Skip 1)
 }
 
 if ($CliArgs.Count -gt 0 -and $CliArgs[0] -in @("help", "-h", "--help")) {
@@ -150,7 +163,8 @@ try {
     $env:HOST_UID = "1000"
     $env:HOST_GID = "1000"
 
-    & docker compose -f $composeFile run --build --rm forge @CliArgs
+    $ttyArgs = if ($IsNonInteractive) { @("-T") } else { @() }
+    & docker compose -f $composeFile run --build --rm @ttyArgs forge @CliArgs
     exit $LASTEXITCODE
 }
 finally {

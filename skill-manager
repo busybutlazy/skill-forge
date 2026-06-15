@@ -8,12 +8,13 @@ Usage:
   skill-manager
   skill-manager shell
   skill-manager help
-  skill-manager <skill-forge arguments>
+  skill-manager [--no-interactive] <skill-forge arguments>
 
 Behavior:
   - No arguments: open the interactive menu for the current project directory
   - shell: open the runtime container's expert terminal
   - help, -h, --help: show this help text locally without starting Docker
+  - --no-interactive (as first argument): disable TTY, skip update prompts, safe for agent/CI use
   - check whether the local skill-forge repo is behind its upstream branch
   - offer to update with git pull --ff-only, then restart if the update succeeds
   - rebuild the runtime image automatically before each run
@@ -24,8 +25,18 @@ Examples:
   skill-manager shell
   skill-manager validate
   skill-manager list --target codex --project /workspace/project --json
+  skill-manager --no-interactive catalog --target claude --json
 EOF
 }
+
+# Detect non-interactive mode: explicit flag or stdin not a TTY.
+# --no-interactive must be the first argument; it is consumed here and not forwarded to Docker.
+_NON_INTERACTIVE=0
+[ -t 0 ] || _NON_INTERACTIVE=1
+if [ "${1:-}" = "--no-interactive" ]; then
+    _NON_INTERACTIVE=1
+    shift
+fi
 
 case "${1:-}" in
     help|-h|--help)
@@ -77,6 +88,11 @@ maybe_update_repo() {
         return
     fi
 
+    if [ "$_NON_INTERACTIVE" -eq 1 ]; then
+        printf "note: A newer skill-forge version is available from %s — run interactively to update.\n" "$upstream_ref" >&2
+        return
+    fi
+
     echo "A newer skill-forge version is available from $upstream_ref."
     if ! confirm_yes_no "Update now with 'git pull --ff-only'? [y/N] "; then
         return
@@ -119,6 +135,9 @@ _compose_run_supports_build() {
     [ "$_major" -gt 2 ] || { [ "$_major" -eq 2 ] && [ "$_minor" -ge 13 ]; }
 }
 
+_RUN_TTY_FLAG=""
+[ "$_NON_INTERACTIVE" -eq 1 ] && _RUN_TTY_FLAG="-T"
+
 if _compose_run_supports_build; then
     exec env \
         HOST_UID="$HOST_UID" \
@@ -126,7 +145,7 @@ if _compose_run_supports_build; then
         SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
         docker compose \
         -f "$SCRIPT_DIR/compose.yaml" \
-        run --build --rm forge "$@"
+        run --build --rm ${_RUN_TTY_FLAG:+"$_RUN_TTY_FLAG"} forge "$@"
 else
     printf 'note: Docker Compose < v2.13 — building image before run\n'
     env \
@@ -142,5 +161,5 @@ else
         SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
         docker compose \
         -f "$SCRIPT_DIR/compose.yaml" \
-        run --rm forge "$@"
+        run --rm ${_RUN_TTY_FLAG:+"$_RUN_TTY_FLAG"} forge "$@"
 fi

@@ -40,12 +40,18 @@ class ValidationTests(unittest.TestCase):
         public_skills = {skill.name for skill in load_all_skills(REPO_ROOT, scopes={"public"})}
         maintainer_skills = {skill.name for skill in load_all_skills(REPO_ROOT, scopes={"maintainer"})}
         self.assertIn("commit", public_skills)
+        self.assertIn("install-skill", public_skills)
         self.assertNotIn("create-skill", public_skills)
         self.assertIn("create-skill", maintainer_skills)
         self.assertIn("finalize-skill", maintainer_skills)
         self.assertIn("import-plugin-skill", maintainer_skills)
         self.assertIn("install-manager-skill", maintainer_skills)
         self.assertIn("update-skill", maintainer_skills)
+
+    def test_install_skill_has_shared_tag(self) -> None:
+        skill = load_skill(REPO_ROOT, "install-skill")
+        self.assertEqual(skill.scope, "public")
+        self.assertIn("shared", skill.tags)
 
     def test_dto_skill_has_examples_asset_projection(self) -> None:
         skill = load_skill(REPO_ROOT, "dto-organizer")
@@ -210,7 +216,53 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("VALID finalize-skill", result.stdout)
         self.assertIn("VALID import-plugin-skill", result.stdout)
         self.assertIn("VALID install-manager-skill", result.stdout)
+        self.assertIn("VALID install-skill", result.stdout)
         self.assertIn("VALID update-skill", result.stdout)
+
+    def test_catalog_json_lists_public_skills_for_target(self) -> None:
+        result = self.run_cli("catalog", "--target", "claude", "--json")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        skills = json.loads(result.stdout)
+        names = [s["name"] for s in skills]
+        self.assertIn("commit", names)
+        self.assertIn("install-skill", names)
+        # maintainer-only skills must not appear in public catalog
+        self.assertNotIn("create-skill", names)
+        for entry in skills:
+            self.assertIn("name", entry)
+            self.assertIn("version", entry)
+            self.assertIn("description", entry)
+            self.assertIn("scope", entry)
+            self.assertIn("tags", entry)
+
+    def test_catalog_scope_all_includes_maintainer_skills(self) -> None:
+        result = self.run_cli("catalog", "--target", "codex", "--scope", "all", "--json")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        skills = json.loads(result.stdout)
+        names = [s["name"] for s in skills]
+        self.assertIn("commit", names)
+        self.assertIn("create-skill", names)
+
+    def test_catalog_tabular_output_contains_skill_names(self) -> None:
+        result = self.run_cli("catalog", "--target", "claude")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("commit", result.stdout)
+        self.assertIn("install-skill", result.stdout)
+
+    def test_wrapper_no_interactive_flag_stripped_from_help_text(self) -> None:
+        wrapper = REPO_ROOT / "skill-manager"
+        self.assertTrue(wrapper.is_file())
+        content = wrapper.read_text(encoding="utf-8")
+        self.assertIn("--no-interactive", content)
+        self.assertIn("_NON_INTERACTIVE", content)
+        self.assertIn("-T", content)
+
+    def test_ps1_wrapper_no_interactive_support(self) -> None:
+        launcher = REPO_ROOT / "skill-manager.ps1"
+        content = launcher.read_text(encoding="utf-8")
+        self.assertIn("IsNonInteractive", content)
+        self.assertIn("--no-interactive", content)
+        self.assertIn("-T", content)
 
     def test_codex_install_update_list_json_and_remove_workflow(self) -> None:
         with tempfile.TemporaryDirectory(

@@ -1,0 +1,4 @@
+{
+  "name": "install-skill",
+  "description": "Use this skill when the user wants to install, update, or review available skills without leaving the Codex session."
+}
