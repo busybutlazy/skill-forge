@@ -1,4 +1,0 @@
-{
-  "name": "ponytail-forge-debt",
-  "description": "Use this skill when the user wants every `ponytail-forge:` marker comment in the repo collected into a debt ledger: file, line, what was simplified, the named ceiling, and the upgrade trigger. Flags markers with no upgrade trigger as 'no-trigger' rot risk. Read-only report unless the user asks to persist it to a file. Adapted from ponytail-debt (DietrichGebert/ponytail, MIT)."
-}

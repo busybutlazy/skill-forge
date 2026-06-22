@@ -1,5 +1,0 @@
-{
-  "name": "ponytail-forge-audit",
-  "description": "Whole-repository audit for over-engineering, scanning the entire codebase instead of a diff. Produces a ranked list of what to delete, simplify, or replace with stdlib/native equivalents. Use proactively when the user says 'audit this codebase', 'audit for over-engineering', 'what can I delete from this repo', or 'find bloat'. One-shot report, never applies fixes. Adapted from ponytail-audit (DietrichGebert/ponytail, MIT).",
-  "tools": "Read, Bash, Grep, Glob"
-}

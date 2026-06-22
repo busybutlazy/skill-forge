@@ -1,5 +1,0 @@
-{
-  "name": "ponytail-forge-review",
-  "description": "Code review focused exclusively on over-engineering in the current diff. Finds what to delete: reinvented standard library, unneeded dependencies, speculative abstractions, dead flexibility. One line per finding with location, what to cut, and what replaces it. Use proactively when the user says 'review for over-engineering', 'what can we delete', 'is this over-engineered', or 'simplify review'. Complements correctness-focused review; this one only hunts complexity. Reports findings only, never edits code. Adapted from ponytail-review (DietrichGebert/ponytail, MIT).",
-  "tools": "Read, Bash, Grep, Glob"
-}
