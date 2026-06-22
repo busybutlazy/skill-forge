@@ -1,0 +1,4 @@
+{
+  "name": "ponytail-forge-audit",
+  "description": "Use this skill when the user wants a whole-repository scan for over-engineering instead of a diff review: dead flexibility, single-implementation abstractions, dependencies that duplicate stdlib or platform features. Produces a ranked, one-shot report and never edits code. Adapted from ponytail-audit (DietrichGebert/ponytail, MIT)."
+}

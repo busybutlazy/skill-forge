@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "ponytail-forge-review",
+    "version": "1.0.0",
+    "description": "Reviews the current diff exclusively for over-engineering: what to delete, what duplicates stdlib/native features, what abstraction has only one caller. Reports only, never edits. Adapted from ponytail-review (DietrichGebert/ponytail, MIT).",
+    "updated_at": "2026-06-22",
+    "tags": [
+      "yagni",
+      "code-review",
+      "over-engineering"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "110ebde58d6be0ff605df3ab61bf22c9be8bab9be7d16d483f20823f7dd5db2a"
+  }
+}

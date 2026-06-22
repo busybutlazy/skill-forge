@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "ponytail-forge-audit",
+    "version": "1.0.0",
+    "description": "Whole-repository audit for over-engineering: a ranked, one-shot report of what to delete, simplify, or replace with stdlib/native equivalents. Adapted from ponytail-audit (DietrichGebert/ponytail, MIT).",
+    "updated_at": "2026-06-22",
+    "tags": [
+      "yagni",
+      "code-audit",
+      "over-engineering"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "d6e878b6f72dd1d48db50d3f97ca8c446500cec7d04cca531abf318b99662576"
+  }
+}
