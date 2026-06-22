@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "ponytail-forge",
+    "version": "1.0.0",
+    "description": "Forces the laziest solution that still works: YAGNI, then stdlib, then native platform features, then existing dependencies, then a one-liner, before custom code. Adapted from ponytail (DietrichGebert/ponytail, MIT).",
+    "updated_at": "2026-06-22",
+    "tags": [
+      "yagni",
+      "minimal-code",
+      "code-style"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "8213938abedc975ecf6357f07cf1e7a0b8e0d13d6ddb637ac6f9ad1762292f33"
+  }
+}

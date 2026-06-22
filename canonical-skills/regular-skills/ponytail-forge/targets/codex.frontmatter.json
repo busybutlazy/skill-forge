@@ -1,0 +1,4 @@
+{
+  "name": "ponytail-forge",
+  "description": "Use this skill when writing new code and the user wants the simplest solution that still works: check YAGNI, standard library, native platform features, and already-installed dependencies before writing custom code, preferring a one-liner over a custom abstraction. Supports lite/full/ultra intensity levels. Adapted from ponytail (DietrichGebert/ponytail, MIT), keeping the guardrails against simplifying input validation, error handling, security, and accessibility."
+}

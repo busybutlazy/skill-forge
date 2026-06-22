@@ -1,0 +1,6 @@
+{
+  "name": "ponytail-forge",
+  "description": "Forces the laziest solution that still works: question whether the task needs to exist (YAGNI), then standard library, then native platform features, then already-installed dependencies, then a one-liner, before writing custom code. Supports lite/full/ultra intensity levels. Use proactively when the user says 'lazy mode', 'simplest solution', 'minimal solution', 'yagni', 'do less', or complains about over-engineering, boilerplate, or unnecessary dependencies. Adapted from ponytail (DietrichGebert/ponytail, MIT) with reworked intensity-switch and debt-marker conventions.",
+  "argument-hint": "[lite|full|ultra]",
+  "tools": "Read, Write, Edit, Bash, Grep, Glob"
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "ponytail-forge-debt",
+    "version": "1.0.0",
+    "description": "Harvests every `ponytail-forge:` marker comment in the codebase into a debt ledger, flagging markers with no upgrade trigger as rot risk. Adapted from ponytail-debt (DietrichGebert/ponytail, MIT).",
+    "updated_at": "2026-06-22",
+    "tags": [
+      "yagni",
+      "tech-debt",
+      "code-audit"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "608051e47defdf948aed91ef53f9182ec41d5ab41a847ea7cd30d6c3902af373"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "ponytail-forge-debt",
+  "description": "Harvests every `ponytail-forge:` marker comment in the codebase into a debt ledger, so deliberate shortcuts and deferrals don't quietly rot into 'never'. Use proactively when the user says 'ponytail debt', 'what did ponytail-forge defer', 'list the shortcuts', or 'show the debt ledger'. One-shot report; only writes a file if the user asks. Adapted from ponytail-debt (DietrichGebert/ponytail, MIT).",
+  "tools": "Bash, Grep, Read, Write"
+}
