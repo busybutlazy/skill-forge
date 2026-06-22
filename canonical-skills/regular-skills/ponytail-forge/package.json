@@ -2,13 +2,18 @@
   "schema_version": 1,
   "identity": {
     "name": "ponytail-forge",
-    "version": "1.0.0",
-    "description": "Forces the laziest solution that still works: YAGNI, then stdlib, then native platform features, then existing dependencies, then a one-liner, before custom code. Adapted from ponytail (DietrichGebert/ponytail, MIT).",
+    "version": "2.0.0",
+    "description": "Forces the laziest solution that still works: YAGNI, then stdlib, then native platform features, then existing dependencies, then a one-liner, before custom code. Single skill covering the whole ponytail-forge family via mode dispatch (forge/review/audit/debt/help) so it installs once instead of five times. Adapted from ponytail (DietrichGebert/ponytail, MIT).",
     "updated_at": "2026-06-22",
     "tags": [
       "yagni",
       "minimal-code",
-      "code-style"
+      "code-style",
+      "code-review",
+      "code-audit",
+      "over-engineering",
+      "tech-debt",
+      "reference"
     ]
   },
   "content": {
@@ -29,6 +34,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "8213938abedc975ecf6357f07cf1e7a0b8e0d13d6ddb637ac6f9ad1762292f33"
+    "package_sha256": "3256d5eda05a6a714abcc859dcce3af31c94f78e20348f82bda0b53ad1724b22"
   }
 }

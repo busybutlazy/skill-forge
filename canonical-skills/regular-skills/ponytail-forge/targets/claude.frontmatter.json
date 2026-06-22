@@ -1,6 +1,6 @@
 {
   "name": "ponytail-forge",
-  "description": "Forces the laziest solution that still works: question whether the task needs to exist (YAGNI), then standard library, then native platform features, then already-installed dependencies, then a one-liner, before writing custom code. Supports lite/full/ultra intensity levels. Use proactively when the user says 'lazy mode', 'simplest solution', 'minimal solution', 'yagni', 'do less', or complains about over-engineering, boilerplate, or unnecessary dependencies. Adapted from ponytail (DietrichGebert/ponytail, MIT) with reworked intensity-switch and debt-marker conventions.",
-  "argument-hint": "[lite|full|ultra]",
+  "description": "Forces the laziest solution that still works: question whether the task needs to exist (YAGNI), then standard library, then native platform features, then already-installed dependencies, then a one-liner, before writing custom code. Supports lite/full/ultra intensity levels. Also dispatches to companion modes from the same install: 'review' audits the current diff for over-engineering, 'audit' scans the whole repo, 'debt' collects ponytail-forge: markers into a ledger, 'help' shows a quick-reference card. Use proactively when the user says 'lazy mode', 'simplest solution', 'minimal solution', 'yagni', 'do less', complains about over-engineering/boilerplate/unnecessary dependencies, asks to review/audit for over-engineering, or asks what ponytail-forge can delete or owes as tech debt. Adapted from ponytail (DietrichGebert/ponytail, MIT) with reworked intensity-switch, mode-dispatch, and debt-marker conventions.",
+  "argument-hint": "[lite|full|ultra|review|audit|debt|help]",
   "tools": "Read, Write, Edit, Bash, Grep, Glob"
 }

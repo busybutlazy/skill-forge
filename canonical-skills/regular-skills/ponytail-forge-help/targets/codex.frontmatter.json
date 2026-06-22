@@ -1,4 +1,0 @@
-{
-  "name": "ponytail-forge-help",
-  "description": "Use this skill when the user asks how to use ponytail-forge, what its intensity levels are, what the companion skills (review/audit/debt) do, or how to turn it off. Displays a fixed reference card and changes nothing. Adapted from ponytail-help (DietrichGebert/ponytail, MIT)."
-}

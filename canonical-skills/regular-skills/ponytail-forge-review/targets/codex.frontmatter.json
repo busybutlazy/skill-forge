@@ -1,4 +1,0 @@
-{
-  "name": "ponytail-forge-review",
-  "description": "Use this skill when the user wants a diff reviewed only for over-engineering: what to delete, what duplicates the standard library or native platform features, and what abstraction has only one caller. Produces one finding per line with location, the cut, and the replacement; never applies fixes. Out of scope: correctness, security, performance. Adapted from ponytail-review (DietrichGebert/ponytail, MIT)."
-}

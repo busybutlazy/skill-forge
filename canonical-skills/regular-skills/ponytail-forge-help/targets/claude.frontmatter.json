@@ -1,5 +1,0 @@
-{
-  "name": "ponytail-forge-help",
-  "description": "Quick-reference card for the ponytail-forge family of skills: intensity levels, what each companion skill does, and how to turn it off. One-shot display, not a persistent mode, changes nothing. Use proactively when the user says 'ponytail-forge help', 'what ponytail-forge commands are there', or 'how do I use ponytail-forge'. Adapted from ponytail-help (DietrichGebert/ponytail, MIT).",
-  "tools": "Read"
-}
