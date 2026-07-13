@@ -12,10 +12,7 @@ services:
     command: bash
 
   forge:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: skill-forge
+    image: ${SKILL_FORGE_IMAGE:-ghcr.io/busybutlazy/skill-forge:latest}
     working_dir: /workspace/project
     volumes:
       - ${SKILL_FORGE_PROJECT_HOST_DIR:-.}:/workspace/project
