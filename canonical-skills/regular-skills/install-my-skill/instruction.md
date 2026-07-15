@@ -1,43 +1,38 @@
----
-name: install-my-skill
-description: Skill catalog and install manager. Use when the user wants to install, update, or review available skills without leaving the Claude session.
----
-
 # install-my-skill
 
 ## Trigger
 
 Invoke when the user expresses intent to install, update, list, or manage skills — for example: "install a skill", "update my skills", "what skills can I install?", "manage skills".
 
-## Environment detection (do not ask the user)
+## Hard rules — read before running anything
 
-**Target**: determined by which agent system is executing this instruction.
-- Running in Claude → `--target claude`
-- Running in Codex → `--target codex`
+Everything needed to complete this task is in this file. Run the commands below **verbatim**; the only substitution you ever make is `<target>` and `<name>`.
 
-**Skill-forge wrapper**: detect the OS, then use the default install location.
+1. **Do not explore.** Never `ls`, `cat`, `find`, or read files under `~/skill-forge/`, the wrapper script itself, or the installed skill directories (`.claude/skills/`, `.agents/skills/`) to "figure out how this works". The commands below are the complete interface.
+2. **Never run `skill-manager` without `--no-interactive`.** The bare command opens an interactive TTY menu that waits for keyboard input and will hang forever in an agent session. `--no-interactive` must always be the first argument.
+3. **Do not call `docker` or `docker compose` directly.** The wrapper handles all container setup.
+4. **stderr noise is normal.** The wrapper prints image pull/build logs and `Container ... Creating` messages to stderr. That is not an error. Parse stdout only; a command failed only if its exit code is non-zero.
+5. **First run can be slow** (Docker image pull, 1–3 minutes). Do not abort, retry, or switch strategies while it runs.
 
-```sh
-uname -s 2>/dev/null
-```
+## Environment (derive silently — never ask the user)
 
-- Linux / macOS → `~/skill-forge/skill-manager`
-- Windows (uname unavailable, or returns MINGW / CYGWIN / MSYS) → invoke as `& "$HOME\skill-forge\skill-manager.ps1"` in PowerShell
-
-If the wrapper is not found at the default path, stop and tell the user.
-
-**Project directory**: the current working directory (`pwd`). Run `skill-manager` from that directory — it mounts `$PWD` into Docker automatically. Always pass `--project /workspace/project` to the CLI (that path is fixed inside the container regardless of host OS).
+- **Target**: Claude session → `--target claude`; Codex session → `--target codex`.
+- **Wrapper**: `~/skill-forge/skill-manager` on Linux/macOS; on Windows PowerShell use `& "$HOME\skill-forge\skill-manager.ps1"` with the same arguments.
+- **Working directory**: run the wrapper from the project root (current `pwd`); it mounts the current directory into Docker automatically. Always pass `--project /workspace/project` — that container-internal path is fixed on every host OS.
 
 ## Flow
 
-### Step 1 — Fetch catalog and status in parallel
+### Step 1 — Fetch catalog and install status
+
+Run exactly (both JSON commands are independent — run them in parallel when possible):
 
 ```sh
+test -x ~/skill-forge/skill-manager || echo WRAPPER_MISSING
 ~/skill-forge/skill-manager --no-interactive catalog --target <target> --json
 ~/skill-forge/skill-manager --no-interactive list --target <target> --project /workspace/project --json
 ```
 
-Both commands are independent; run them concurrently.
+If `WRAPPER_MISSING` is printed, stop and tell the user to clone the repo first: `git clone https://github.com/busybutlazy/skill-forge.git ~/skill-forge`.
 
 ### Step 2 — Present selection list
 
@@ -92,8 +87,7 @@ Install skills one at a time. Report each result before moving to the next.
 ```
 安裝完成：
   ✓ create-pr     → .claude/skills/create-pr/
-  ✓ dto-organizer → .claude/skills/dto-organizer/
-  ✗ some-skill    → 失敗：<error message>
+  ✗ some-skill    → 失敗：<exit code 非 0 時的 stderr 最後幾行>
 
 ⚠ 注意：請重新開啟 session 後，新安裝的 skill 才會生效。
 ```
@@ -101,6 +95,6 @@ Install skills one at a time. Report each result before moving to the next.
 ## Constraints
 
 - Derive target, project path, and skill-forge location automatically. Do not ask the user for any of them.
-- `--no-interactive` must always be the first argument to `skill-manager`.
 - Do not attempt hot-reload; it is not supported.
 - Never overwrite `unmanaged` skills without explicit user instruction.
+- If a command fails (non-zero exit), report the tail of its stderr to the user and stop — do not start reading repo files to debug on your own.

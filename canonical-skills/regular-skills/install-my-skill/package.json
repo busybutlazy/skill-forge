@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "install-my-skill",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Install, update, and review available skills from within a Claude or Codex session",
-    "updated_at": "2026-06-15",
+    "updated_at": "2026-07-15",
     "tags": [
       "skills",
       "install",
@@ -30,6 +30,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "c568bb5959389ed4fa7fdfe50ea09ae318a3ae021ac30c1ca5551627344a8f5f"
+    "package_sha256": "4b894eecbb7114b2866cbec9fa6a0ef66f0856424ac0660774b632f2ec5f2531"
   }
 }
