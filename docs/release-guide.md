@@ -86,8 +86,8 @@ git tag v1.1.3
 git push origin v1.1.3
 ```
 
-tag push 後約 2-3 分鐘，GitHub Actions 會自動：
-- Build Docker image
+tag push 後約 5-10 分鐘，GitHub Actions 會自動：
+- Build 多平台 Docker image（`linux/amd64` + `linux/arm64`，arm64 走 QEMU 模擬所以較慢）
 - Push 到 `ghcr.io/busybutlazy/skill-forge:1.1.3`
 - Push 到 `ghcr.io/busybutlazy/skill-forge:1.1`
 - Push 到 `ghcr.io/busybutlazy/skill-forge:latest`
