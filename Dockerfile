@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-ARG FORGE_VERSION=1.1.2
+ARG FORGE_VERSION=1.2.0
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -17,6 +17,7 @@ WORKDIR /opt/skill-forge
 COPY pyproject.toml /opt/skill-forge/pyproject.toml
 COPY src /opt/skill-forge/src
 COPY canonical-skills /opt/skill-forge/canonical-skills
+COPY canonical-configs /opt/skill-forge/canonical-configs
 COPY docker/runtime-entrypoint.sh /usr/local/bin/skill-forge-container
 COPY docker/runtime-shellrc /opt/skill-forge/docker/runtime-shellrc
 

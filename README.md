@@ -1,6 +1,6 @@
 # skill-forge
 
-Version: 1.1.2
+Version: 1.2.0
 
 Write skills once, govern centrally, deploy to multiple coding AI targets.
 
@@ -169,12 +169,16 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 Use the menu to:
 
 * choose `codex` or `claude`
+* accept or skip the recommended baseline (security settings + `install-my-skill`) with a single `[Y/n]` prompt
 * check installed skill status
-* install or update skills
+* install or update skills from a grouped list (`★ Recommended` first, then catalog groups)
+* install the managed agent memory file (`CLAUDE.md` / `AGENTS.md`) from the `Configs` section
 * repair broken managed installs
 * remove managed skills
 * switch targets
 * open the expert terminal only when needed
+
+Grouping, recommendations, and description keyword highlighting are configured centrally in `canonical-skills/catalog.json`. See [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md).
 
 > For normal users, `skill-manager` should remain the default entry point.
 
@@ -210,6 +214,19 @@ Detailed references:
 * [docs/reference/canonical-package-spec.md](docs/reference/canonical-package-spec.md)
 * [docs/reference/adapter-contract.md](docs/reference/adapter-contract.md)
 * [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
+* [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)
+
+### Agent memory (CLAUDE.md / AGENTS.md)
+
+Besides skills, the repo also manages one shared agent memory file:
+
+```text
+canonical-configs/agent-memory/
+├── config.json
+└── memory.md
+```
+
+`memory.md` is rendered verbatim to the target project root as `CLAUDE.md` (claude) or `AGENTS.md` (codex), with a trailing managed marker used for version and drift detection. Existing files without the marker are treated as `unmanaged` and never overwritten. Install it from the `Configs` section of the interactive install menu, or via `skill-forge memory install`.
 
 ---
 
@@ -430,6 +447,7 @@ Core commands:
 * `refresh-metadata`
 * `sync-maintainer`
 * `sync-manager-catalog`
+* `memory status` / `memory install`
 
 Managed install states:
 
@@ -457,8 +475,11 @@ skill-forge/
 ├── AGENTS.md
 ├── .agents/
 ├── canonical-skills/
+│   ├── catalog.json
 │   ├── regular-skills/
 │   └── manager-skills/
+├── canonical-configs/
+│   └── agent-memory/
 ├── docs/
 │   ├── concepts/
 │   ├── guides/
@@ -701,12 +722,16 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 你可以透過選單進行：
 
 * 選擇 `codex` 或 `claude`
+* 用單一 `[Y/n]` 提問決定是否寫入建議基本配置（security settings + `install-my-skill`）
 * 檢查已安裝 skill 狀態
-* 安裝或更新 skills
+* 從分群清單安裝或更新 skills（`★ Recommended` 在最上，其後依 catalog 群組排列）
+* 從 `Configs` 區塊安裝納管的 agent memory 檔（`CLAUDE.md` / `AGENTS.md`）
 * 修復 broken 的 managed install
 * 移除 managed skills
 * 切換 target
 * 只有在需要時才進入 expert terminal
+
+分群、推薦清單與描述關鍵字上色都集中設定在 `canonical-skills/catalog.json`，詳見 [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)。
 
 > 對一般使用者來說，`skill-manager` 應該是預設入口。
 
@@ -742,6 +767,19 @@ canonical-skills/regular-skills/<name>/
 * [docs/reference/canonical-package-spec.md](docs/reference/canonical-package-spec.md)
 * [docs/reference/adapter-contract.md](docs/reference/adapter-contract.md)
 * [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
+* [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)
+
+### Agent memory（CLAUDE.md / AGENTS.md）
+
+除了 skills 之外，這個 repo 也納管一份共用的 agent memory 檔：
+
+```text
+canonical-configs/agent-memory/
+├── config.json
+└── memory.md
+```
+
+`memory.md` 會原文 render 到 target project 根目錄，成為 `CLAUDE.md`（claude）或 `AGENTS.md`（codex），檔尾帶一行 managed marker 做版本與 drift 偵測。沒有 marker 的既有檔案視為 `unmanaged`，永遠不會被覆蓋。可從互動選單 Install 清單的 `Configs` 區塊安裝，或用 `skill-forge memory install`。
 
 ---
 
@@ -962,6 +1000,7 @@ Agent 將會：
 * `refresh-metadata`
 * `sync-maintainer`
 * `sync-manager-catalog`
+* `memory status` / `memory install`
 
 managed install 狀態：
 
@@ -989,8 +1028,11 @@ skill-forge/
 ├── AGENTS.md
 ├── .agents/
 ├── canonical-skills/
+│   ├── catalog.json
 │   ├── regular-skills/
 │   └── manager-skills/
+├── canonical-configs/
+│   └── agent-memory/
 ├── docs/
 │   ├── concepts/
 │   ├── guides/
