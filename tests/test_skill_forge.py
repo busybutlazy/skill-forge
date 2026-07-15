@@ -9,7 +9,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from skill_forge.agent_memory import (
+    install_memory,
+    load_agent_memory,
+    memory_file_path,
+    memory_status,
+)
+from skill_forge.catalog import CatalogConfig, CatalogGroup, group_skill_names, load_catalog
 from skill_forge.install import list_installed
+from skill_forge.menu import _pad, _visible_len
 from skill_forge.package_ops import refresh_skill_metadata
 from skill_forge.repository import (
     load_all_skills,
@@ -174,7 +182,7 @@ class ValidationTests(unittest.TestCase):
             )
 
 
-class WorkflowTests(unittest.TestCase):
+class CliTestCase(unittest.TestCase):
     def strip_ansi(self, text: str) -> str:
         return ANSI_ESCAPE_RE.sub("", text)
 
@@ -206,6 +214,8 @@ class WorkflowTests(unittest.TestCase):
             check=False,
         )
 
+
+class WorkflowTests(CliTestCase):
     def test_validate_command(self) -> None:
         result = self.run_cli("validate")
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -713,7 +723,7 @@ class WorkflowTests(unittest.TestCase):
                 "menu",
                 "--project",
                 str(project_root),
-                input_text="1\n2\n2\n\n7\n",
+                input_text="1\n\n2\n2\n\n7\n",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             clean_output = self.strip_ansi(result.stdout)
@@ -734,7 +744,7 @@ class WorkflowTests(unittest.TestCase):
                 "menu",
                 "--project",
                 str(project_root),
-                input_text="1\n2\na\n\n7\n",
+                input_text="1\n\n2\na\n\n7\n",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             statuses = list_installed(REPO_ROOT, project_root, "codex")
@@ -753,7 +763,7 @@ class WorkflowTests(unittest.TestCase):
                 "menu",
                 "--project",
                 str(project_root),
-                input_text="1\n7\n",
+                input_text="1\n\n7\n",
                 extra_env={
                     "SKILL_FORGE_PROJECT_HOST_DIR": "/host/project",
                 },
@@ -762,6 +772,239 @@ class WorkflowTests(unittest.TestCase):
             clean_output = self.strip_ansi(result.stdout)
             self.assertIn("Project /host/project", clean_output)
             self.assertNotIn(".skill-forge-output", clean_output)
+
+
+class CatalogTests(unittest.TestCase):
+    def test_load_catalog_from_repo(self) -> None:
+        catalog = load_catalog(REPO_ROOT)
+        self.assertTrue(catalog.groups)
+        self.assertIn("install-my-skill", catalog.recommended)
+        self.assertTrue(catalog.highlight_keywords)
+
+    def test_load_catalog_missing_file_returns_empty_config(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            catalog = load_catalog(Path(tmp_dir))
+            self.assertEqual(catalog.groups, [])
+            self.assertEqual(catalog.recommended, [])
+            self.assertEqual(catalog.highlight_keywords, [])
+
+    def test_load_catalog_invalid_json_returns_empty_config(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "canonical-skills").mkdir()
+            (root / "canonical-skills" / "catalog.json").write_text("{not json", encoding="utf-8")
+            catalog = load_catalog(root)
+            self.assertEqual(catalog.groups, [])
+
+    def test_group_skill_names_orders_and_dedupes(self) -> None:
+        catalog = CatalogConfig(
+            groups=[
+                CatalogGroup(name="Git", skills=["commit", "create-pr", "missing-skill"]),
+                CatalogGroup(name="Docs", skills=["dto-organizer"]),
+            ],
+            recommended=["commit", "unknown-skill"],
+        )
+        names = ["commit", "create-pr", "dto-organizer", "task-plan"]
+        sections = group_skill_names(names, catalog, recommended_label="Rec", others_label="Rest")
+        self.assertEqual(
+            sections,
+            [
+                ("Rec", ["commit"]),
+                ("Git", ["create-pr"]),
+                ("Docs", ["dto-organizer"]),
+                ("Rest", ["task-plan"]),
+            ],
+        )
+
+    def test_group_skill_names_without_catalog_falls_back_to_others(self) -> None:
+        sections = group_skill_names(["a", "b"], CatalogConfig())
+        self.assertEqual(sections, [("Others", ["a", "b"])])
+
+    def test_pad_ignores_ansi_escape_codes(self) -> None:
+        colored = "\033[36m\033[1mcommit\033[0m"
+        self.assertEqual(_visible_len(colored), len("commit"))
+        self.assertEqual(_visible_len(_pad(colored, 10)) , 10)
+
+
+class AgentMemoryTests(unittest.TestCase):
+    def test_load_agent_memory_source(self) -> None:
+        source = load_agent_memory(REPO_ROOT)
+        self.assertIsNotNone(source)
+        assert source is not None
+        self.assertTrue(source.version)
+        self.assertTrue(source.body.endswith("\n"))
+
+    def test_memory_install_and_status_lifecycle(self) -> None:
+        source = load_agent_memory(REPO_ROOT)
+        assert source is not None
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            # Not installed yet.
+            self.assertIsNone(memory_status(source, project_root, "claude"))
+
+            path = install_memory(source, project_root, "claude")
+            self.assertEqual(path, project_root / "CLAUDE.md")
+            self.assertIn("skill-forge:agent-memory", path.read_text(encoding="utf-8"))
+
+            status = memory_status(source, project_root, "claude")
+            assert status is not None
+            self.assertEqual(status.status, "up_to_date")
+            self.assertTrue(status.managed)
+
+            # Local edits are detected as drift.
+            path.write_text(path.read_text(encoding="utf-8").replace("# Agent", "# Edited"), encoding="utf-8")
+            status = memory_status(source, project_root, "claude")
+            assert status is not None
+            self.assertEqual(status.status, "drift")
+
+            # Drift refuses plain install and requires force + confirm.
+            with self.assertRaises(ValueError):
+                install_memory(source, project_root, "claude")
+            install_memory(source, project_root, "claude", force=True, confirm=lambda _: True)
+            status = memory_status(source, project_root, "claude")
+            assert status is not None
+            self.assertEqual(status.status, "up_to_date")
+
+            # Appending after the marker is still drift, not unmanaged.
+            with path.open("a", encoding="utf-8") as handle:
+                handle.write("my extra note\n")
+            status = memory_status(source, project_root, "claude")
+            assert status is not None
+            self.assertEqual(status.status, "drift")
+
+    def test_memory_version_bump_reports_update_available(self) -> None:
+        import dataclasses
+
+        source = load_agent_memory(REPO_ROOT)
+        assert source is not None
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+            install_memory(source, project_root, "codex")
+            newer = dataclasses.replace(source, version="99.0.0")
+            status = memory_status(newer, project_root, "codex")
+            assert status is not None
+            self.assertEqual(status.status, "update_available")
+            # update_available overwrites without force.
+            install_memory(newer, project_root, "codex")
+            status = memory_status(newer, project_root, "codex")
+            assert status is not None
+            self.assertEqual(status.status, "up_to_date")
+
+    def test_memory_refuses_unmanaged_file(self) -> None:
+        source = load_agent_memory(REPO_ROOT)
+        assert source is not None
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+            existing = memory_file_path(project_root, "claude")
+            existing.write_text("# My own CLAUDE.md\n", encoding="utf-8")
+
+            status = memory_status(source, project_root, "claude")
+            assert status is not None
+            self.assertEqual(status.status, "unmanaged")
+            with self.assertRaises(ValueError):
+                install_memory(source, project_root, "claude", force=True, confirm=lambda _: True)
+            self.assertEqual(existing.read_text(encoding="utf-8"), "# My own CLAUDE.md\n")
+
+
+class MemoryCliTests(CliTestCase):
+    def test_memory_cli_status_and_install(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            status = self.run_cli(
+                "memory", "status", "--target", "codex", "--project", str(project_root), "--json"
+            )
+            self.assertEqual(status.returncode, 0, status.stderr)
+            payload = json.loads(status.stdout)
+            self.assertEqual(payload["status"], "not_installed")
+
+            installed = self.run_cli(
+                "memory", "install", "--target", "codex", "--project", str(project_root)
+            )
+            self.assertEqual(installed.returncode, 0, installed.stderr)
+            self.assertTrue((project_root / "AGENTS.md").is_file())
+
+            status = self.run_cli(
+                "memory", "status", "--target", "codex", "--project", str(project_root), "--json"
+            )
+            payload = json.loads(status.stdout)
+            self.assertEqual(payload["status"], "up_to_date")
+
+
+class MenuOnboardingTests(CliTestCase):
+    def test_onboarding_installs_baseline_for_claude(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            result = self.run_cli(
+                "menu",
+                "--project",
+                str(project_root),
+                input_text="2\n\n7\n",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            clean_output = self.strip_ansi(result.stdout)
+            self.assertIn("Recommended baseline for this target:", clean_output)
+            self.assertTrue((project_root / ".claude" / "settings.local.json").is_file())
+            statuses = list_installed(REPO_ROOT, project_root, "claude")
+            names = {status.name for status in statuses}
+            self.assertIn("install-my-skill", names)
+
+    def test_onboarding_can_be_declined(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            result = self.run_cli(
+                "menu",
+                "--project",
+                str(project_root),
+                input_text="2\nn\n7\n",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse((project_root / ".claude" / "settings.local.json").exists())
+            self.assertEqual(list_installed(REPO_ROOT, project_root, "claude"), [])
+
+    def test_install_menu_shows_groups_and_configs(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            result = self.run_cli(
+                "menu",
+                "--project",
+                str(project_root),
+                input_text="1\nn\n2\nq\n\n7\n",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            clean_output = self.strip_ansi(result.stdout)
+            self.assertIn("★ Recommended", clean_output)
+            self.assertIn("Configs", clean_output)
+            self.assertIn("agent-memory", clean_output)
+
+    def test_menu_can_install_agent_memory_from_configs_group(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+
+            skills_count = len(load_all_skills(REPO_ROOT, target_filter={"codex"}, scopes={"public"}))
+            memory_index = skills_count + 1  # memory entry is listed last
+            result = self.run_cli(
+                "menu",
+                "--project",
+                str(project_root),
+                input_text=f"1\nn\n2\n{memory_index}\n\n7\n",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            memory_path = project_root / "AGENTS.md"
+            self.assertTrue(memory_path.is_file(), self.strip_ansi(result.stdout))
+            self.assertIn("skill-forge:agent-memory", memory_path.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

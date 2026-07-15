@@ -7,6 +7,13 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .agent_memory import (
+    AGENT_MEMORY_NAME,
+    install_memory,
+    load_agent_memory,
+    memory_file_path,
+    memory_status,
+)
 from .install import install_skill, list_installed, remove_skill, sync_manager_catalog, update_skill
 from .menu import run_menu
 from .models import ValidationFailure
@@ -106,6 +113,20 @@ def build_parser() -> argparse.ArgumentParser:
     security_parser = subparsers.add_parser("check-security", help="Check and optionally initialise security settings for a project")
     security_parser.add_argument("--project", required=True, help="Target project root")
     security_parser.add_argument("--init", action="store_true", help="Create or merge default security settings if missing")
+
+    memory_parser = subparsers.add_parser("memory", help="Manage the shared agent memory file (CLAUDE.md / AGENTS.md)")
+    memory_subparsers = memory_parser.add_subparsers(dest="memory_command", required=True)
+
+    memory_status_parser = memory_subparsers.add_parser("status", help="Show the installed agent memory status")
+    memory_status_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
+    memory_status_parser.add_argument("--project", required=True, help="Target project root")
+    memory_status_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
+
+    memory_install_parser = memory_subparsers.add_parser("install", help="Install or update the agent memory file")
+    memory_install_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
+    memory_install_parser.add_argument("--project", required=True, help="Target project root")
+    memory_install_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
+    memory_install_parser.add_argument("--yes", action="store_true", help="Auto-confirm drift overwrite prompts (for non-interactive use)")
 
     return parser
 
@@ -365,6 +386,43 @@ def run_check_security(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_memory(args: argparse.Namespace) -> int:
+    repo_root = _repo_root_from_args(args)
+    project_dir = Path(args.project).resolve()
+    source = load_agent_memory(repo_root)
+    if source is None:
+        print("No canonical agent-memory source found (canonical-configs/agent-memory/).", file=sys.stderr)
+        return 1
+
+    if args.memory_command == "status":
+        status = memory_status(source, project_dir, args.target)
+        location = memory_file_path(project_dir, args.target)
+        if args.json:
+            payload = status.to_dict() if status is not None else {
+                "name": AGENT_MEMORY_NAME,
+                "target": args.target,
+                "status": "not_installed",
+                "location": str(location),
+                "source_version": source.version,
+            }
+            if status is not None:
+                payload["source_version"] = source.version
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return 0
+        if status is None:
+            print(f"{AGENT_MEMORY_NAME}\tnot_installed\t-\t{location}\tsource v{source.version}")
+        else:
+            version = status.version or "-"
+            detail = f" {status.details}" if status.details else ""
+            print(f"{AGENT_MEMORY_NAME}\t{status.status}\t{version}\t{status.location}{detail}")
+        return 0
+
+    confirm = (lambda _: True) if args.yes else _prompt_yes_no
+    installed = install_memory(source, project_dir, args.target, force=args.force, confirm=confirm)
+    print(installed)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -382,6 +440,7 @@ def main(argv: list[str] | None = None) -> int:
         "sync-maintainer": run_sync_maintainer,
         "sync-manager-catalog": run_sync_manager_catalog,
         "check-security": run_check_security,
+        "memory": run_memory,
     }
     _auto_security_check(args)
     try:

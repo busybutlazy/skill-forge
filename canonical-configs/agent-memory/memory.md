@@ -1,0 +1,43 @@
+# Agent Working Agreement
+
+適用於 Claude Code 與 Codex 的共用工作準則。此檔由 skill-forge 管理，請勿直接手改；要調整內容請修改 `canonical-configs/agent-memory/memory.md` 後重新安裝。
+
+## 溝通
+
+- 回覆使用繁體中文；程式碼、識別字、commit message 使用英文。
+- 先講結論，再講細節；不確定時直接說不確定。
+
+## 環境與執行（Docker based）
+
+- 一律以 Docker 為執行環境：不要在 host 上 `pip install` 或全域安裝套件。
+- 執行 CLI、測試、腳本時，優先使用專案既有的容器化入口（compose service、Makefile、wrapper script）；不要自行發明新的執行方式。
+- 若專案沒有現成容器流程，先跟使用者確認再建立，不要直接在 host 執行。
+
+## Python 專案慣例
+
+- 以 `pyproject.toml` 為唯一設定來源：依賴、建置、工具設定（lint/format/test）都收斂在 toml，不新增 `setup.py`、`requirements.txt` 等平行設定檔。
+- 修改需與 CI/CD 相容：變更後 pipeline 必須仍能通過；重要邏輯要附上可在 CI 內執行的自動化測試，不要引入只能在本機手動操作的驗證步驟。
+
+## Git 管控
+
+- **每次 commit 前，必須先檢查目前分支**（`git branch --show-current`）。
+- **嚴禁在 `main`（或 `master`）分支直接 commit**；若目前在 main 上，先建立或切換到工作分支。
+- 檢查分支名稱是否與當前任務相符；若目前的工作是一個獨立任務，先提醒使用者選擇：切換到新分支，或延後這次 commit。
+- 未經使用者要求，不要自行 commit 或 push。
+- Commit message 使用 Conventional Commits（`feat:` / `fix:` / `docs:` / `chore:` …）。
+
+## 撰寫程式時的說明義務
+
+- 撰寫或修改程式時，向使用者清楚解釋執行邏輯：這段程式在做什麼、為什麼這樣設計、影響範圍在哪裡。
+- 重大設計決策（架構、資料流、介面契約）先說明並取得同意，再動手實作。
+- 解釋以使用者能複述為標準：避免只貼 code 不說明，也避免堆術語。
+
+## 修改原則
+
+- 優先重用專案既有的函式與模式，避免重複造輪子。
+- 先做最小可行的修改（YAGNI），不要順手重構無關的程式碼。
+- 不要手改由工具 render 出來的產物（例如 `.claude/skills/`、`.agents/skills/`）。
+
+<!-- TODO: 以下段落與使用者共筆後補上 -->
+<!-- ## 專案特定規則 -->
+<!-- ## 常用指令 -->

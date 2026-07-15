@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "groups": [
+    {
+      "name": "Git & Review",
+      "skills": ["commit", "create-pr", "code-review"]
+    },
+    {
+      "name": "Docs & Knowledge",
+      "skills": ["dto-organizer", "translate-pdf-book", "experience-card"]
+    },
+    {
+      "name": "Planning & Operations",
+      "skills": ["verified-operator"]
+    },
+    {
+      "name": "Code Style",
+      "skills": ["ponytail-forge"]
+    }
+  ],
+  "recommended": ["install-my-skill", "commit", "create-pr"],
+  "highlight_keywords": [
+    "commit",
+    "PR",
+    "pull request",
+    "review",
+    "install",
+    "update",
+    "skills",
+    "DTO",
+    "API",
+    "schema",
+    "translate",
+    "PDF",
+    "plan",
+    "verification",
+    "YAGNI",
+    "security"
+  ]
+}
