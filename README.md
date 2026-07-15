@@ -1,6 +1,6 @@
 # skill-forge
 
-Version: 1.1.2
+Version: 1.2.0
 
 Write skills once, govern centrally, deploy to multiple coding AI targets.
 
