@@ -212,8 +212,12 @@ No B1-B6 implementation should begin until these decisions are approved.
 
 ## B0 progress (2026-07-17)
 
-See `CAPABILITY_REPORT.md`. Official contracts are captured and Codex runtime behavior is verified with a temporary CLI installation. Claude runtime smoke tests remain incomplete because the available Claude account hit its session limit.
+See `CAPABILITY_REPORT.md`. Official contracts plus Claude Bash and Codex Bash/`apply_patch` runtime behavior are verified in temporary projects. Windows portability and Claude `Edit|Write` payloads remain open.
 
 ## B1 progress (2026-07-17)
 
 The platform-neutral policy engine and table-driven tests are implemented. See `B1_VERIFICATION_REPORT.md`. B2-B6 remain gated on the runtime/platform and migration decisions in this plan.
+
+## B2 progress (2026-07-17)
+
+The generic multi-file managed bundle lifecycle is implemented and tested but remains disconnected from the guideline registry and target adapters. See `B2_VERIFICATION_REPORT.md`. B3-B6 remain gated.

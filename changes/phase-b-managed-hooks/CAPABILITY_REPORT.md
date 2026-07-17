@@ -2,7 +2,7 @@
 
 ## Status
 
-Partially complete and awaiting runtime re-test. No production code was modified.
+Claude and Codex Linux runtime contracts are verified. Windows portability remains open. No production code was modified by B0.
 
 ## Environment
 
@@ -43,9 +43,11 @@ A temporary Git project with a `.claude/settings.json` `PreToolUse` hook was cre
 Result:
 
 - Claude authentication is present.
-- The request did not reach tool execution because the account returned HTTP 429 session limit.
-- The sentinel output file was not created.
-- No hook input fixture was captured, so the runtime contract is not yet proven locally.
+- The first account attempt stopped before tool execution with an HTTP 429 session limit.
+- A later run with an available account loaded `.claude/settings.json`, invoked the `PreToolUse` hook, and captured stdin.
+- Returning `hookSpecificOutput.permissionDecision = "deny"` blocked the Bash command before execution; the sentinel file was not created.
+- The captured payload contained `cwd`, `effort`, `hook_event_name`, `permission_mode`, `prompt_id`, `session_id`, `tool_input`, `tool_name`, `tool_use_id`, and `transcript_path`.
+- `tool_input.command` contained the shell command and `tool_input.description` contained the model-provided description.
 
 ### Codex
 
@@ -65,7 +67,7 @@ Captured Bash and `apply_patch` fixtures include `cwd`, `hook_event_name`, `mode
 
 ## Remaining B0 tests
 
-1. After the Claude session limit resets, rerun the temporary `PreToolUse` deny test and capture the stdin fixture.
+1. Test Claude `Edit|Write` input shapes when implementing the protected-path adapter.
 2. Test Codex `commandWindows` on Windows, or explicitly narrow the supported platform scope.
 3. Test the selected shared runtime on Windows or explicitly narrow the supported platform scope.
 
@@ -79,6 +81,6 @@ Captured Bash and `apply_patch` fixtures include `cwd`, `hook_event_name`, `mode
 
 ## Evidence classification
 
-- **Verified locally:** installed versions, Claude session-limit response, Codex Bash and `apply_patch` payloads, denial behavior, disabled/untrusted behavior, nested-directory path resolution, sentinel file results.
+- **Verified locally:** installed versions, Claude Bash and Codex Bash/`apply_patch` payloads, denial behavior, Codex disabled/untrusted behavior, nested-directory path resolution, sentinel file results.
 - **Verified from current official documentation/manual:** config locations, event names, trust model, matcher coverage, input channel, feature disable behavior.
-- **Not yet verified locally:** Claude stdin/deny runtime behavior, Windows invocation, interactive Codex `/hooks` trust UX.
+- **Not yet verified locally:** Claude `Edit|Write` payloads, Windows invocation, interactive Codex `/hooks` trust UX.
