@@ -61,13 +61,9 @@ Write recommended baseline (security settings + install-my-skill)? [Y/n]:
 
 ## Project guideline (managed config items)
 
-The project guideline is a set of **managed config items**: tool-neutral canonical sources rendered into the target project, each with its own marker-based drift detection. Every item lives under `canonical-configs/<item-name>/`:
+The project guideline is a set of **managed items**: tool-neutral canonical sources rendered or structurally merged into the target project. Every item lives under `canonical-configs/<item-name>/`.
 
-```text
-canonical-configs/<item-name>/
-├── config.json   # schema_version, version, description, updated_at
-└── <body>.md     # shared body, rendered verbatim
-```
+Document items contain `config.json` plus a Markdown body. Bundle items contain `config.json` plus one or more artifacts such as `hooks/safety_check.py`.
 
 An item whose canonical source directory is missing is simply unavailable and skipped.
 
@@ -77,19 +73,22 @@ An item whose canonical source directory is missing is simply unavailable and sk
 |------|-----------|-------------------------|--------------------------|
 | `agent-memory` | `memory.md` | `AGENTS.md` | `CLAUDE.md` |
 | `agent-guideline` | `guideline.md` | `docs/agent-guideline.md` | `docs/agent-guideline.md` |
+| `agent-hooks` | `hooks/safety_check.py` | `.codex/hooks/skill-forge/safety_check.py` + `.codex/hooks.json` | `.claude/hooks/skill-forge/safety_check.py` + `.claude/settings.json` |
 
-`agent-memory` holds the short always-applicable rules at the project root; `agent-guideline` holds the full governance guideline under `docs/` (parent directories are created on install).
+`agent-memory` holds the short always-applicable rules at the project root; `agent-guideline` holds the full governance guideline under `docs/`; `agent-hooks` provides deterministic, native pre-tool enforcement.
 
 ### Managed marker
 
 Instead of a sidecar metadata file, each rendered file ends with one marker line naming its item:
 
 ```html
-<!-- skill-forge:agent-memory version=0.1.0 sha256=<hash-of-body> -->
-<!-- skill-forge:agent-guideline version=0.1.0 sha256=<hash-of-body> -->
+<!-- skill-forge:agent-memory version=0.4.0 sha256=<hash-of-body> -->
+<!-- skill-forge:agent-guideline version=0.2.0 sha256=<hash-of-body> -->
 ```
 
 The hash covers the canonical body (trailing newlines normalized), so the file is self-describing and drift detection needs no extra state. The `skill-forge:agent-memory` marker format is unchanged from the pre-guideline releases, so already-installed files stay recognized.
+
+The hook runner uses a language-appropriate marker (`# skill-forge:agent-hooks/safety-check ...`). JSON settings cannot contain comments, so ownership is structural: only handlers referencing the namespaced runner path are managed. Additive merge preserves unrelated settings and handlers, including user handlers in the same matcher group.
 
 ### Status model
 
@@ -100,6 +99,8 @@ The hash covers the canonical body (trailing newlines normalized), so the file i
 | `drift` | body no longer matches the recorded hash (edits before **or after** the marker), or the canonical source changed without a version bump |
 | `update_available` | marker version differs from the canonical version |
 | `up_to_date` | version and hash both match |
+| `inactive` | managed Codex hooks are current but project config explicitly sets `[features] hooks = false` |
+| `broken` | bundle/config is incomplete, invalid, or Python 3.11+ is unavailable |
 
 `drift` requires `--force` plus confirmation to overwrite, mirroring the skill install safety model. Each item applies the model independently.
 
@@ -114,6 +115,17 @@ skill-forge guideline install [--item NAME] --target claude --project /workspace
 ```
 
 By default both commands cover **all** available items; `--item` narrows to one. On install, a refusal on one item (for example an `unmanaged` file) is reported but does not abort the remaining items; the exit code is 1 if any item failed.
+
+### Managed safety hooks
+
+- Runtime: Linux/macOS with `python3` 3.11 or newer; no upper version cap.
+- Claude: `.claude/settings.json` native `PreToolUse` matchers for `Bash` and `Edit|Write`.
+- Codex: `.codex/hooks.json` native `PreToolUse` matchers for `Bash` and `Edit|Write` (the latter receives `apply_patch`). The command resolves the runner from the Git root.
+- Codex trust: repository status cannot prove that the exact hook definition was reviewed. Status therefore retains a trust-review advisory; project `[features] hooks = false` is `inactive`.
+- Policy: narrowly blocks destructive Git commands, broad recursive deletion, and writes to protected paths such as `.env*`, `secrets/`, `config/credentials.json`, `.git/`, and managed hook directories.
+- Limit: deterministic hooks are defense in depth. They do not replace permission controls, sandboxing, CI, reviewers, or human approval.
+
+There is no automatic uninstall in Phase B. For manual rollback, remove only handlers referencing the skill-forge runner and then remove the marker-managed runner. Never delete unrelated matcher groups or settings. Windows invocation and the Git pre-commit fallback are deferred.
 
 `memory status` / `memory install` remain compatibility commands for the `agent-memory` item. They install and classify the same file with the same marker, while preserving the legacy CLI output shape (notably, `memory status --json` emits one object and `guideline status --item agent-memory --json` emits a one-element array).
 

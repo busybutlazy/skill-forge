@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft for human approval. This document authorizes no production-code changes.
+Implemented through B6 on 2026-07-17. Native Claude/Codex hooks, managed lifecycle, CLI/TUI integration, documentation, and verification are complete. Git pre-commit fallback, automatic uninstall, and Windows support are documented deviations/deferred work requiring human acceptance.
 
 ## Goal
 
@@ -233,3 +233,7 @@ The native Codex `.codex/hooks.json` adapter is implemented and verified against
 ## B5 progress (2026-07-17)
 
 The `agent-hooks` bundle is exposed as a first-class guideline item in CLI status/install and the interactive guideline menu for both Codex and Claude. JSON status includes per-artifact state, text status preserves the existing one-line-per-item contract, and item-level failures do not abort unrelated guideline installs. See `B5_VERIFICATION_REPORT.md`. B6 documentation/final verification remains.
+
+## B6 progress (2026-07-17)
+
+English and Traditional Chinese user/maintainer documentation, canonical target guidance, the final automated matrix, fresh/repeated Codex and Claude smoke installs, and Phase B change/review/verification reports are complete. See `B6_VERIFICATION_REPORT.md`, `CHANGE_REPORT.md`, and `REVIEW_REPORT.md`. The documented deferred items remain outside the delivered native-hook path.

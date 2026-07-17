@@ -69,7 +69,7 @@ Main actions:
 
 - `Check installed skill status`: show installed skills and their state
 - `Install / Update skills`: install new public skills or refresh current ones
-- `Install / Update project guideline`: install or refresh managed project guideline files
+- `Install / Update project guideline`: install or refresh managed instruction files, governance documentation, and native safety hooks
 - `Update / Repair skills`: repair `broken` installs or update `update_available` installs
 - `Remove installed skills`: remove managed installs
 - `Switch target`: switch between `codex` and `claude`
@@ -88,6 +88,8 @@ Safety rules:
 - `install` and `update` refuse to overwrite `unmanaged`
 - `install` and `update` require `--force` before overwriting `drift`
 - `install` and `update` ask for confirmation before repairing `broken`
+
+The `agent-hooks` guideline item requires `python3` 3.11+ and additively configures native Claude/Codex `PreToolUse` hooks. Codex may require trust review for the exact definition; hooks explicitly disabled in project config are reported `inactive`. Use hooks as defense in depth, not as a replacement for sandboxing or CI.
 - `remove` refuses to delete `unmanaged`
 
 ### Core CLI Commands
@@ -275,7 +277,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 - `Check installed skill status`：列出已安裝 skill 與狀態
 - `Install / Update skills`：安裝新的 public skill，或刷新目前版本
-- `Install / Update project guideline`：安裝或刷新納管的 project guideline 檔案
+- `Install / Update project guideline`：安裝或刷新納管的 instruction files、治理文件與原生安全 hooks
 - `Update / Repair skills`：修復 `broken` 或更新 `update_available`
 - `Remove installed skills`：移除 managed install
 - `Switch target`：切換 `codex` 與 `claude`
@@ -293,6 +295,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 - `install` 與 `update` 不會覆蓋 `unmanaged`
 - `install` 與 `update` 覆蓋 `drift` 前必須 `--force`
+
+`agent-hooks` guideline item 需要 `python3` 3.11+，並以 additive merge 設定 Claude/Codex 原生 `PreToolUse` hooks。Codex 可能需要信任精確的 hook definition；project config 明確停用 hooks 時會回報 `inactive`。Hooks 是縱深防禦，不能取代 sandbox 或 CI。
 - `install` 與 `update` 修復 `broken` 前會要求確認
 - `remove` 不會刪除 `unmanaged`
 
