@@ -225,3 +225,7 @@ The generic multi-file managed bundle lifecycle is implemented and tested. See `
 ## B3 progress (2026-07-17)
 
 The Claude adapter, Python >=3.11 preflight, obsolete-setting migration, canonical runner, and live Bash/Edit/Write enforcement are implemented and verified. See `B3_VERIFICATION_REPORT.md`. Windows support remains pending; B4-B6 are not started.
+
+## B4 progress (2026-07-17)
+
+The native Codex `.codex/hooks.json` adapter is implemented and verified against Codex 0.144.5. It preserves unrelated hooks, reports project-level `hooks = false` as inactive, exposes the trust-review requirement, and blocks dangerous commands through the installed canonical runner. See `B4_VERIFICATION_REPORT.md`. The Git pre-commit fallback remains deferred as defense in depth; B5-B6 are not started.

@@ -90,3 +90,10 @@ Captured Bash and `apply_patch` fixtures include `cwd`, `hook_event_name`, `mode
 - `Edit` uses `tool_input.file_path`, `old_string`, `new_string`, and `replace_all`.
 - A live deny test prevented `Write` from creating a new file and prevented `Edit` from changing an existing file.
 - A second live E2E installed the canonical `agent-hooks` bundle plus generated `.claude/settings.json`; the installed policy denied a `Write` to `.env` and left the file absent.
+
+### B4 native Codex adapter verification
+
+- The production adapter installs the canonical runner plus additive `.codex/hooks.json` matcher groups.
+- Codex 0.144.5 loaded the installed configuration and denied `git reset --hard HEAD` before execution with rule `git.reset-hard`.
+- Project `.codex/config.toml` with `[features] hooks = false` is reported as inactive rather than up to date.
+- Hook trust cannot be inferred safely from repository files, so installed status retains an explicit trust-review signal.

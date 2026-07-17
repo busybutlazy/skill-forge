@@ -13,6 +13,7 @@ from skill_forge.claude_hooks import (
     claude_hooks_status,
     install_claude_hooks,
 )
+from skill_forge.codex_hooks import codex_hooks_status, install_codex_hooks
 from skill_forge.managed_bundles import load_managed_bundle
 
 
@@ -96,6 +97,34 @@ class AgentHooksBundleTests(unittest.TestCase):
                     output = json.loads(result.stdout)
                     reason = output["hookSpecificOutput"]["permissionDecisionReason"]
                     self.assertIn(rule_id, reason)
+
+    def test_codex_install_is_transactional_and_reports_trust_review(self) -> None:
+        paths = install_codex_hooks(REPO_ROOT, self.project, runtime=self.runtime)
+        self.assertEqual(len(paths), 2)
+        status = codex_hooks_status(REPO_ROOT, self.project)
+        self.assertEqual(status.status, "up_to_date")
+        self.assertTrue(status.trust_review_required)
+        self.assertTrue((self.project / ".codex" / "hooks.json").is_file())
+
+    def test_codex_disabled_feature_is_reported_inactive(self) -> None:
+        install_codex_hooks(REPO_ROOT, self.project, runtime=self.runtime)
+        config = self.project / ".codex" / "config.toml"
+        config.write_text("[features]\nhooks = false\n", encoding="utf-8")
+        self.assertEqual(codex_hooks_status(REPO_ROOT, self.project).status, "inactive")
+
+    def test_codex_invalid_feature_config_is_reported_broken(self) -> None:
+        install_codex_hooks(REPO_ROOT, self.project, runtime=self.runtime)
+        config = self.project / ".codex" / "config.toml"
+        config.write_text("[invalid\n", encoding="utf-8")
+        self.assertEqual(codex_hooks_status(REPO_ROOT, self.project).status, "broken")
+
+    def test_codex_settings_failure_rolls_back_bundle(self) -> None:
+        with mock.patch("skill_forge.codex_hooks._write_json_atomic", side_effect=OSError("failure")):
+            with self.assertRaisesRegex(OSError, "failure"):
+                install_codex_hooks(REPO_ROOT, self.project, runtime=self.runtime)
+        self.assertFalse(
+            (self.project / ".codex" / "hooks" / "skill-forge" / "safety_check.py").exists()
+        )
 
 
 if __name__ == "__main__":
