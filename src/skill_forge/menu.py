@@ -19,8 +19,10 @@ from .security_check import (
     check_security_settings,
     format_applied_report,
     format_created_report,
+    format_removed_report,
     init_security_settings,
     merge_security_defaults,
+    remove_obsolete_security_settings,
 )
 
 RESET = "\033[0m"
@@ -685,6 +687,14 @@ class InteractiveMenu:
 
         security_result = None
         if self.target == "claude":
+            removed = remove_obsolete_security_settings(self.project_dir)
+            if removed:
+                notices.append(
+                    format_removed_report(
+                        removed,
+                        self.project_dir / ".claude" / "settings.local.json",
+                    )
+                )
             security_result = check_security_settings(self.project_dir)
             if security_result.needs_attention:
                 planned.append("Write security defaults to .claude/settings.local.json")

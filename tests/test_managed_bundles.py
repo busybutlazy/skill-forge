@@ -152,6 +152,22 @@ class ManagedBundleTests(unittest.TestCase):
         self.assertFalse((self.project_root / ".codex" / "hooks" / "check.py").exists())
         self.assertFalse((self.project_root / ".codex" / "hooks" / "audit.py").exists())
 
+    def test_post_install_failure_rolls_back_all_artifacts(self) -> None:
+        source = self.load()
+
+        def fail_adapter() -> None:
+            raise OSError("settings failure")
+
+        with self.assertRaisesRegex(OSError, "settings failure"):
+            install_managed_bundle(
+                source,
+                self.project_root,
+                "codex",
+                post_install=fail_adapter,
+            )
+        self.assertFalse((self.project_root / ".codex" / "hooks" / "check.py").exists())
+        self.assertFalse((self.project_root / ".codex" / "hooks" / "audit.py").exists())
+
     def test_rejects_unsafe_source_and_target_paths(self) -> None:
         unsafe_artifacts = [
             {

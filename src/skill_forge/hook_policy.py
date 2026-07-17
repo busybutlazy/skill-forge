@@ -12,6 +12,7 @@ class HookRequest:
     command: str
     cwd: Path
     project_root: Path
+    file_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -32,6 +33,8 @@ def evaluate_hook_request(request: HookRequest) -> HookDecision:
         return _evaluate_shell(request)
     if request.tool_name == "apply_patch":
         return _evaluate_patch(request)
+    if request.tool_name in {"Edit", "Write"}:
+        return _evaluate_file_write(request)
     return _ALLOW
 
 
@@ -207,6 +210,22 @@ def _evaluate_patch(request: HookRequest) -> HookDecision:
                 "path.protected-write",
                 f"The patch targets a protected project path: {raw_path}",
             )
+    return _ALLOW
+
+
+def _evaluate_file_write(request: HookRequest) -> HookDecision:
+    if not request.file_path:
+        return HookDecision(
+            False,
+            "write.malformed",
+            "Refusing a file-write request whose target path is missing.",
+        )
+    if _is_protected_project_path(request.file_path, request.project_root):
+        return HookDecision(
+            False,
+            "path.protected-write",
+            f"The write targets a protected project path: {request.file_path}",
+        )
     return _ALLOW
 
 

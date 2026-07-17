@@ -212,7 +212,7 @@ No B1-B6 implementation should begin until these decisions are approved.
 
 ## B0 progress (2026-07-17)
 
-See `CAPABILITY_REPORT.md`. Official contracts plus Claude Bash and Codex Bash/`apply_patch` runtime behavior are verified in temporary projects. Windows portability and Claude `Edit|Write` payloads remain open.
+See `CAPABILITY_REPORT.md`. Official contracts plus Claude Bash/`Edit`/`Write` and Codex Bash/`apply_patch` runtime behavior are verified in temporary projects. Windows portability remains open.
 
 ## B1 progress (2026-07-17)
 
@@ -220,4 +220,8 @@ The platform-neutral policy engine and table-driven tests are implemented. See `
 
 ## B2 progress (2026-07-17)
 
-The generic multi-file managed bundle lifecycle is implemented and tested but remains disconnected from the guideline registry and target adapters. See `B2_VERIFICATION_REPORT.md`. B3-B6 remain gated.
+The generic multi-file managed bundle lifecycle is implemented and tested. See `B2_VERIFICATION_REPORT.md`. Guideline registry integration remains B5 scope; B3 now consumes the lifecycle through the Claude adapter.
+
+## B3 progress (2026-07-17)
+
+The Claude adapter, Python >=3.11 preflight, obsolete-setting migration, canonical runner, and live Bash/Edit/Write enforcement are implemented and verified. See `B3_VERIFICATION_REPORT.md`. Windows support remains pending; B4-B6 are not started.

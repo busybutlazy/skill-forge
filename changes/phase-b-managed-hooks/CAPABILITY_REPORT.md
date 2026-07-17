@@ -67,9 +67,8 @@ Captured Bash and `apply_patch` fixtures include `cwd`, `hook_event_name`, `mode
 
 ## Remaining B0 tests
 
-1. Test Claude `Edit|Write` input shapes when implementing the protected-path adapter.
-2. Test Codex `commandWindows` on Windows, or explicitly narrow the supported platform scope.
-3. Test the selected shared runtime on Windows or explicitly narrow the supported platform scope.
+1. Test Codex `commandWindows` on Windows, or explicitly narrow the supported platform scope.
+2. Test the selected shared runtime on Windows or explicitly narrow the supported platform scope.
 
 ## Preliminary design decisions
 
@@ -81,6 +80,13 @@ Captured Bash and `apply_patch` fixtures include `cwd`, `hook_event_name`, `mode
 
 ## Evidence classification
 
-- **Verified locally:** installed versions, Claude Bash and Codex Bash/`apply_patch` payloads, denial behavior, Codex disabled/untrusted behavior, nested-directory path resolution, sentinel file results.
+- **Verified locally:** installed versions, Claude Bash/`Edit`/`Write` and Codex Bash/`apply_patch` payloads, denial behavior, Codex disabled/untrusted behavior, nested-directory path resolution, sentinel file results.
 - **Verified from current official documentation/manual:** config locations, event names, trust model, matcher coverage, input channel, feature disable behavior.
-- **Not yet verified locally:** Claude `Edit|Write` payloads, Windows invocation, interactive Codex `/hooks` trust UX.
+- **Not yet verified locally:** Windows invocation and interactive Codex `/hooks` trust UX.
+
+### Claude Edit and Write fixtures
+
+- `Write` uses `tool_input.file_path` and `tool_input.content`.
+- `Edit` uses `tool_input.file_path`, `old_string`, `new_string`, and `replace_all`.
+- A live deny test prevented `Write` from creating a new file and prevented `Edit` from changing an existing file.
+- A second live E2E installed the canonical `agent-hooks` bundle plus generated `.claude/settings.json`; the installed policy denied a `Write` to `.env` and left the file absent.

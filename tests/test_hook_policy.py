@@ -26,6 +26,17 @@ class HookPolicyTests(unittest.TestCase):
             )
         )
 
+    def evaluate_write(self, tool_name: str, file_path: str):
+        return evaluate_hook_request(
+            HookRequest(
+                tool_name=tool_name,
+                command="",
+                cwd=self.project_root,
+                project_root=self.project_root,
+                file_path=file_path,
+            )
+        )
+
     def test_blocks_dangerous_git_commands_in_chains(self) -> None:
         cases = {
             "git reset --hard HEAD": "git.reset-hard",
@@ -96,6 +107,27 @@ class HookPolicyTests(unittest.TestCase):
 +guide
 *** End Patch"""
         self.assertTrue(self.evaluate("apply_patch", patch).allowed)
+
+    def test_edit_and_write_protect_paths_from_claude_payloads(self) -> None:
+        for tool_name in ("Edit", "Write"):
+            with self.subTest(tool_name=tool_name):
+                denied = self.evaluate_write(tool_name, str(self.project_root / ".env"))
+                self.assertFalse(denied.allowed)
+                self.assertEqual(denied.rule_id, "path.protected-write")
+                self.assertTrue(
+                    self.evaluate_write(tool_name, str(self.project_root / "src" / "app.py")).allowed
+                )
+
+    def test_file_write_without_path_is_denied(self) -> None:
+        request = HookRequest(
+            tool_name="Write",
+            command="",
+            cwd=self.project_root,
+            project_root=self.project_root,
+        )
+        decision = evaluate_hook_request(request)
+        self.assertFalse(decision.allowed)
+        self.assertEqual(decision.rule_id, "write.malformed")
 
     def test_malformed_nonempty_patch_is_denied(self) -> None:
         decision = self.evaluate("apply_patch", "not an apply_patch payload")

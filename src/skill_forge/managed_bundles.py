@@ -158,6 +158,7 @@ def install_managed_bundle(
     *,
     force: bool = False,
     confirm: Callable[[str], bool] | None = None,
+    post_install: Callable[[], None] | None = None,
 ) -> tuple[Path, ...]:
     status = managed_bundle_status(source, project_dir, target)
     unmanaged = [artifact for artifact in status.artifacts if artifact.status == "unmanaged"]
@@ -192,7 +193,9 @@ def install_managed_bundle(
         for path, content, mode in planned:
             _atomic_write(path, content, mode)
             written.append(path)
-    except OSError as exc:
+        if post_install is not None:
+            post_install()
+    except Exception as exc:
         rollback_errors = _restore_originals(originals)
         if rollback_errors:
             details = "; ".join(rollback_errors)

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from pathlib import Path
 
 from .models import SecurityCheckResult
@@ -22,7 +24,6 @@ SECURITY_DEFAULTS: dict = {
         "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB": "1",
     },
     "disableBypassPermissionsMode": "disable",
-    "allowManagedHooksOnly": True,
     "allowedHttpHookUrls": [],
     "httpHookAllowedEnvVars": [],
     "sandbox": {
@@ -109,6 +110,22 @@ def merge_security_defaults(project_dir: Path) -> list[str]:
     return applied
 
 
+def remove_obsolete_security_settings(project_dir: Path) -> list[str]:
+    """Remove obsolete project-local keys while preserving all other settings."""
+    path = _settings_path(project_dir)
+    if not path.is_file():
+        return []
+    try:
+        existing = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+    if not isinstance(existing, dict) or "allowManagedHooksOnly" not in existing:
+        return []
+    del existing["allowManagedHooksOnly"]
+    _write_json_atomic(path, existing)
+    return ["allowManagedHooksOnly"]
+
+
 def format_applied_report(applied_keys: list[str], settings_path: Path | None = None) -> str:
     """Format a report of items that were auto-applied."""
     lines = [f"{_YELLOW}{_BOLD}[security]{_RESET} Auto-applied missing security defaults:"]
@@ -122,6 +139,14 @@ def format_applied_report(applied_keys: list[str], settings_path: Path | None = 
 def format_created_report(settings_path: Path) -> str:
     """Format a report when a new default file was created."""
     return f"{_GREEN}{_BOLD}[security]{_RESET} Created default security settings: {settings_path}"
+
+
+def format_removed_report(removed_keys: list[str], settings_path: Path) -> str:
+    lines = [f"{_YELLOW}{_BOLD}[security]{_RESET} Removed obsolete project-local settings:"]
+    for key in removed_keys:
+        lines.append(f"  - {key}")
+    lines.append(f"  File: {settings_path}")
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -181,3 +206,21 @@ def _deep_copy_json(value: object) -> object:
     if isinstance(value, list):
         return [_deep_copy_json(item) for item in value]
     return value
+
+
+def _write_json_atomic(path: Path, payload: object) -> None:
+    content = (json.dumps(payload, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    original_mode = path.stat().st_mode & 0o777 if path.is_file() else 0o644
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{path.name}.", delete=False) as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+            temp_path = Path(handle.name)
+        temp_path.chmod(original_mode)
+        os.replace(temp_path, path)
+        temp_path = None
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)

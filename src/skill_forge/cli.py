@@ -24,8 +24,10 @@ from .security_check import (
     check_security_settings,
     format_applied_report,
     format_created_report,
+    format_removed_report,
     init_security_settings,
     merge_security_defaults,
+    remove_obsolete_security_settings,
 )
 from .render import render_skill
 from .repository import (
@@ -364,6 +366,9 @@ def _auto_security_check(args: argparse.Namespace) -> None:
         return
 
     project_dir = Path(project).resolve()
+    removed = remove_obsolete_security_settings(project_dir)
+    if removed:
+        print(format_removed_report(removed, project_dir / ".claude" / "settings.local.json"), file=sys.stderr)
     result = check_security_settings(project_dir)
     if not result.exists:
         path = init_security_settings(project_dir)
@@ -376,6 +381,9 @@ def _auto_security_check(args: argparse.Namespace) -> None:
 
 def run_check_security(args: argparse.Namespace) -> int:
     project_dir = Path(args.project).resolve()
+    removed = remove_obsolete_security_settings(project_dir)
+    if removed:
+        print(format_removed_report(removed, project_dir / ".claude" / "settings.local.json"))
     result = check_security_settings(project_dir)
 
     if not result.exists:
