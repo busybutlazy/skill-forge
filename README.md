@@ -172,7 +172,7 @@ Use the menu to:
 * accept or skip the recommended baseline (security settings + `install-my-skill`) with a single `[Y/n]` prompt
 * check installed skill status
 * install or update skills from a grouped list (`★ Recommended` first, then catalog groups)
-* install the managed agent memory file (`CLAUDE.md` / `AGENTS.md`) from the `Configs` section
+* install or update the project guideline (managed `CLAUDE.md` / `AGENTS.md` and `docs/agent-guideline.md`) from its own top-level menu entry
 * repair broken managed installs
 * remove managed skills
 * switch targets
@@ -216,17 +216,28 @@ Detailed references:
 * [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
 * [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)
 
-### Agent memory (CLAUDE.md / AGENTS.md)
+### Project guideline
 
-Besides skills, the repo also manages one shared agent memory file:
+Besides skills, the repo also manages a set of project guideline config items, each with its own canonical source:
 
 ```text
-canonical-configs/agent-memory/
-├── config.json
-└── memory.md
+canonical-configs/
+├── agent-memory/       # memory.md → CLAUDE.md (claude) / AGENTS.md (codex)
+│   ├── config.json
+│   └── memory.md
+└── agent-guideline/    # guideline.md → docs/agent-guideline.md (both targets)
+    ├── config.json
+    └── guideline.md
 ```
 
-`memory.md` is rendered verbatim to the target project root as `CLAUDE.md` (claude) or `AGENTS.md` (codex), with a trailing managed marker used for version and drift detection. Existing files without the marker are treated as `unmanaged` and never overwritten. Install it from the `Configs` section of the interactive install menu, or via `skill-forge memory install`.
+Each body is rendered verbatim to its target path with a trailing managed marker (`<!-- skill-forge:<item> version=... sha256=... -->`) used for version and drift detection. Existing files without the marker are treated as `unmanaged` and never overwritten. Install the items from the `Install / Update project guideline` entry of the interactive menu, or via the CLI:
+
+```bash
+skill-forge guideline status  [--item NAME] --target <codex|claude> --project <path> [--json]
+skill-forge guideline install [--item NAME] --target <codex|claude> --project <path> [--force] [--yes]
+```
+
+Both commands default to all available items; a failed item is reported without aborting the rest. `skill-forge memory status|install` remains a compatibility command for the same `agent-memory` file and marker, while preserving its legacy output shape (`memory status --json` returns an object; the equivalent filtered `guideline` command returns a one-element array).
 
 ---
 
@@ -447,7 +458,8 @@ Core commands:
 * `refresh-metadata`
 * `sync-maintainer`
 * `sync-manager-catalog`
-* `memory status` / `memory install`
+* `guideline status` / `guideline install`
+* `memory status` / `memory install` (compatibility commands for the `agent-memory` item)
 
 Managed install states:
 
@@ -479,7 +491,8 @@ skill-forge/
 │   ├── regular-skills/
 │   └── manager-skills/
 ├── canonical-configs/
-│   └── agent-memory/
+│   ├── agent-memory/
+│   └── agent-guideline/
 ├── docs/
 │   ├── concepts/
 │   ├── guides/
@@ -725,7 +738,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 * 用單一 `[Y/n]` 提問決定是否寫入建議基本配置（security settings + `install-my-skill`）
 * 檢查已安裝 skill 狀態
 * 從分群清單安裝或更新 skills（`★ Recommended` 在最上，其後依 catalog 群組排列）
-* 從 `Configs` 區塊安裝納管的 agent memory 檔（`CLAUDE.md` / `AGENTS.md`）
+* 用獨立的 `Install / Update project guideline` 選項安裝或更新 project guideline（納管的 `CLAUDE.md` / `AGENTS.md` 與 `docs/agent-guideline.md`）
 * 修復 broken 的 managed install
 * 移除 managed skills
 * 切換 target
@@ -769,17 +782,28 @@ canonical-skills/regular-skills/<name>/
 * [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
 * [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)
 
-### Agent memory（CLAUDE.md / AGENTS.md）
+### Project guideline
 
-除了 skills 之外，這個 repo 也納管一份共用的 agent memory 檔：
+除了 skills 之外，這個 repo 也納管一組 project guideline 設定項，每一項都有自己的 canonical source：
 
 ```text
-canonical-configs/agent-memory/
-├── config.json
-└── memory.md
+canonical-configs/
+├── agent-memory/       # memory.md → CLAUDE.md（claude）/ AGENTS.md（codex）
+│   ├── config.json
+│   └── memory.md
+└── agent-guideline/    # guideline.md → docs/agent-guideline.md（兩個 target 相同）
+    ├── config.json
+    └── guideline.md
 ```
 
-`memory.md` 會原文 render 到 target project 根目錄，成為 `CLAUDE.md`（claude）或 `AGENTS.md`（codex），檔尾帶一行 managed marker 做版本與 drift 偵測。沒有 marker 的既有檔案視為 `unmanaged`，永遠不會被覆蓋。可從互動選單 Install 清單的 `Configs` 區塊安裝，或用 `skill-forge memory install`。
+每一項的 body 會原文 render 到對應的 target 路徑，檔尾帶一行 managed marker（`<!-- skill-forge:<item> version=... sha256=... -->`）做版本與 drift 偵測。沒有 marker 的既有檔案視為 `unmanaged`，永遠不會被覆蓋。可從互動選單的 `Install / Update project guideline` 選項安裝，或用 CLI：
+
+```bash
+skill-forge guideline status  [--item NAME] --target <codex|claude> --project <path> [--json]
+skill-forge guideline install [--item NAME] --target <codex|claude> --project <path> [--force] [--yes]
+```
+
+兩個指令預設涵蓋所有可用項目；某一項安裝失敗會回報錯誤但不會中斷其餘項目。`skill-forge memory status|install` 保留為操作同一份 `agent-memory` 檔案與 marker 的相容指令，但維持舊版輸出形狀（`memory status --json` 回傳單一物件；對應的 `guideline` 篩選指令回傳單元素陣列）。
 
 ---
 
@@ -1000,7 +1024,8 @@ Agent 將會：
 * `refresh-metadata`
 * `sync-maintainer`
 * `sync-manager-catalog`
-* `memory status` / `memory install`
+* `guideline status` / `guideline install`
+* `memory status` / `memory install`（操作 `agent-memory` 項目的相容指令）
 
 managed install 狀態：
 
@@ -1032,7 +1057,8 @@ skill-forge/
 │   ├── regular-skills/
 │   └── manager-skills/
 ├── canonical-configs/
-│   └── agent-memory/
+│   ├── agent-memory/
+│   └── agent-guideline/
 ├── docs/
 │   ├── concepts/
 │   ├── guides/

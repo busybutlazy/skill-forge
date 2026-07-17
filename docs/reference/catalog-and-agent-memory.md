@@ -1,10 +1,10 @@
-# Display catalog and agent memory
+# Display catalog and project guideline
 
 This reference covers three features that live outside the canonical skill packages:
 
 - the display catalog (`canonical-skills/catalog.json`)
 - the recommended baseline prompt in the interactive menu
-- the managed agent memory file (`CLAUDE.md` / `AGENTS.md`)
+- the project guideline: managed config items rendered into the target project (`CLAUDE.md` / `AGENTS.md` and `docs/agent-guideline.md`)
 
 ---
 
@@ -59,27 +59,37 @@ Write recommended baseline (security settings + install-my-skill)? [Y/n]:
 
 ---
 
-## Agent memory (`CLAUDE.md` / `AGENTS.md`)
+## Project guideline (managed config items)
 
-A single tool-neutral memory source rendered to the target project root:
+The project guideline is a set of **managed config items**: tool-neutral canonical sources rendered into the target project, each with its own marker-based drift detection. Every item lives under `canonical-configs/<item-name>/`:
 
 ```text
-canonical-configs/agent-memory/
+canonical-configs/<item-name>/
 ├── config.json   # schema_version, version, description, updated_at
-└── memory.md     # shared body, rendered verbatim
+└── <body>.md     # shared body, rendered verbatim
 ```
 
-Rendered filenames: `CLAUDE.md` for the `claude` target, `AGENTS.md` for `codex`.
+An item whose canonical source directory is missing is simply unavailable and skipped.
+
+### Items
+
+| Item | Body file | Rendered path (`codex`) | Rendered path (`claude`) |
+|------|-----------|-------------------------|--------------------------|
+| `agent-memory` | `memory.md` | `AGENTS.md` | `CLAUDE.md` |
+| `agent-guideline` | `guideline.md` | `docs/agent-guideline.md` | `docs/agent-guideline.md` |
+
+`agent-memory` holds the short always-applicable rules at the project root; `agent-guideline` holds the full governance guideline under `docs/` (parent directories are created on install).
 
 ### Managed marker
 
-Instead of a sidecar metadata file, the rendered file ends with one marker line:
+Instead of a sidecar metadata file, each rendered file ends with one marker line naming its item:
 
 ```html
 <!-- skill-forge:agent-memory version=0.1.0 sha256=<hash-of-body> -->
+<!-- skill-forge:agent-guideline version=0.1.0 sha256=<hash-of-body> -->
 ```
 
-The hash covers the canonical body (trailing newlines normalized), so the file is self-describing and drift detection needs no extra state.
+The hash covers the canonical body (trailing newlines normalized), so the file is self-describing and drift detection needs no extra state. The `skill-forge:agent-memory` marker format is unchanged from the pre-guideline releases, so already-installed files stay recognized.
 
 ### Status model
 
@@ -91,18 +101,22 @@ The hash covers the canonical body (trailing newlines normalized), so the file i
 | `update_available` | marker version differs from the canonical version |
 | `up_to_date` | version and hash both match |
 
-`drift` requires `--force` plus confirmation to overwrite, mirroring the skill install safety model.
+`drift` requires `--force` plus confirmation to overwrite, mirroring the skill install safety model. Each item applies the model independently.
 
 ### Where it appears
 
-- Interactive menu: the **Configs** section at the end of *Install / Update skills*, and in *Check installed skill status*. It is never part of the recommended baseline.
+- Interactive menu: the **Install / Update project guideline** action on the main menu (right after *Install / Update skills*) lists all available items with multi-select install; *Check installed skill status* shows every item under a **Guideline** section, including not-yet-installed ones. It is never part of the recommended baseline.
 - CLI:
 
 ```bash
-skill-forge memory status  --target claude --project /workspace/project --json
-skill-forge memory install --target claude --project /workspace/project [--force] [--yes]
+skill-forge guideline status  [--item NAME] --target claude --project /workspace/project [--json]
+skill-forge guideline install [--item NAME] --target claude --project /workspace/project [--force] [--yes]
 ```
+
+By default both commands cover **all** available items; `--item` narrows to one. On install, a refusal on one item (for example an `unmanaged` file) is reported but does not abort the remaining items; the exit code is 1 if any item failed.
+
+`memory status` / `memory install` remain compatibility commands for the `agent-memory` item. They install and classify the same file with the same marker, while preserving the legacy CLI output shape (notably, `memory status --json` emits one object and `guideline status --item agent-memory --json` emits a one-element array).
 
 ### Maintainer flow
 
-Edit `canonical-configs/agent-memory/memory.md`, bump `version` (and `updated_at`) in `config.json`, and installed copies report `update_available` on their next status check.
+Edit the item body (for example `canonical-configs/agent-memory/memory.md`), bump `version` (and `updated_at`) in that item's `config.json`, and installed copies report `update_available` on their next status check.

@@ -69,6 +69,7 @@ Main actions:
 
 - `Check installed skill status`: show installed skills and their state
 - `Install / Update skills`: install new public skills or refresh current ones
+- `Install / Update project guideline`: install or refresh managed project guideline files
 - `Update / Repair skills`: repair `broken` installs or update `update_available` installs
 - `Remove installed skills`: remove managed installs
 - `Switch target`: switch between `codex` and `claude`
@@ -274,6 +275,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 - `Check installed skill status`：列出已安裝 skill 與狀態
 - `Install / Update skills`：安裝新的 public skill，或刷新目前版本
+- `Install / Update project guideline`：安裝或刷新納管的 project guideline 檔案
 - `Update / Repair skills`：修復 `broken` 或更新 `update_available`
 - `Remove installed skills`：移除 managed install
 - `Switch target`：切換 `codex` 與 `claude`
