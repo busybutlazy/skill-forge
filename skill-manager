@@ -17,7 +17,7 @@ Behavior:
   - --no-interactive (as first argument): disable TTY, skip update prompts, safe for agent/CI use
   - check whether the local skill-forge repo is behind its upstream branch
   - offer to update with git pull --ff-only, then restart if the update succeeds
-  - rebuild the runtime image automatically before each run
+  - pull the configured runtime image before each run; use the cached image if pull fails
   - any other arguments: pass them through to the containerized skill-forge CLI
 
 Examples:
@@ -124,42 +124,24 @@ HOST_GID=$(id -g)
 
 maybe_update_repo "$@"
 
-# 'docker compose run --build' was added in Compose v2.13.0.
-# On older versions fall back to an explicit build step first.
-_compose_run_supports_build() {
-    _ver=$(docker compose version --short 2>/dev/null | sed 's/^v//')
-    _major=$(printf '%s' "$_ver" | cut -d. -f1)
-    _minor=$(printf '%s' "$_ver" | cut -d. -f2)
-    case "$_major" in *[!0-9]*) return 1 ;; esac
-    case "$_minor" in *[!0-9]*) return 1 ;; esac
-    [ "$_major" -gt 2 ] || { [ "$_major" -eq 2 ] && [ "$_minor" -ge 13 ]; }
-}
-
 _RUN_TTY_FLAG=""
 [ "$_NON_INTERACTIVE" -eq 1 ] && _RUN_TTY_FLAG="-T"
 
-if _compose_run_supports_build; then
-    exec env \
-        HOST_UID="$HOST_UID" \
-        HOST_GID="$HOST_GID" \
-        SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
-        docker compose \
-        -f "$SCRIPT_DIR/compose.yaml" \
-        run --build --rm ${_RUN_TTY_FLAG:+"$_RUN_TTY_FLAG"} forge "$@"
-else
-    printf 'note: Docker Compose < v2.13 — building image before run\n'
-    env \
-        HOST_UID="$HOST_UID" \
-        HOST_GID="$HOST_GID" \
-        SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
-        docker compose \
-        -f "$SCRIPT_DIR/compose.yaml" \
-        build forge
-    exec env \
-        HOST_UID="$HOST_UID" \
-        HOST_GID="$HOST_GID" \
-        SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
-        docker compose \
-        -f "$SCRIPT_DIR/compose.yaml" \
-        run --rm ${_RUN_TTY_FLAG:+"$_RUN_TTY_FLAG"} forge "$@"
+printf 'Checking for a newer skill-forge runtime image...\n'
+if ! env \
+    HOST_UID="$HOST_UID" \
+    HOST_GID="$HOST_GID" \
+    SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
+    docker compose \
+    -f "$SCRIPT_DIR/compose.yaml" \
+    pull forge; then
+    printf 'warning: Could not pull the runtime image; continuing with the local cached image if available.\n' >&2
 fi
+
+exec env \
+    HOST_UID="$HOST_UID" \
+    HOST_GID="$HOST_GID" \
+    SKILL_FORGE_PROJECT_HOST_DIR="$PROJECT_DIR" \
+    docker compose \
+    -f "$SCRIPT_DIR/compose.yaml" \
+    run --rm ${_RUN_TTY_FLAG:+"$_RUN_TTY_FLAG"} forge "$@"

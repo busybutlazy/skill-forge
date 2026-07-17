@@ -269,6 +269,8 @@ class WorkflowTests(CliTestCase):
         self.assertIn("--no-interactive", content)
         self.assertIn("_NON_INTERACTIVE", content)
         self.assertIn("-T", content)
+        self.assertIn("pull forge", content)
+        self.assertNotIn("run --build", content)
 
     def test_ps1_wrapper_no_interactive_support(self) -> None:
         launcher = REPO_ROOT / "skill-manager.ps1"
@@ -276,6 +278,8 @@ class WorkflowTests(CliTestCase):
         self.assertIn("IsNonInteractive", content)
         self.assertIn("--no-interactive", content)
         self.assertIn("-T", content)
+        self.assertIn("pull forge", content)
+        self.assertNotIn("run --build", content)
 
     def test_codex_install_update_list_json_and_remove_workflow(self) -> None:
         with tempfile.TemporaryDirectory(

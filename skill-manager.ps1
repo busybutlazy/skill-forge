@@ -29,7 +29,7 @@ Behavior:
   - help, -h, --help: show this help text locally without starting Docker
   - check whether the local skill-forge repo is behind its upstream branch
   - offer to update with git pull --ff-only, then restart if the update succeeds
-  - rebuild the runtime image automatically before each run
+  - pull the configured runtime image before each run; use the cached image if pull fails
   - any other arguments: pass them through to the containerized skill-forge CLI
 
 Examples:
@@ -164,7 +164,13 @@ try {
     $env:HOST_GID = "1000"
 
     $ttyArgs = if ($IsNonInteractive) { @("-T") } else { @() }
-    & docker compose -f $composeFile run --build --rm @ttyArgs forge @CliArgs
+    Write-Host "Checking for a newer skill-forge runtime image..."
+    & docker compose -f $composeFile pull forge
+    if ($LASTEXITCODE -ne 0) {
+        [Console]::Error.WriteLine("warning: Could not pull the runtime image; continuing with the local cached image if available.")
+    }
+
+    & docker compose -f $composeFile run --rm @ttyArgs forge @CliArgs
     exit $LASTEXITCODE
 }
 finally {

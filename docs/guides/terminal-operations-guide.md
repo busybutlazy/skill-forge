@@ -31,7 +31,7 @@ Behavior:
 - `skill-manager help` prints local usage text without starting Docker
 - any other arguments are forwarded to the containerized `skill-forge` CLI
 - before each run, it checks whether the skill-forge repo is behind upstream and can offer a `git pull --ff-only`
-- it rebuilds the runtime image before execution
+- it pulls the configured runtime image before execution; if the registry is temporarily unavailable, it warns and falls back to the local cached image
 
 Use `skill-manager` when you want:
 
@@ -239,7 +239,7 @@ terminal 介面其實分成兩種用法：
 - `skill-manager help` 只在本機顯示 usage，不會啟動 Docker
 - 其他參數會直接轉發到 containerized `skill-forge` CLI
 - 每次執行前會檢查 repo 是否落後 upstream，必要時提示 `git pull --ff-only`
-- 每次執行前都會重建 runtime image
+- 每次執行前都會 pull 設定的 runtime image；registry 暫時無法連線時會警告並改用本機 cached image
 
 適合用在：
 
