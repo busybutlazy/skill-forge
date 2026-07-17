@@ -5,13 +5,15 @@ import re
 import subprocess
 from pathlib import Path
 
-from .agent_memory import (
-    ConfigItemSource,
-    config_status,
-    install_config,
-    load_all_config_items,
-)
 from .catalog import group_skill_names, load_catalog
+from .guideline import (
+    GuidelineItem,
+    GuidelineItemStatus,
+    guideline_item_status,
+    guideline_item_target_note,
+    install_guideline_item,
+    load_guideline_items,
+)
 from .install import install_skill, list_installed, remove_skill, target_root, update_skill
 from .models import CanonicalSkill, InstalledStatus
 from .repository import SUPPORTED_TARGETS, load_all_skills
@@ -19,8 +21,10 @@ from .security_check import (
     check_security_settings,
     format_applied_report,
     format_created_report,
+    format_removed_report,
     init_security_settings,
     merge_security_defaults,
+    remove_obsolete_security_settings,
 )
 
 RESET = "\033[0m"
@@ -66,6 +70,8 @@ def _status_style(status: str) -> tuple[str, ...]:
         return (YELLOW,)
     if status == "broken":
         return (RED, BOLD)
+    if status == "inactive":
+        return (YELLOW, BOLD)
     if status == "unmanaged":
         return (BLUE,)
     return (DIM,)
@@ -202,11 +208,11 @@ class InteractiveMenu:
             f"  {description}\n  {tags}"
         )
 
-    def _render_config_line(self, source: ConfigItemSource, status: InstalledStatus | None) -> str:
-        filename = source.spec.target_paths[self.target]
+    def _render_config_line(self, source: GuidelineItem, status: GuidelineItemStatus) -> str:
+        filename = guideline_item_target_note(source, self.target)
         name = _color(source.name, CYAN, BOLD)
         source_version = _color(f"v{source.version}", DIM)
-        if status is None:
+        if status.status == "not_installed":
             badge = _color("not installed", DIM)
             version_note = ""
         else:
@@ -237,7 +243,7 @@ class InteractiveMenu:
         self._print_header()
         statuses = self._statuses()
         sources = self._canonical_index()
-        config_sources = load_all_config_items(self.repo_root)
+        config_sources = load_guideline_items(self.repo_root)
         if not statuses:
             print(_color(f"No installed skills found for target {self.target}.", YELLOW))
 
@@ -264,10 +270,18 @@ class InteractiveMenu:
         if config_sources:
             print(self._render_section_header(GUIDELINE_LABEL))
             for config_source in config_sources:
-                config_state = config_status(config_source, self.project_dir, self.target)
+                config_state = guideline_item_status(
+                    config_source, self.repo_root, self.project_dir, self.target
+                )
                 print(self._render_config_line(config_source, config_state))
-                if config_state is not None and config_state.details:
+                if config_state.details:
                     print(f"  {_color(config_state.details, DIM)}")
+                for artifact in config_state.artifacts:
+                    print(
+                        f"  {_color(str(artifact['id']), DIM)}: "
+                        f"{self._render_status_badge(str(artifact['status']))} "
+                        f"{_color(str(artifact['location']), DIM)}"
+                    )
                 print()
 
     def _render_section_header(self, header: str) -> str:
@@ -382,12 +396,15 @@ class InteractiveMenu:
             print(_color(f"Installed/updated {len(successes)} item(s): {', '.join(successes)}", GREEN, BOLD))
 
     def _guideline_menu(self) -> None:
-        sources = load_all_config_items(self.repo_root)
+        sources = load_guideline_items(self.repo_root)
         if not sources:
             print(_color("No project guideline config items available.", YELLOW))
             return
         states = {
-            source.name: config_status(source, self.project_dir, self.target) for source in sources
+            source.name: guideline_item_status(
+                source, self.repo_root, self.project_dir, self.target
+            )
+            for source in sources
         }
         labels = [self._render_config_line(source, states[source.name]) for source in sources]
 
@@ -407,8 +424,8 @@ class InteractiveMenu:
         print(_color("Will install/update:", BOLD))
         for source in selected:
             state = states[source.name]
-            filename = source.spec.target_paths[self.target]
-            if state is None:
+            filename = guideline_item_target_note(source, self.target)
+            if state.status == "not_installed":
                 print(f"  • {source.name} {_color(f'v{source.version}', GREEN)} {_color(f'(new → ./{filename})', DIM)}")
                 continue
             local_version = state.version or "unknown"
@@ -564,10 +581,11 @@ class InteractiveMenu:
         print(_color(f"Installed {skill_name} to {path}", GREEN))
         return True
 
-    def _run_config_install(self, source: ConfigItemSource) -> bool:
+    def _run_config_install(self, source: GuidelineItem) -> bool:
         try:
-            path = install_config(
+            paths = install_guideline_item(
                 source,
+                self.repo_root,
                 self.project_dir,
                 self.target,
                 force=False,
@@ -578,26 +596,27 @@ class InteractiveMenu:
             if "rerun install with --force" in message:
                 if self._confirm_yes_no(f"{message}. Force overwrite? [y/N]: "):
                     try:
-                        path = install_config(
+                        paths = install_guideline_item(
                             source,
+                            self.repo_root,
                             self.project_dir,
                             self.target,
                             force=True,
                             confirm=self._confirm_yes_no,
                         )
-                    except (RuntimeError, ValueError) as retry_exc:
+                    except (OSError, RuntimeError, ValueError) as retry_exc:
                         print(_color(str(retry_exc), RED))
                         return False
-                    print(_color(f"Installed {source.name} to {path}", GREEN))
+                    print(_color(f"Installed {source.name} to {', '.join(map(str, paths))}", GREEN))
                     return True
                 print(_color(f"Skipped {source.name}.", DIM))
                 return False
             print(_color(message, RED))
             return False
-        except RuntimeError as exc:
+        except (OSError, RuntimeError) as exc:
             print(_color(str(exc), RED))
             return False
-        print(_color(f"Installed {source.name} to {path}", GREEN))
+        print(_color(f"Installed {source.name} to {', '.join(map(str, paths))}", GREEN))
         return True
 
     def _run_update(self, skill_name: str) -> bool:
@@ -685,6 +704,14 @@ class InteractiveMenu:
 
         security_result = None
         if self.target == "claude":
+            removed = remove_obsolete_security_settings(self.project_dir)
+            if removed:
+                notices.append(
+                    format_removed_report(
+                        removed,
+                        self.project_dir / ".claude" / "settings.local.json",
+                    )
+                )
             security_result = check_security_settings(self.project_dir)
             if security_result.needs_attention:
                 planned.append("Write security defaults to .claude/settings.local.json")

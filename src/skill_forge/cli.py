@@ -13,10 +13,16 @@ from .agent_memory import (
     config_file_path,
     config_status,
     install_config,
-    load_all_config_items,
     load_config_item,
 )
 from .install import install_skill, list_installed, remove_skill, sync_manager_catalog, update_skill
+from .guideline import (
+    GuidelineItem,
+    guideline_item_status,
+    install_guideline_item,
+    load_guideline_item,
+    load_guideline_items,
+)
 from .menu import run_menu
 from .models import ValidationFailure
 from .package_ops import refresh_skill_metadata
@@ -24,8 +30,10 @@ from .security_check import (
     check_security_settings,
     format_applied_report,
     format_created_report,
+    format_removed_report,
     init_security_settings,
     merge_security_defaults,
+    remove_obsolete_security_settings,
 )
 from .render import render_skill
 from .repository import (
@@ -130,7 +138,7 @@ def build_parser() -> argparse.ArgumentParser:
     memory_install_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
     memory_install_parser.add_argument("--yes", action="store_true", help="Auto-confirm drift overwrite prompts (for non-interactive use)")
 
-    guideline_parser = subparsers.add_parser("guideline", help="Manage project guideline config files (agent memory, agent guideline)")
+    guideline_parser = subparsers.add_parser("guideline", help="Manage project guideline files and safety hooks")
     guideline_subparsers = guideline_parser.add_subparsers(dest="guideline_command", required=True)
 
     guideline_status_parser = guideline_subparsers.add_parser("status", help="Show the installed status of managed config items")
@@ -364,6 +372,9 @@ def _auto_security_check(args: argparse.Namespace) -> None:
         return
 
     project_dir = Path(project).resolve()
+    removed = remove_obsolete_security_settings(project_dir)
+    if removed:
+        print(format_removed_report(removed, project_dir / ".claude" / "settings.local.json"), file=sys.stderr)
     result = check_security_settings(project_dir)
     if not result.exists:
         path = init_security_settings(project_dir)
@@ -376,6 +387,9 @@ def _auto_security_check(args: argparse.Namespace) -> None:
 
 def run_check_security(args: argparse.Namespace) -> int:
     project_dir = Path(args.project).resolve()
+    removed = remove_obsolete_security_settings(project_dir)
+    if removed:
+        print(format_removed_report(removed, project_dir / ".claude" / "settings.local.json"))
     result = check_security_settings(project_dir)
 
     if not result.exists:
@@ -429,15 +443,15 @@ def _format_config_status_line(source: ConfigItemSource, project_dir: Path, targ
     return f"{source.name}\t{status.status}\t{version}\t{status.location}{detail}"
 
 
-def _guideline_sources(repo_root: Path, item: str | None) -> list[ConfigItemSource]:
+def _guideline_sources(repo_root: Path, item: str | None) -> list[GuidelineItem]:
     if item is not None:
-        source = load_config_item(repo_root, item)
+        source = load_guideline_item(repo_root, item)
         if source is None:
-            raise ValueError(f"No canonical source found for config item {item} (canonical-configs/{item}/).")
+            raise ValueError(f"unknown config item: {item}")
         return [source]
-    sources = load_all_config_items(repo_root)
+    sources = load_guideline_items(repo_root)
     if not sources:
-        raise ValueError("No canonical config items found (canonical-configs/).")
+        raise ValueError("No canonical guideline items found (canonical-configs/).")
     return sources
 
 
@@ -447,24 +461,38 @@ def run_guideline(args: argparse.Namespace) -> int:
     sources = _guideline_sources(repo_root, args.item)
 
     if args.guideline_command == "status":
+        statuses = [
+            guideline_item_status(source, repo_root, project_dir, args.target)
+            for source in sources
+        ]
         if args.json:
-            payloads = [_config_status_payload(source, project_dir, args.target) for source in sources]
+            payloads = [status.to_dict() for status in statuses]
             print(json.dumps(payloads, ensure_ascii=False, indent=2))
             return 0
-        for source in sources:
-            print(_format_config_status_line(source, project_dir, args.target))
+        for status in statuses:
+            version = status.version or "-"
+            detail = f" {status.details}" if status.details else ""
+            print(f"{status.name}\t{status.status}\t{version}\t{status.location}{detail}")
         return 0
 
     confirm = (lambda _: True) if args.yes else _prompt_yes_no
     exit_code = 0
     for source in sources:
         try:
-            installed = install_config(source, project_dir, args.target, force=args.force, confirm=confirm)
+            installed = install_guideline_item(
+                source,
+                repo_root,
+                project_dir,
+                args.target,
+                force=args.force,
+                confirm=confirm,
+            )
         except (OSError, RuntimeError, ValueError) as exc:
             print(f"{source.name}: {exc}", file=sys.stderr)
             exit_code = 1
             continue
-        print(installed)
+        for path in installed:
+            print(path)
     return exit_code
 
 

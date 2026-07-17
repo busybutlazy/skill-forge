@@ -172,7 +172,7 @@ Use the menu to:
 * accept or skip the recommended baseline (security settings + `install-my-skill`) with a single `[Y/n]` prompt
 * check installed skill status
 * install or update skills from a grouped list (`★ Recommended` first, then catalog groups)
-* install or update the project guideline (managed `CLAUDE.md` / `AGENTS.md` and `docs/agent-guideline.md`) from its own top-level menu entry
+* install or update the project guideline (managed instruction files, governance document, and safety hooks) from its own top-level menu entry
 * repair broken managed installs
 * remove managed skills
 * switch targets
@@ -225,12 +225,21 @@ canonical-configs/
 ├── agent-memory/       # memory.md → CLAUDE.md (claude) / AGENTS.md (codex)
 │   ├── config.json
 │   └── memory.md
-└── agent-guideline/    # guideline.md → docs/agent-guideline.md (both targets)
+├── agent-guideline/    # guideline.md → docs/agent-guideline.md (both targets)
+│   ├── config.json
+│   └── guideline.md
+└── agent-hooks/        # safety_check.py + additive native hook configuration
     ├── config.json
-    └── guideline.md
+    └── hooks/safety_check.py
 ```
 
-Each body is rendered verbatim to its target path with a trailing managed marker (`<!-- skill-forge:<item> version=... sha256=... -->`) used for version and drift detection. Existing files without the marker are treated as `unmanaged` and never overwritten. Install the items from the `Install / Update project guideline` entry of the interactive menu, or via the CLI:
+The two document items use trailing HTML markers for version and drift detection. `agent-hooks` installs a marker-managed Python runner and structurally merges only skill-forge-owned entries into `.claude/settings.json` or `.codex/hooks.json`; unrelated user settings and hooks are preserved. Existing conflicting files without ownership markers are treated as `unmanaged` and never overwritten.
+
+Managed hooks require a `python3` command running Python 3.11 or newer. Claude uses native `PreToolUse` hooks for `Bash`, `Edit`, and `Write`; Codex uses project `.codex/hooks.json` for `Bash` and `apply_patch`. Codex may require review/trust for each exact hook definition, and `[features] hooks = false` is reported as `inactive`. These hooks are defense in depth—not a replacement for sandboxing, permissions, CI, or human approval.
+
+Recursive forced deletion with an unresolved glob (for example `rm -rf *` or `rm -rf build/*.tmp`) is denied because the hook cannot safely know the expanded target set. Use an explicit scoped path or obtain human approval outside the hook.
+
+Install the items from the `Install / Update project guideline` entry of the interactive menu, or via the CLI:
 
 ```bash
 skill-forge guideline status  [--item NAME] --target <codex|claude> --project <path> [--json]
@@ -238,6 +247,8 @@ skill-forge guideline install [--item NAME] --target <codex|claude> --project <p
 ```
 
 Both commands default to all available items; a failed item is reported without aborting the rest. `skill-forge memory status|install` remains a compatibility command for the same `agent-memory` file and marker, while preserving its legacy output shape (`memory status --json` returns an object; the equivalent filtered `guideline` command returns a one-element array).
+
+Use `--item agent-hooks` to manage only the safety bundle. Drift requires `--force` plus confirmation; `unmanaged` files are never overwritten. There is currently no automatic uninstall command: manually remove only the skill-forge-owned matcher handlers and the marker-managed `hooks/skill-forge/safety_check.py` file. Windows launcher support and the Git pre-commit fallback remain deferred.
 
 ---
 
@@ -388,7 +399,8 @@ PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project
 #### Run tests
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests
+docker run --rm -e PYTHONPATH=src -v "$PWD:/workspace" -w /workspace \
+  skill-forge-dev python -m unittest discover -s tests
 ```
 
 #### Runtime smoke test
@@ -492,7 +504,8 @@ skill-forge/
 │   └── manager-skills/
 ├── canonical-configs/
 │   ├── agent-memory/
-│   └── agent-guideline/
+│   ├── agent-guideline/
+│   └── agent-hooks/
 ├── docs/
 │   ├── concepts/
 │   ├── guides/
@@ -738,7 +751,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 * 用單一 `[Y/n]` 提問決定是否寫入建議基本配置（security settings + `install-my-skill`）
 * 檢查已安裝 skill 狀態
 * 從分群清單安裝或更新 skills（`★ Recommended` 在最上，其後依 catalog 群組排列）
-* 用獨立的 `Install / Update project guideline` 選項安裝或更新 project guideline（納管的 `CLAUDE.md` / `AGENTS.md` 與 `docs/agent-guideline.md`）
+* 用獨立的 `Install / Update project guideline` 選項安裝或更新 project guideline（納管的 instruction files、治理文件與安全 hooks）
 * 修復 broken 的 managed install
 * 移除 managed skills
 * 切換 target
@@ -791,12 +804,21 @@ canonical-configs/
 ├── agent-memory/       # memory.md → CLAUDE.md（claude）/ AGENTS.md（codex）
 │   ├── config.json
 │   └── memory.md
-└── agent-guideline/    # guideline.md → docs/agent-guideline.md（兩個 target 相同）
+├── agent-guideline/    # guideline.md → docs/agent-guideline.md（兩個 target 相同）
+│   ├── config.json
+│   └── guideline.md
+└── agent-hooks/        # safety_check.py + additive native hook 設定
     ├── config.json
-    └── guideline.md
+    └── hooks/safety_check.py
 ```
 
-每一項的 body 會原文 render 到對應的 target 路徑，檔尾帶一行 managed marker（`<!-- skill-forge:<item> version=... sha256=... -->`）做版本與 drift 偵測。沒有 marker 的既有檔案視為 `unmanaged`，永遠不會被覆蓋。可從互動選單的 `Install / Update project guideline` 選項安裝，或用 CLI：
+兩個文件項目使用檔尾 HTML marker 做版本與 drift 偵測。`agent-hooks` 會安裝帶 marker 的 Python runner，並只把 skill-forge 擁有的 entries 結構化合併至 `.claude/settings.json` 或 `.codex/hooks.json`；其他使用者設定與 hooks 都會保留。既有衝突檔案若沒有 ownership marker，會被視為 `unmanaged`，永遠不會覆蓋。
+
+Managed hooks 需要 `python3` 指向 Python 3.11 或更新版本。Claude 使用原生 `PreToolUse` hooks 保護 `Bash`、`Edit`、`Write`；Codex 使用 project `.codex/hooks.json` 保護 `Bash` 與 `apply_patch`。Codex 可能需要針對每個精確 hook definition 執行 review/trust；`[features] hooks = false` 會回報為 `inactive`。Hooks 只是縱深防禦，不能取代 sandbox、權限、CI 或人工批准。
+
+Recursive forced deletion 若含有無法解析的 glob（例如 `rm -rf *` 或 `rm -rf build/*.tmp`）會被拒絕，因為 hook 無法安全判定展開後的目標集合。請改用明確且局部的路徑，或在 hook 之外取得人工批准。
+
+可從互動選單的 `Install / Update project guideline` 選項安裝，或用 CLI：
 
 ```bash
 skill-forge guideline status  [--item NAME] --target <codex|claude> --project <path> [--json]
@@ -804,6 +826,8 @@ skill-forge guideline install [--item NAME] --target <codex|claude> --project <p
 ```
 
 兩個指令預設涵蓋所有可用項目；某一項安裝失敗會回報錯誤但不會中斷其餘項目。`skill-forge memory status|install` 保留為操作同一份 `agent-memory` 檔案與 marker 的相容指令，但維持舊版輸出形狀（`memory status --json` 回傳單一物件；對應的 `guideline` 篩選指令回傳單元素陣列）。
+
+使用 `--item agent-hooks` 可只管理安全 bundle。Drift 需要 `--force` 加確認；`unmanaged` 永遠不覆蓋。目前沒有自動 uninstall 指令：手動 recovery 時只移除 skill-forge 擁有的 matcher handlers，以及帶 marker 的 `hooks/skill-forge/safety_check.py`。Windows launcher 支援與 Git pre-commit fallback 仍延後處理。
 
 ---
 
@@ -954,7 +978,8 @@ PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project
 #### 執行測試
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests
+docker run --rm -e PYTHONPATH=src -v "$PWD:/workspace" -w /workspace \
+  skill-forge-dev python -m unittest discover -s tests
 ```
 
 #### Runtime smoke test
@@ -1058,7 +1083,8 @@ skill-forge/
 │   └── manager-skills/
 ├── canonical-configs/
 │   ├── agent-memory/
-│   └── agent-guideline/
+│   ├── agent-guideline/
+│   └── agent-hooks/
 ├── docs/
 │   ├── concepts/
 │   ├── guides/

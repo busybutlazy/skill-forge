@@ -1034,6 +1034,7 @@ class GuidelineCliTests(CliTestCase):
             names = {payload["name"] for payload in payloads}
             self.assertIn("agent-memory", names)
             self.assertIn("agent-guideline", names)
+            self.assertIn("agent-hooks", names)
             for payload in payloads:
                 self.assertEqual(payload["status"], "not_installed")
 
@@ -1057,6 +1058,7 @@ class GuidelineCliTests(CliTestCase):
             self.assertEqual(installed.returncode, 0, installed.stderr)
             self.assertTrue((project_root / "AGENTS.md").is_file())
             self.assertTrue((project_root / "docs" / "agent-guideline.md").is_file())
+            self.assertTrue((project_root / ".codex" / "hooks.json").is_file())
 
             status = self.run_cli(
                 "guideline", "status", "--target", "codex", "--project", str(project_root), "--json"
@@ -1064,6 +1066,47 @@ class GuidelineCliTests(CliTestCase):
             payloads = json.loads(status.stdout)
             for payload in payloads:
                 self.assertEqual(payload["status"], "up_to_date")
+
+    def test_guideline_agent_hooks_filter_installs_bundle_and_reports_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+            (project_root / ".git").mkdir()
+
+            result = self.run_cli(
+                "guideline", "install", "--item", "agent-hooks",
+                "--target", "codex", "--project", str(project_root),
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((project_root / ".codex" / "hooks.json").is_file())
+            self.assertTrue(
+                (project_root / ".codex" / "hooks" / "skill-forge" / "safety_check.py").is_file()
+            )
+            self.assertFalse((project_root / "AGENTS.md").exists())
+
+            status = self.run_cli(
+                "guideline", "status", "--item", "agent-hooks", "--json",
+                "--target", "codex", "--project", str(project_root),
+            )
+            payload = json.loads(status.stdout)[0]
+            self.assertEqual(payload["status"], "up_to_date")
+            self.assertEqual(payload["artifacts"][0]["id"], "safety-check")
+
+    def test_guideline_agent_hooks_failure_does_not_abort_other_items(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            hooks = project_root / ".codex" / "hooks.json"
+            hooks.parent.mkdir(parents=True)
+            hooks.write_text("{ invalid\n", encoding="utf-8")
+
+            result = self.run_cli(
+                "guideline", "install", "--target", "codex", "--project", str(project_root)
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("agent-hooks:", result.stderr)
+            self.assertTrue((project_root / "AGENTS.md").is_file())
+            self.assertTrue((project_root / "docs" / "agent-guideline.md").is_file())
+            self.assertEqual(hooks.read_text(encoding="utf-8"), "{ invalid\n")
 
     def test_guideline_item_filter_installs_single_item(self) -> None:
         with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
@@ -1252,6 +1295,23 @@ class MenuOnboardingTests(CliTestCase):
             self.assertTrue(guideline_path.is_file(), self.strip_ansi(result.stdout))
             self.assertIn("skill-forge:agent-guideline", guideline_path.read_text(encoding="utf-8"))
 
+    def test_menu_guideline_number_selects_agent_hooks_bundle(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
+            project_root = Path(tmp_dir) / "project"
+            project_root.mkdir()
+            (project_root / ".git").mkdir()
+
+            result = self.run_cli(
+                "menu",
+                "--project",
+                str(project_root),
+                input_text="1\nn\n3\n3\n\n8\n",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((project_root / ".codex" / "hooks.json").is_file())
+            self.assertFalse((project_root / "AGENTS.md").exists())
+            self.assertFalse((project_root / "docs" / "agent-guideline.md").exists())
+
     def test_status_menu_lists_guideline_items_even_when_not_installed(self) -> None:
         with tempfile.TemporaryDirectory(prefix="skill-forge-test-") as tmp_dir:
             project_root = Path(tmp_dir) / "project"
@@ -1269,6 +1329,7 @@ class MenuOnboardingTests(CliTestCase):
             self.assertIn("Guideline", clean_output)
             self.assertIn("agent-memory", clean_output)
             self.assertIn("agent-guideline", clean_output)
+            self.assertIn("agent-hooks", clean_output)
             self.assertIn("not installed", clean_output)
 
 
