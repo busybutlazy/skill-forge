@@ -229,3 +229,7 @@ The Claude adapter, Python >=3.11 preflight, obsolete-setting migration, canonic
 ## B4 progress (2026-07-17)
 
 The native Codex `.codex/hooks.json` adapter is implemented and verified against Codex 0.144.5. It preserves unrelated hooks, reports project-level `hooks = false` as inactive, exposes the trust-review requirement, and blocks dangerous commands through the installed canonical runner. See `B4_VERIFICATION_REPORT.md`. The Git pre-commit fallback remains deferred as defense in depth; B5-B6 are not started.
+
+## B5 progress (2026-07-17)
+
+The `agent-hooks` bundle is exposed as a first-class guideline item in CLI status/install and the interactive guideline menu for both Codex and Claude. JSON status includes per-artifact state, text status preserves the existing one-line-per-item contract, and item-level failures do not abort unrelated guideline installs. See `B5_VERIFICATION_REPORT.md`. B6 documentation/final verification remains.
