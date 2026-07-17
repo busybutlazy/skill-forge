@@ -14,6 +14,7 @@ from skill_forge.claude_hooks import (
     install_claude_hooks,
 )
 from skill_forge.codex_hooks import codex_hooks_status, install_codex_hooks
+from skill_forge.hook_policy import HookRequest, evaluate_hook_request
 from skill_forge.managed_bundles import load_managed_bundle
 
 
@@ -97,6 +98,48 @@ class AgentHooksBundleTests(unittest.TestCase):
                     output = json.loads(result.stdout)
                     reason = output["hookSpecificOutput"]["permissionDecisionReason"]
                     self.assertIn(rule_id, reason)
+
+    def test_internal_policy_and_standalone_runner_share_decision_fixtures(self) -> None:
+        install_claude_hooks(REPO_ROOT, self.project, runtime=self.runtime)
+        runner = self.project / ".claude" / "hooks" / "skill-forge" / "safety_check.py"
+        cases = (
+            ("git status", None),
+            ("git reset --hard HEAD", "git.reset-hard"),
+            ("git clean -fd", "git.clean-force"),
+            ("git push --force origin main", "git.force-push"),
+            ("rm -rf .", "shell.broad-recursive-delete"),
+            ("rm -rf *", "shell.unresolved-recursive-delete"),
+            ("rm -rf ./*", "shell.unresolved-recursive-delete"),
+            ("rm -rf build/*.tmp", "shell.unresolved-recursive-delete"),
+            ("rm -rf $DIR/*", "shell.unresolved-recursive-delete"),
+            ("rm -rf build/cache", None),
+        )
+        for command, expected_rule in cases:
+            with self.subTest(command=command):
+                internal = evaluate_hook_request(
+                    HookRequest("Bash", command, self.project, self.project)
+                )
+                internal_rule = None if internal.allowed else internal.rule_id
+                payload = {
+                    "cwd": str(self.project),
+                    "hook_event_name": "PreToolUse",
+                    "tool_name": "Bash",
+                    "tool_input": {"command": command},
+                }
+                result = subprocess.run(
+                    [sys.executable, str(runner)],
+                    input=json.dumps(payload),
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                runner_rule = None
+                if result.stdout:
+                    reason = json.loads(result.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
+                    runner_rule = reason.split("]", 1)[0].removeprefix("[")
+                self.assertEqual(internal_rule, expected_rule)
+                self.assertEqual(runner_rule, expected_rule)
 
     def test_codex_install_is_transactional_and_reports_trust_review(self) -> None:
         paths = install_codex_hooks(REPO_ROOT, self.project, runtime=self.runtime)

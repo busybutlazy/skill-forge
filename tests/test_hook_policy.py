@@ -74,6 +74,24 @@ class HookPolicyTests(unittest.TestCase):
         self.assertTrue(self.evaluate("Bash", "rm -rf /tmp/build-output").allowed)
         self.assertTrue(self.evaluate("Bash", "rm -r build-output").allowed)
 
+    def test_blocks_recursive_forced_delete_with_unresolved_globs(self) -> None:
+        for command in (
+            "rm -rf *",
+            "rm -rf ./*",
+            "rm -rf ../*",
+            "rm -rf build/*.tmp",
+            "rm -rf $DIR/*",
+            "rm --recursive --force 'cache/[0-9]*'",
+            "rm -rf output/?",
+        ):
+            with self.subTest(command=command):
+                decision = self.evaluate("Bash", command)
+                self.assertFalse(decision.allowed)
+                self.assertEqual(decision.rule_id, "shell.unresolved-recursive-delete")
+
+        self.assertTrue(self.evaluate("Bash", "rm -rf build/cache").allowed)
+        self.assertTrue(self.evaluate("Bash", "rm -f build/*.tmp").allowed)
+
     def test_malformed_shell_is_denied(self) -> None:
         decision = self.evaluate("Bash", "printf 'unterminated")
         self.assertFalse(decision.allowed)

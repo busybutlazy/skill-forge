@@ -173,6 +173,12 @@ def _evaluate_rm(arguments: list[str], request: HookRequest) -> HookDecision:
 
     targets = [argument for argument in arguments if not argument.startswith("-")]
     for target in targets:
+        if _contains_glob(target):
+            return HookDecision(
+                False,
+                "shell.unresolved-recursive-delete",
+                f"Recursive forced deletion contains an unresolved glob target: {target}",
+            )
         if _is_broad_delete_target(target, request):
             return HookDecision(
                 False,
@@ -180,6 +186,10 @@ def _evaluate_rm(arguments: list[str], request: HookRequest) -> HookDecision:
                 f"Recursive forced deletion targets a broad or protected root: {target}",
             )
     return _ALLOW
+
+
+def _contains_glob(target: str) -> bool:
+    return any(character in target for character in "*?[")
 
 
 def _is_broad_delete_target(target: str, request: HookRequest) -> bool:

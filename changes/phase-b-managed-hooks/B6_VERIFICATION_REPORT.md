@@ -27,13 +27,13 @@ PYTHONPATH=src python -m unittest tests.test_hook_policy tests.test_managed_bund
 Exit 0 — 68 focused tests passed in 10.464s
 
 docker run --rm -e PYTHONPATH=src -v /home/jett/skill-forge:/workspace -w /workspace skill-forge-dev python -m unittest discover -s tests -q
-Exit 0 — 104 tests passed
+Exit 0 — 106 tests passed after the post-review patch
 
 Fresh and repeated `guideline install` into temporary Codex and Claude Git projects
 Exit 0 — both installs were idempotent
 
 `guideline status` for both smoke projects
-Exit 0 — agent-memory 0.4.0, agent-guideline 0.2.0, and agent-hooks 0.1.0 all up_to_date
+Exit 0 — post-review fresh Codex and Claude projects report agent-memory 0.4.0, agent-guideline 0.2.0, and agent-hooks 0.2.0 all up_to_date
 
 git diff --check 117e868
 Exit 0
@@ -77,3 +77,12 @@ The live tests were not repeated during B6 because the installed runner and adap
 - The deterministic parser intentionally covers a narrow rule set, not arbitrary shell semantics.
 - No read-time secret protection is provided by this bundle.
 - See `REVIEW_REPORT.md` for deferred scope and duplication risk.
+
+## Post-review patch verification
+
+```text
+PYTHONPATH=src python -m unittest tests.test_hook_policy tests.test_agent_hooks_bundle -v
+Exit 0 — 21 tests passed
+```
+
+The shared parity fixture verifies that both internal policy and the standalone installed runner deny `rm -rf *`, `./*`, `build/*.tmp`, and `$DIR/*` with `shell.unresolved-recursive-delete`, while allowing explicit `rm -rf build/cache`.

@@ -160,12 +160,21 @@ def evaluate_rm(arguments: list[str], cwd: Path, project_root: Path) -> tuple[st
     if not (has_option(arguments, "r", "--recursive") and has_option(arguments, "f", "--force")):
         return None
     for target in (argument for argument in arguments if not argument.startswith("-")):
+        if contains_glob(target):
+            return (
+                "shell.unresolved-recursive-delete",
+                f"Recursive forced deletion contains an unresolved glob target: {target}",
+            )
         if broad_delete_target(target, cwd, project_root):
             return (
                 "shell.broad-recursive-delete",
                 f"Recursive forced deletion targets a broad or protected root: {target}",
             )
     return None
+
+
+def contains_glob(target: str) -> bool:
+    return any(character in target for character in "*?[")
 
 
 def broad_delete_target(target: str, cwd: Path, project_root: Path) -> bool:

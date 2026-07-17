@@ -122,7 +122,7 @@ By default both commands cover **all** available items; `--item` narrows to one.
 - Claude: `.claude/settings.json` native `PreToolUse` matchers for `Bash` and `Edit|Write`.
 - Codex: `.codex/hooks.json` native `PreToolUse` matchers for `Bash` and `Edit|Write` (the latter receives `apply_patch`). The command resolves the runner from the Git root.
 - Codex trust: repository status cannot prove that the exact hook definition was reviewed. Status therefore retains a trust-review advisory; project `[features] hooks = false` is `inactive`.
-- Policy: narrowly blocks destructive Git commands, broad recursive deletion, and writes to protected paths such as `.env*`, `secrets/`, `config/credentials.json`, `.git/`, and managed hook directories.
+- Policy: narrowly blocks destructive Git commands, broad recursive deletion, recursive forced deletion with unresolved globs, and writes to protected paths such as `.env*`, `secrets/`, `config/credentials.json`, `.git/`, and managed hook directories.
 - Limit: deterministic hooks are defense in depth. They do not replace permission controls, sandboxing, CI, reviewers, or human approval.
 
 There is no automatic uninstall in Phase B. For manual rollback, remove only handlers referencing the skill-forge runner and then remove the marker-managed runner. Never delete unrelated matcher groups or settings. Windows invocation and the Git pre-commit fallback are deferred.

@@ -4,6 +4,12 @@
 
 No Blocking or High correctness/security finding was identified in the delivered Linux/macOS native-hook path. The automated and live evidence supports the completion claims for that path. Phase B should be accepted only with the following deferred-scope items acknowledged.
 
+## Post-review resolution (2026-07-17)
+
+- External finding: `rm -rf *` and equivalent unresolved globs could bypass broad-root classification. **Resolved** by denying recursive forced deletion targets containing `*`, `?`, or `[`, adding regression cases, and running shared internal/runner parity fixtures. Canonical `agent-hooks` was bumped to 0.2.0.
+- External finding: five B0 approval gates were not durably recorded outside chat. **Resolved procedurally** by `DECISION_RECORD.md`, which records the approved runtime, native Codex path, blocked rules, obsolete-setting migration, uninstall deferral, and consequences.
+- The original Medium M1/M2 below remain accepted deferred scope, not undisclosed completion claims.
+
 ## Findings
 
 ### Medium M1 — Git fallback in the initial scope is not delivered
@@ -26,7 +32,7 @@ Runtime discovery recognizes `py -3`, but target installation refuses it because
 
 The repository policy module and standalone canonical runner duplicate deterministic rules so installed target projects do not depend on the `skill_forge` package. Overlapping fixtures reduce drift risk but cannot mechanically guarantee equivalence.
 
-Recommendation: keep parity tests mandatory for every rule change; consider generation from shared rule data only if it preserves the dependency-free runner.
+Resolution: a shared decision-fixture test now executes both implementations and requires identical rule IDs. Keep this parity test mandatory for every rule change; consider generation from shared rule data only if it preserves the dependency-free runner.
 
 ### Suggestion S1 — Project-only status cannot prove active Codex enforcement
 

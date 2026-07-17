@@ -4,12 +4,13 @@
 
 - Added deterministic classification for destructive Git operations, broad recursive deletion, malformed matched requests, and protected project-path writes.
 - Added a marker-managed standalone Python safety runner requiring Python 3.11 or newer with no upper cap.
+- Added fail-closed classification for recursive forced deletion with unresolved shell globs; `agent-hooks` is now 0.2.0.
 - Added transactional multi-file bundle status/install with unmanaged refusal, drift confirmation, atomic writes, and rollback.
 - Added additive Claude `.claude/settings.json` and Codex `.codex/hooks.json` adapters that preserve unrelated user content.
 - Removed the obsolete project-local `allowManagedHooksOnly` default and added an exact-key migration that preserves all other settings.
 - Added runtime, inactive, broken, and Codex trust-review status reporting.
 - Exposed `agent-hooks` through guideline CLI/TUI status and install flows.
-- Updated English and Traditional Chinese documentation and bumped `agent-guideline` from 0.1.0 to 0.2.0.
+- Updated English and Traditional Chinese documentation, bumped `agent-guideline` from 0.1.0 to 0.2.0, and recorded the human approval decisions in `DECISION_RECORD.md`.
 
 ## External observable behavior
 

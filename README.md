@@ -237,6 +237,8 @@ The two document items use trailing HTML markers for version and drift detection
 
 Managed hooks require a `python3` command running Python 3.11 or newer. Claude uses native `PreToolUse` hooks for `Bash`, `Edit`, and `Write`; Codex uses project `.codex/hooks.json` for `Bash` and `apply_patch`. Codex may require review/trust for each exact hook definition, and `[features] hooks = false` is reported as `inactive`. These hooks are defense in depth—not a replacement for sandboxing, permissions, CI, or human approval.
 
+Recursive forced deletion with an unresolved glob (for example `rm -rf *` or `rm -rf build/*.tmp`) is denied because the hook cannot safely know the expanded target set. Use an explicit scoped path or obtain human approval outside the hook.
+
 Install the items from the `Install / Update project guideline` entry of the interactive menu, or via the CLI:
 
 ```bash
@@ -813,6 +815,8 @@ canonical-configs/
 兩個文件項目使用檔尾 HTML marker 做版本與 drift 偵測。`agent-hooks` 會安裝帶 marker 的 Python runner，並只把 skill-forge 擁有的 entries 結構化合併至 `.claude/settings.json` 或 `.codex/hooks.json`；其他使用者設定與 hooks 都會保留。既有衝突檔案若沒有 ownership marker，會被視為 `unmanaged`，永遠不會覆蓋。
 
 Managed hooks 需要 `python3` 指向 Python 3.11 或更新版本。Claude 使用原生 `PreToolUse` hooks 保護 `Bash`、`Edit`、`Write`；Codex 使用 project `.codex/hooks.json` 保護 `Bash` 與 `apply_patch`。Codex 可能需要針對每個精確 hook definition 執行 review/trust；`[features] hooks = false` 會回報為 `inactive`。Hooks 只是縱深防禦，不能取代 sandbox、權限、CI 或人工批准。
+
+Recursive forced deletion 若含有無法解析的 glob（例如 `rm -rf *` 或 `rm -rf build/*.tmp`）會被拒絕，因為 hook 無法安全判定展開後的目標集合。請改用明確且局部的路徑，或在 hook 之外取得人工批准。
 
 可從互動選單的 `Install / Update project guideline` 選項安裝，或用 CLI：
 
