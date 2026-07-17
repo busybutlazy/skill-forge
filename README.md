@@ -388,7 +388,8 @@ PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project
 #### Run tests
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests
+docker run --rm -e PYTHONPATH=src -v "$PWD:/workspace" -w /workspace \
+  skill-forge-dev python -m unittest discover -s tests
 ```
 
 #### Runtime smoke test
@@ -954,7 +955,8 @@ PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project
 #### 執行測試
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests
+docker run --rm -e PYTHONPATH=src -v "$PWD:/workspace" -w /workspace \
+  skill-forge-dev python -m unittest discover -s tests
 ```
 
 #### Runtime smoke test
