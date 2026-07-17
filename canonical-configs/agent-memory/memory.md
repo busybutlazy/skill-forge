@@ -7,6 +7,49 @@
 - 回覆使用繁體中文；程式碼、識別字、commit message 使用英文。
 - 先講結論，再講細節；不確定時直接說不確定。
 
+## Source of Truth
+
+以下文件若存在，以其為準，不要憑記憶或自行推測：
+
+```text
+開發流程規範：docs/agent-guideline.md
+專案特定規則：docs/agent-rules.md
+需求與驗收：docs/SPEC.md
+Contract：docs/CONTRACTS.md
+技術決策：docs/ADR/
+變更紀錄：changes/<change-id>/
+```
+
+## 開發流程
+
+非 trivial 的修改必須依序：
+
+1. 唯讀分析現況（不改 code、不裝 dependency）。
+2. 產生 implementation plan（含 scope、測試案例、rollback）。
+3. 取得人類批准後才實作。
+4. 一次只執行一個已批准的 Task。
+5. 執行驗證並如實記錄命令與結果。
+6. 產生變更報告，揭露完成、未完成與偏差。
+7. 接受獨立審查。
+
+完整流程、風險分級與報告格式見 `docs/agent-guideline.md`。
+
+### Stop Conditions（遇到即停止並回報，不得自行決定）
+
+- 規格衝突，或需要修改 Out of Scope 的內容。
+- 必須改變已批准的 Contract。
+- 必要測試無法執行。
+- 可能造成資料遺失或擴大權限。
+- 需要新增 production dependency。
+- Git 工作區已有無法辨識的修改。
+
+### Definition of Done（同時符合才能宣稱完成）
+
+- 已批准範圍全部實作，測試已實際執行且通過。
+- CI 通過（或如實回報未執行的項目與原因）。
+- 變更報告已產生，無未揭露偏差。
+- 相關文件已同步，無 blocking review finding。
+
 ## 環境與執行（Docker based）
 
 - 一律以 Docker 為執行環境：不要在 host 上 `pip install` 或全域安裝套件。

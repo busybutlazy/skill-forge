@@ -6,12 +6,10 @@ import subprocess
 from pathlib import Path
 
 from .agent_memory import (
-    AGENT_MEMORY_NAME,
-    MEMORY_TARGET_FILENAMES,
-    AgentMemorySource,
-    install_memory,
-    load_agent_memory,
-    memory_status,
+    ConfigItemSource,
+    config_status,
+    install_config,
+    load_all_config_items,
 )
 from .catalog import group_skill_names, load_catalog
 from .install import install_skill, list_installed, remove_skill, target_root, update_skill
@@ -38,7 +36,7 @@ CLEAR_SCREEN = "\033[2J\033[H"
 
 BASELINE_SKILL = "install-my-skill"
 RECOMMENDED_LABEL = "★ Recommended"
-CONFIGS_LABEL = "Configs"
+GUIDELINE_LABEL = "Guideline"
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -100,6 +98,7 @@ class InteractiveMenu:
                 [
                     "Check installed skill status",
                     "Install / Update skills",
+                    "Install / Update project guideline",
                     "Update / Repair skills",
                     "Remove installed skills",
                     "Switch target",
@@ -114,15 +113,18 @@ class InteractiveMenu:
                 self._install_skill()
                 self._pause()
             elif choice == 3:
-                self._update_skill()
+                self._guideline_menu()
                 self._pause()
             elif choice == 4:
-                self._remove_skill()
+                self._update_skill()
                 self._pause()
             elif choice == 5:
+                self._remove_skill()
+                self._pause()
+            elif choice == 6:
                 self.target = self._choose_target(initial=False)
                 self._run_onboarding()
-            elif choice == 6:
+            elif choice == 7:
                 self._open_expert_terminal()
                 self._pause()
             else:
@@ -200,9 +202,9 @@ class InteractiveMenu:
             f"  {description}\n  {tags}"
         )
 
-    def _render_memory_line(self, source: AgentMemorySource, status: InstalledStatus | None) -> str:
-        filename = MEMORY_TARGET_FILENAMES[self.target]
-        name = _color(AGENT_MEMORY_NAME, CYAN, BOLD)
+    def _render_config_line(self, source: ConfigItemSource, status: InstalledStatus | None) -> str:
+        filename = source.spec.target_paths[self.target]
+        name = _color(source.name, CYAN, BOLD)
         source_version = _color(f"v{source.version}", DIM)
         if status is None:
             badge = _color("not installed", DIM)
@@ -216,7 +218,7 @@ class InteractiveMenu:
                 version_note += f" {_color('→', DIM)} {_color(f'v{source.version} available', YELLOW)}"
             elif status.status == "up_to_date":
                 version_note += f" {_color('✓ current', GREEN)}"
-        description = self._highlight(source.description) if source.description else "Shared agent memory file"
+        description = self._highlight(source.description) if source.description else "Managed config file"
         target_note = _color(f"→ ./{filename}", DIM)
         return (
             f"{_pad(name, _NAME_WIDTH)} {_pad(source_version, _VERSION_WIDTH)} {badge}{version_note}\n"
@@ -235,13 +237,9 @@ class InteractiveMenu:
         self._print_header()
         statuses = self._statuses()
         sources = self._canonical_index()
-        memory_source = load_agent_memory(self.repo_root)
-        memory_state = (
-            memory_status(memory_source, self.project_dir, self.target) if memory_source is not None else None
-        )
-        if not statuses and memory_state is None:
+        config_sources = load_all_config_items(self.repo_root)
+        if not statuses:
             print(_color(f"No installed skills found for target {self.target}.", YELLOW))
-            return
 
         status_by_name = {item.name: item for item in statuses}
         sections = group_skill_names(list(status_by_name), self._catalog, recommended_label=RECOMMENDED_LABEL)
@@ -263,12 +261,14 @@ class InteractiveMenu:
                 if item.details:
                     print(f"  {_color(item.details, DIM)}")
                 print()
-        if memory_source is not None and memory_state is not None:
-            print(self._render_section_header(CONFIGS_LABEL))
-            print(self._render_memory_line(memory_source, memory_state))
-            if memory_state.details:
-                print(f"  {_color(memory_state.details, DIM)}")
-            print()
+        if config_sources:
+            print(self._render_section_header(GUIDELINE_LABEL))
+            for config_source in config_sources:
+                config_state = config_status(config_source, self.project_dir, self.target)
+                print(self._render_config_line(config_source, config_state))
+                if config_state is not None and config_state.details:
+                    print(f"  {_color(config_state.details, DIM)}")
+                print()
 
     def _render_section_header(self, header: str) -> str:
         rule = "─" * max(46 - _visible_len(header), 4)
@@ -329,25 +329,19 @@ class InteractiveMenu:
 
     def _install_skill(self) -> None:
         skills = self._canonical_skills()
-        memory_source = load_agent_memory(self.repo_root)
-        if not skills and memory_source is None:
+        if not skills:
             print(_color("No canonical skills available.", YELLOW))
             return
         statuses = {item.name: item for item in self._statuses()}
 
-        items: list[tuple[str, object]] = []
+        items: list[CanonicalSkill] = []
         render_sections: list[tuple[str | None, list[str]]] = []
         for header, section_skills in self._grouped_skill_sections(skills):
             labels = []
             for skill in section_skills:
                 labels.append(self._render_skill_line(skill, installed=statuses.get(skill.name)))
-                items.append(("skill", skill))
+                items.append(skill)
             render_sections.append((header, labels))
-        memory_state: InstalledStatus | None = None
-        if memory_source is not None:
-            memory_state = memory_status(memory_source, self.project_dir, self.target)
-            render_sections.append((CONFIGS_LABEL, [self._render_memory_line(memory_source, memory_state)]))
-            items.append(("memory", memory_source))
 
         selections = self._prompt_multi_choice(
             "Select skills to install or refresh:",
@@ -363,23 +357,7 @@ class InteractiveMenu:
         self._print_header()
         print()
         print(_color("Will install/update:", BOLD))
-        for kind, obj in selected:
-            if kind == "memory":
-                source = obj
-                assert isinstance(source, AgentMemorySource)
-                filename = MEMORY_TARGET_FILENAMES[self.target]
-                if memory_state is None:
-                    print(f"  • {AGENT_MEMORY_NAME} {_color(f'v{source.version}', GREEN)} {_color(f'(new → ./{filename})', DIM)}")
-                else:
-                    local_version = memory_state.version or "unknown"
-                    print(
-                        f"  • {AGENT_MEMORY_NAME} {_color(f'local v{local_version}', DIM)} "
-                        f"{_color('→', DIM)} {_color(f'v{source.version}', GREEN)} "
-                        f"{self._render_status_badge(memory_state.status)}"
-                    )
-                continue
-            skill = obj
-            assert isinstance(skill, CanonicalSkill)
+        for skill in selected:
             current = statuses.get(skill.name)
             if current is None:
                 print(f"  • {skill.name} {_color(f'v{skill.version}', GREEN)} {_color('(new)', DIM)}")
@@ -391,19 +369,59 @@ class InteractiveMenu:
                 f"{self._render_status_badge(current.status)}"
             )
 
-        if any(kind == "skill" for kind, _ in selected) and not self._check_skills_dir_writable():
+        if not self._check_skills_dir_writable():
             return
 
         successes: list[str] = []
-        for kind, obj in selected:
-            if kind == "memory":
-                assert isinstance(obj, AgentMemorySource)
-                if self._run_memory_install(obj):
-                    successes.append(AGENT_MEMORY_NAME)
+        for skill in selected:
+            if self._run_install(skill.name):
+                successes.append(skill.name)
+
+        if successes:
+            print()
+            print(_color(f"Installed/updated {len(successes)} item(s): {', '.join(successes)}", GREEN, BOLD))
+
+    def _guideline_menu(self) -> None:
+        sources = load_all_config_items(self.repo_root)
+        if not sources:
+            print(_color("No project guideline config items available.", YELLOW))
+            return
+        states = {
+            source.name: config_status(source, self.project_dir, self.target) for source in sources
+        }
+        labels = [self._render_config_line(source, states[source.name]) for source in sources]
+
+        selections = self._prompt_multi_choice(
+            "Select guideline items to install or refresh:",
+            [(GUIDELINE_LABEL, labels)],
+            allow_all=True,
+        )
+        if not selections:
+            print(_color("Install cancelled.", DIM))
+            return
+
+        selected = [sources[index] for index in selections]
+        self._clear_screen()
+        self._print_header()
+        print()
+        print(_color("Will install/update:", BOLD))
+        for source in selected:
+            state = states[source.name]
+            filename = source.spec.target_paths[self.target]
+            if state is None:
+                print(f"  • {source.name} {_color(f'v{source.version}', GREEN)} {_color(f'(new → ./{filename})', DIM)}")
                 continue
-            assert isinstance(obj, CanonicalSkill)
-            if self._run_install(obj.name):
-                successes.append(obj.name)
+            local_version = state.version or "unknown"
+            print(
+                f"  • {source.name} {_color(f'local v{local_version}', DIM)} "
+                f"{_color('→', DIM)} {_color(f'v{source.version}', GREEN)} "
+                f"{self._render_status_badge(state.status)}"
+            )
+
+        successes: list[str] = []
+        for source in selected:
+            if self._run_config_install(source):
+                successes.append(source.name)
 
         if successes:
             print()
@@ -546,9 +564,9 @@ class InteractiveMenu:
         print(_color(f"Installed {skill_name} to {path}", GREEN))
         return True
 
-    def _run_memory_install(self, source: AgentMemorySource) -> bool:
+    def _run_config_install(self, source: ConfigItemSource) -> bool:
         try:
-            path = install_memory(
+            path = install_config(
                 source,
                 self.project_dir,
                 self.target,
@@ -560,7 +578,7 @@ class InteractiveMenu:
             if "rerun install with --force" in message:
                 if self._confirm_yes_no(f"{message}. Force overwrite? [y/N]: "):
                     try:
-                        path = install_memory(
+                        path = install_config(
                             source,
                             self.project_dir,
                             self.target,
@@ -570,16 +588,16 @@ class InteractiveMenu:
                     except (RuntimeError, ValueError) as retry_exc:
                         print(_color(str(retry_exc), RED))
                         return False
-                    print(_color(f"Installed {AGENT_MEMORY_NAME} to {path}", GREEN))
+                    print(_color(f"Installed {source.name} to {path}", GREEN))
                     return True
-                print(_color(f"Skipped {AGENT_MEMORY_NAME}.", DIM))
+                print(_color(f"Skipped {source.name}.", DIM))
                 return False
             print(_color(message, RED))
             return False
         except RuntimeError as exc:
             print(_color(str(exc), RED))
             return False
-        print(_color(f"Installed {AGENT_MEMORY_NAME} to {path}", GREEN))
+        print(_color(f"Installed {source.name} to {path}", GREEN))
         return True
 
     def _run_update(self, skill_name: str) -> bool:

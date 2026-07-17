@@ -9,10 +9,12 @@ from pathlib import Path
 from . import __version__
 from .agent_memory import (
     AGENT_MEMORY_NAME,
-    install_memory,
-    load_agent_memory,
-    memory_file_path,
-    memory_status,
+    ConfigItemSource,
+    config_file_path,
+    config_status,
+    install_config,
+    load_all_config_items,
+    load_config_item,
 )
 from .install import install_skill, list_installed, remove_skill, sync_manager_catalog, update_skill
 from .menu import run_menu
@@ -114,10 +116,10 @@ def build_parser() -> argparse.ArgumentParser:
     security_parser.add_argument("--project", required=True, help="Target project root")
     security_parser.add_argument("--init", action="store_true", help="Create or merge default security settings if missing")
 
-    memory_parser = subparsers.add_parser("memory", help="Manage the shared agent memory file (CLAUDE.md / AGENTS.md)")
+    memory_parser = subparsers.add_parser("memory", help="Manage the shared agent memory file (CLAUDE.md / AGENTS.md); compatibility command for the agent-memory guideline item")
     memory_subparsers = memory_parser.add_subparsers(dest="memory_command", required=True)
 
-    memory_status_parser = memory_subparsers.add_parser("status", help="Show the installed agent memory status")
+    memory_status_parser = memory_subparsers.add_parser("status", help="Show the installed agent memory status using the legacy output shape")
     memory_status_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     memory_status_parser.add_argument("--project", required=True, help="Target project root")
     memory_status_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
@@ -127,6 +129,22 @@ def build_parser() -> argparse.ArgumentParser:
     memory_install_parser.add_argument("--project", required=True, help="Target project root")
     memory_install_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
     memory_install_parser.add_argument("--yes", action="store_true", help="Auto-confirm drift overwrite prompts (for non-interactive use)")
+
+    guideline_parser = subparsers.add_parser("guideline", help="Manage project guideline config files (agent memory, agent guideline)")
+    guideline_subparsers = guideline_parser.add_subparsers(dest="guideline_command", required=True)
+
+    guideline_status_parser = guideline_subparsers.add_parser("status", help="Show the installed status of managed config items")
+    guideline_status_parser.add_argument("--item", help="Config item name; defaults to all available items")
+    guideline_status_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
+    guideline_status_parser.add_argument("--project", required=True, help="Target project root")
+    guideline_status_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
+
+    guideline_install_parser = guideline_subparsers.add_parser("install", help="Install or update managed config items")
+    guideline_install_parser.add_argument("--item", help="Config item name; defaults to all available items")
+    guideline_install_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
+    guideline_install_parser.add_argument("--project", required=True, help="Target project root")
+    guideline_install_parser.add_argument("--force", action="store_true", help="Allow overwriting drifted local changes after confirmation")
+    guideline_install_parser.add_argument("--yes", action="store_true", help="Auto-confirm drift overwrite prompts (for non-interactive use)")
 
     return parser
 
@@ -386,39 +404,88 @@ def run_check_security(args: argparse.Namespace) -> int:
     return 0
 
 
+def _config_status_payload(source: ConfigItemSource, project_dir: Path, target: str) -> dict[str, object]:
+    status = config_status(source, project_dir, target)
+    if status is None:
+        return {
+            "name": source.name,
+            "target": target,
+            "status": "not_installed",
+            "location": str(config_file_path(source, project_dir, target)),
+            "source_version": source.version,
+        }
+    payload = status.to_dict()
+    payload["source_version"] = source.version
+    return payload
+
+
+def _format_config_status_line(source: ConfigItemSource, project_dir: Path, target: str) -> str:
+    status = config_status(source, project_dir, target)
+    if status is None:
+        location = config_file_path(source, project_dir, target)
+        return f"{source.name}\tnot_installed\t-\t{location}\tsource v{source.version}"
+    version = status.version or "-"
+    detail = f" {status.details}" if status.details else ""
+    return f"{source.name}\t{status.status}\t{version}\t{status.location}{detail}"
+
+
+def _guideline_sources(repo_root: Path, item: str | None) -> list[ConfigItemSource]:
+    if item is not None:
+        source = load_config_item(repo_root, item)
+        if source is None:
+            raise ValueError(f"No canonical source found for config item {item} (canonical-configs/{item}/).")
+        return [source]
+    sources = load_all_config_items(repo_root)
+    if not sources:
+        raise ValueError("No canonical config items found (canonical-configs/).")
+    return sources
+
+
+def run_guideline(args: argparse.Namespace) -> int:
+    repo_root = _repo_root_from_args(args)
+    project_dir = Path(args.project).resolve()
+    sources = _guideline_sources(repo_root, args.item)
+
+    if args.guideline_command == "status":
+        if args.json:
+            payloads = [_config_status_payload(source, project_dir, args.target) for source in sources]
+            print(json.dumps(payloads, ensure_ascii=False, indent=2))
+            return 0
+        for source in sources:
+            print(_format_config_status_line(source, project_dir, args.target))
+        return 0
+
+    confirm = (lambda _: True) if args.yes else _prompt_yes_no
+    exit_code = 0
+    for source in sources:
+        try:
+            installed = install_config(source, project_dir, args.target, force=args.force, confirm=confirm)
+        except (OSError, RuntimeError, ValueError) as exc:
+            print(f"{source.name}: {exc}", file=sys.stderr)
+            exit_code = 1
+            continue
+        print(installed)
+    return exit_code
+
+
 def run_memory(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
     project_dir = Path(args.project).resolve()
-    source = load_agent_memory(repo_root)
+    source = load_config_item(repo_root, AGENT_MEMORY_NAME)
     if source is None:
         print("No canonical agent-memory source found (canonical-configs/agent-memory/).", file=sys.stderr)
         return 1
 
     if args.memory_command == "status":
-        status = memory_status(source, project_dir, args.target)
-        location = memory_file_path(project_dir, args.target)
         if args.json:
-            payload = status.to_dict() if status is not None else {
-                "name": AGENT_MEMORY_NAME,
-                "target": args.target,
-                "status": "not_installed",
-                "location": str(location),
-                "source_version": source.version,
-            }
-            if status is not None:
-                payload["source_version"] = source.version
+            payload = _config_status_payload(source, project_dir, args.target)
             print(json.dumps(payload, ensure_ascii=False, indent=2))
             return 0
-        if status is None:
-            print(f"{AGENT_MEMORY_NAME}\tnot_installed\t-\t{location}\tsource v{source.version}")
-        else:
-            version = status.version or "-"
-            detail = f" {status.details}" if status.details else ""
-            print(f"{AGENT_MEMORY_NAME}\t{status.status}\t{version}\t{status.location}{detail}")
+        print(_format_config_status_line(source, project_dir, args.target))
         return 0
 
     confirm = (lambda _: True) if args.yes else _prompt_yes_no
-    installed = install_memory(source, project_dir, args.target, force=args.force, confirm=confirm)
+    installed = install_config(source, project_dir, args.target, force=args.force, confirm=confirm)
     print(installed)
     return 0
 
@@ -441,6 +508,7 @@ def main(argv: list[str] | None = None) -> int:
         "sync-manager-catalog": run_sync_manager_catalog,
         "check-security": run_check_security,
         "memory": run_memory,
+        "guideline": run_guideline,
     }
     _auto_security_check(args)
     try:
