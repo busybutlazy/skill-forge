@@ -38,7 +38,7 @@ class AgentHooksBundleTests(unittest.TestCase):
         source = load_managed_bundle(REPO_ROOT, "agent-hooks")
         self.assertIsNotNone(source)
         self.assertEqual(source.name, "agent-hooks")
-        self.assertEqual(source.version, "0.3.0")
+        self.assertEqual(source.version, "0.3.1")
         self.assertEqual([artifact.spec.artifact_id for artifact in source.artifacts], ["safety-check"])
 
     def test_claude_install_is_transactional_and_up_to_date(self) -> None:
@@ -122,12 +122,18 @@ class AgentHooksBundleTests(unittest.TestCase):
             ("pip --quiet install requests", "dependency.host-install"),
             ("python3 -m pip install requests", "dependency.host-install"),
             ("uv sync", "dependency.host-install"),
+            ("uv add requests", "dependency.host-install"),
+            ("uv remove requests", "dependency.host-install"),
             ("uv pip install requests", "dependency.host-install"),
             ("poetry add requests", "dependency.host-install"),
             ("npm ci", "dependency.host-install"),
             ("npm --prefix app install", "dependency.host-install"),
             ("pnpm install", "dependency.host-install"),
             ("yarn", "dependency.host-install"),
+            ("yarn --immutable", "dependency.host-install"),
+            ("yarn --version", None),
+            ("yarn -v", None),
+            ("yarn --help", None),
             ("docker run image pip install requests", None),
             ("docker compose run app npm ci", None),
             ("make setup", None),
@@ -162,24 +168,31 @@ class AgentHooksBundleTests(unittest.TestCase):
     def test_runner_and_policy_block_commit_only_on_protected_branch(self) -> None:
         install_claude_hooks(REPO_ROOT, self.project, runtime=self.runtime)
         runner = self.project / ".claude" / "hooks" / "skill-forge" / "safety_check.py"
+        commands = (
+            "git commit -m test",
+            "git commit -C HEAD",
+            "git commit --reuse-message HEAD",
+            f"git -C {self.project} commit -m test",
+        )
         for branch, expected_rule in (("main", "git.protected-branch-commit"), ("master", "git.protected-branch-commit"), ("feature/work", None)):
-            with self.subTest(branch=branch):
-                (self.project / ".git" / "HEAD").write_text(f"ref: refs/heads/{branch}\n")
-                internal = evaluate_hook_request(HookRequest("Bash", "git commit -m test", self.project, self.project))
-                internal_rule = None if internal.allowed else internal.rule_id
-                result = subprocess.run(
-                    [sys.executable, str(runner)],
-                    input=json.dumps({"cwd": str(self.project), "tool_name": "Bash", "tool_input": {"command": "git commit -m test"}}),
-                    text=True,
-                    capture_output=True,
-                    check=False,
-                )
-                runner_rule = None
-                if result.stdout:
-                    reason = json.loads(result.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
-                    runner_rule = reason.split("]", 1)[0].removeprefix("[")
-                self.assertEqual(internal_rule, expected_rule)
-                self.assertEqual(runner_rule, expected_rule)
+            for command in commands:
+                with self.subTest(branch=branch, command=command):
+                    (self.project / ".git" / "HEAD").write_text(f"ref: refs/heads/{branch}\n")
+                    internal = evaluate_hook_request(HookRequest("Bash", command, self.project, self.project))
+                    internal_rule = None if internal.allowed else internal.rule_id
+                    result = subprocess.run(
+                        [sys.executable, str(runner)],
+                        input=json.dumps({"cwd": str(self.project), "tool_name": "Bash", "tool_input": {"command": command}}),
+                        text=True,
+                        capture_output=True,
+                        check=False,
+                    )
+                    runner_rule = None
+                    if result.stdout:
+                        reason = json.loads(result.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
+                        runner_rule = reason.split("]", 1)[0].removeprefix("[")
+                    self.assertEqual(internal_rule, expected_rule)
+                    self.assertEqual(runner_rule, expected_rule)
 
     def test_runner_uses_declared_project_root_when_git_is_absent(self) -> None:
         non_git = Path(self.temp_dir.name) / "non-git"
