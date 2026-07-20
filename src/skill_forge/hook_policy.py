@@ -140,18 +140,26 @@ def _evaluate_git(arguments: list[str], request: HookRequest) -> HookDecision:
     ):
         return HookDecision(False, "git.force-push", "Force-pushing can rewrite shared history.")
     if subcommand == "commit":
-        branch = _current_git_branch(_git_worktree(arguments, request))
+        branch = _current_git_branch(_git_worktree(arguments, subcommand_index, request))
         if branch in {"main", "master"}:
             return HookDecision(False, "git.protected-branch-commit", f"Direct commits on {branch} are not allowed; create a working branch first.")
     return _ALLOW
 
 
-def _git_worktree(arguments: list[str], request: HookRequest) -> Path:
-    for index, argument in enumerate(arguments):
-        if argument == "-C" and index + 1 < len(arguments):
+def _git_worktree(arguments: list[str], subcommand_index: int, request: HookRequest) -> Path:
+    worktree = request.cwd
+    changed_directory = False
+    index = 0
+    while index < subcommand_index:
+        if arguments[index] == "-C" and index + 1 < subcommand_index:
             candidate = Path(arguments[index + 1])
-            return (candidate if candidate.is_absolute() else request.cwd / candidate).resolve(strict=False)
-    return request.project_root
+            worktree = candidate if candidate.is_absolute() else worktree / candidate
+            worktree = worktree.resolve(strict=False)
+            changed_directory = True
+            index += 2
+        else:
+            index += 1
+    return worktree if changed_directory else request.project_root
 
 
 def _current_git_branch(worktree: Path) -> str | None:
@@ -179,7 +187,7 @@ def _evaluate_host_dependency_install(executable: str | None, arguments: list[st
         return _ALLOW
     install = False
     if executable == "uv":
-        install = "sync" in arguments or ("pip" in arguments and "install" in arguments)
+        install = any(argument in {"add", "remove", "sync"} for argument in arguments) or ("pip" in arguments and "install" in arguments)
     elif executable == "poetry":
         install = any(argument in {"add", "install", "update"} for argument in arguments)
     elif executable == "npm":
@@ -187,7 +195,8 @@ def _evaluate_host_dependency_install(executable: str | None, arguments: list[st
     elif executable == "pnpm":
         install = any(argument in {"i", "install", "add", "update"} for argument in arguments)
     elif executable == "yarn":
-        install = not arguments or any(argument in {"add", "install", "upgrade"} for argument in arguments) or all(argument.startswith("-") for argument in arguments)
+        query_only = bool(arguments) and all(argument in {"--version", "-v", "--help", "-h"} for argument in arguments)
+        install = not query_only and (not arguments or any(argument in {"add", "install", "upgrade"} for argument in arguments) or all(argument.startswith("-") for argument in arguments))
     elif executable == "pip" or re.fullmatch(r"pip\d+(?:\.\d+)?", executable):
         install = "install" in arguments
     elif re.fullmatch(r"python\d*(?:\.\d+)?", executable):

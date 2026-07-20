@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "agent-hooks",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Deterministic safety hooks for dangerous commands, host dependency installs, protected branches, and protected project files",
   "updated_at": "2026-07-20",
   "artifacts": [
