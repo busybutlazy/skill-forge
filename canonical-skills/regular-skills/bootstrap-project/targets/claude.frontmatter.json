@@ -1,0 +1,1 @@
+{"name":"bootstrap-project","description":"Docker-first bootstrap specialist. Use for read-only stack discovery, an explicit approval pause, then creation and container-only verification of a minimal approved project baseline.","tools":"Read, Grep, Glob, Bash, Write, Edit"}

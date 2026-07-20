@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "plan-change",
+    "version": "0.1.0",
+    "description": "Analyze a non-trivial change read-only and produce an approval-ready implementation plan",
+    "updated_at": "2026-07-20",
+    "tags": [
+      "change-workflow",
+      "planning",
+      "governance"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "057dab1d24ce119653a732db924d8600f67cb836b1e38f7e07508552b7f7746f"
+  }
+}

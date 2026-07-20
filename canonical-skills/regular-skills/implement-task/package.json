@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "implement-task",
+    "version": "0.1.0",
+    "description": "Implement exactly one named task from an explicitly approved change plan and stop",
+    "updated_at": "2026-07-20",
+    "tags": [
+      "change-workflow",
+      "implementation",
+      "governance"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "6b8414f4e73d5285c4df61e5737ab48ac83c7a9efa9ba0b3224d213081786dac"
+  }
+}

@@ -6,6 +6,14 @@
       "skills": ["commit", "create-pr", "code-review"]
     },
     {
+      "name": "Change Workflow",
+      "skills": ["plan-change", "implement-task", "verify-change", "report-change", "review-change"]
+    },
+    {
+      "name": "Project Bootstrap",
+      "skills": ["bootstrap-project"]
+    },
+    {
       "name": "Docs & Knowledge",
       "skills": ["dto-organizer", "translate-pdf-book", "experience-card"]
     },

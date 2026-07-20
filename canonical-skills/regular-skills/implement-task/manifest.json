@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "instruction.md",
+      "sha256": "e8c74edb9983c200981dd4f6abf99467bdded3b1ad8a68a6bb717d3e58fc196d"
+    },
+    {
+      "path": "targets/claude.frontmatter.json",
+      "sha256": "b78949927108211e7a3cc47a586ce2393da04ef25b5e734e3a7f503025d89c6c"
+    },
+    {
+      "path": "targets/codex.frontmatter.json",
+      "sha256": "0b41b2eaed83cb366cceecdf26a32088da294f0df447439813ebd925a7e47300"
+    },
+    {
+      "path": "references/TASK_HANDOFF_CHECKLIST.md",
+      "sha256": "419d704bb22e45c77ced1c3c3e74a5018b2106a5724697e0f558906e7f6490cc"
+    }
+  ],
+  "package_sha256": "6b8414f4e73d5285c4df61e5737ab48ac83c7a9efa9ba0b3224d213081786dac"
+}
