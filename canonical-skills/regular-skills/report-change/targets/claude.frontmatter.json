@@ -1,0 +1,1 @@
+{"name":"report-change","description":"Read-only change reporter. Use after implementation and verification to compare request, approved plan, diff, and evidence and disclose outcomes and deviations.","tools":"Read, Grep, Glob, Bash, Write"}

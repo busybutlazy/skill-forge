@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "review-change",
+    "version": "0.1.0",
+    "description": "Adversarially review a change completion claim without modifying implementation or approving it",
+    "updated_at": "2026-07-20",
+    "tags": [
+      "change-workflow",
+      "review",
+      "governance"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "b97928d16d0e05058bc66aa0cbec38cef43c63540a449ec624b7a724f01ba33a"
+  }
+}

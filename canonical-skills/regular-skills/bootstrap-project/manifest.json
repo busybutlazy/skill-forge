@@ -1,0 +1,41 @@
+{
+  "files": [
+    {
+      "path": "instruction.md",
+      "sha256": "d0278efa85c818116db461bab653cd9f82c167d1a8714edf654cc5f67bce4942"
+    },
+    {
+      "path": "targets/claude.frontmatter.json",
+      "sha256": "413cd4387de1dd92d9f4ca6bf69928fe7505588f00b806102b3b8567d269cd0f"
+    },
+    {
+      "path": "targets/codex.frontmatter.json",
+      "sha256": "18aad824121bf423d0bdf097606b069506a76f28f889390fe6fba2f2256706fb"
+    },
+    {
+      "path": "references/AGENT_RULES_TEMPLATE.md",
+      "sha256": "d059b85b1a49c89a5b37a569f6fd54b518fd3691ea96fd96aa1d4c85e8492463"
+    },
+    {
+      "path": "references/BOOTSTRAP_PLAN_TEMPLATE.md",
+      "sha256": "456c314ff20cbdeb604bbe171d5f16501f37254dc4ce748f2332edf6665e1603"
+    },
+    {
+      "path": "references/CHANGE_ARTIFACT_TEMPLATES.md",
+      "sha256": "d17a2b20c935ca93ac5dcf1d103ca1388ab4e30922f3d159ee623ad597b9e1f0"
+    },
+    {
+      "path": "references/DOCKER_BASELINE_CHECKLIST.md",
+      "sha256": "1c39ab39f4ffaf1822d289363d478f3b8e6afe8a8cffecec8003d6d3f9ac238b"
+    },
+    {
+      "path": "references/NODE_PROFILE.md",
+      "sha256": "12b83970ade8ad5ac6659bada1c0772fc725eb6103066cfed21661e73e18431a"
+    },
+    {
+      "path": "references/PYTHON_PROFILE.md",
+      "sha256": "72f4d124e8e7699ddbde3286a3286d182b46bea57c5e9da65dc4516195aa03be"
+    }
+  ],
+  "package_sha256": "cc3fce5d4e17dee41550c1de4dd0e7ca10e0a543b7f8b1361c2a6b08275428de"
+}

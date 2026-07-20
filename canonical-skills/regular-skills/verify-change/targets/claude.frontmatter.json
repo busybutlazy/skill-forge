@@ -1,0 +1,1 @@
+{"name":"verify-change","description":"Read-only verification specialist. Use after implementation to trace requirements to tests, run canonical container checks, and produce a verification report without fixing code.","tools":"Read, Grep, Glob, Bash, Write"}

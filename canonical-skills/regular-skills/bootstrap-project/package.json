@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "bootstrap-project",
+    "version": "0.1.0",
+    "description": "Plan and create an explicitly approved Docker-first development and CI baseline without host dependency execution",
+    "updated_at": "2026-07-20",
+    "tags": [
+      "project-bootstrap",
+      "docker",
+      "ci",
+      "governance"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "cc3fce5d4e17dee41550c1de4dd0e7ca10e0a543b7f8b1361c2a6b08275428de"
+  }
+}

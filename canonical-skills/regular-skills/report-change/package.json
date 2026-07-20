@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "report-change",
+    "version": "0.1.0",
+    "description": "Compare an approved plan with the actual diff and disclose change outcomes and deviations",
+    "updated_at": "2026-07-20",
+    "tags": [
+      "change-workflow",
+      "reporting",
+      "governance"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "a4385c471d5de42b8b1ffdfce1c13d17759fc1c4446a20a847fe76208917de52"
+  }
+}
