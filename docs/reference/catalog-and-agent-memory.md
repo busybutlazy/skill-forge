@@ -83,7 +83,7 @@ Instead of a sidecar metadata file, each rendered file ends with one marker line
 
 ```html
 <!-- skill-forge:agent-memory version=0.4.0 sha256=<hash-of-body> -->
-<!-- skill-forge:agent-guideline version=0.2.0 sha256=<hash-of-body> -->
+<!-- skill-forge:agent-guideline version=0.5.0 sha256=<hash-of-body> -->
 ```
 
 The hash covers the canonical body (trailing newlines normalized), so the file is self-describing and drift detection needs no extra state. The `skill-forge:agent-memory` marker format is unchanged from the pre-guideline releases, so already-installed files stay recognized.
@@ -119,8 +119,8 @@ By default both commands cover **all** available items; `--item` narrows to one.
 ### Managed safety hooks
 
 - Runtime: Linux/macOS with `python3` 3.11 or newer; no upper version cap.
-- Claude: `.claude/settings.json` native `PreToolUse` matchers for `Bash` and `Edit|Write`.
-- Codex: `.codex/hooks.json` native `PreToolUse` matchers for `Bash` and `Edit|Write` (the latter receives `apply_patch`). The command resolves the runner from the Git root.
+- Claude: `.claude/settings.json` native `PreToolUse` matchers for `Bash` and `Edit|Write|NotebookEdit`.
+- Codex: `.codex/hooks.json` native `PreToolUse` matchers for `Bash` and `Edit|Write|NotebookEdit` (the latter receives `apply_patch` where supported). The command resolves the runner from the Git root.
 - Codex trust: repository status cannot prove that the exact hook definition was reviewed. Status therefore retains a trust-review advisory; project `[features] hooks = false` is `inactive`.
 - Policy: narrowly blocks destructive Git commands, broad recursive deletion, recursive forced deletion with unresolved globs, and writes to protected paths such as `.env*`, `secrets/`, `config/credentials.json`, `.git/`, and managed hook directories.
 - Limit: deterministic hooks are defense in depth. They do not replace permission controls, sandboxing, CI, reviewers, or human approval.

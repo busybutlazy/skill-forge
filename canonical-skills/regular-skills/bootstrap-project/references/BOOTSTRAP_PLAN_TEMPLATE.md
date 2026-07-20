@@ -16,6 +16,17 @@
 - Profile: Python / Node-TypeScript / Generic-Unknown / Existing Infrastructure
 - Confidence and unresolved questions:
 
+## Git Initialization Decision
+
+- Existing Git repository: Yes / No
+- Run `git init`: Yes / No / Not approved
+- Approved initial working branch:
+- Checkpoint commit authorized: Yes / No
+- Exact checkpoint file set and approval evidence:
+- Git author identity evidence:
+
+Git initialization, branch naming, staging, and committing are separate decisions. Leave them unperformed unless explicitly approved.
+
 ## Proposed Approved Files
 
 | Path | Create/leave unchanged | Purpose and evidence |

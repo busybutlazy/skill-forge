@@ -2,7 +2,7 @@
   "schema_version": 1,
   "identity": {
     "name": "implement-task",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Implement exactly one named task from an explicitly approved change plan and stop",
     "updated_at": "2026-07-20",
     "tags": [
@@ -29,6 +29,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "6b8414f4e73d5285c4df61e5737ab48ac83c7a9efa9ba0b3224d213081786dac"
+    "package_sha256": "01a62420c1e7db276e883862d1403bbe63eb90ca59b9b7b695b3cd057c2a7142"
   }
 }

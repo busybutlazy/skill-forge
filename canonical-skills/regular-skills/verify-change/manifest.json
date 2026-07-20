@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "instruction.md",
-      "sha256": "b7861bb1813a03e25ed2e3dd3820a6d8901c502bf4802e16b2871adf81bbf459"
+      "sha256": "602f1396dea0c31333109c0295a7bd26d5e824849e871e9a0fbfee7e8ed4853b"
     },
     {
       "path": "targets/claude.frontmatter.json",
@@ -17,5 +17,5 @@
       "sha256": "733b728345affb0fc6418d3310a6958332d985d3b48d8c61ca15144ea35f4e1e"
     }
   ],
-  "package_sha256": "d73263dc78bab2c5cd934ef1c770b5a192726e50fdcb73718efa44ad856c440a"
+  "package_sha256": "3cf4e6179b377597429dcc3c02e9f6dc540e9f1631c5282942971b08b66c9d5e"
 }

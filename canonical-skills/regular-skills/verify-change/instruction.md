@@ -15,7 +15,7 @@ Produce reproducible evidence for an implemented change. Do not fix implementati
 - Change ID, request/acceptance criteria, approved implementation plan, current diff, and task handoffs.
 - Existing canonical format, lint, type, unit, integration, contract, E2E, build, and security commands where applicable.
 
-Missing acceptance criteria or an attributable diff is a blocker. If no existing containerized verification entrypoint exists, stop and point to Phase D `bootstrap-project`; never run project commands on the host.
+Missing acceptance criteria or an attributable diff is a blocker. If no existing containerized verification entrypoint exists, stop and point to `bootstrap-project`; never run project commands on the host.
 
 ## Workflow
 

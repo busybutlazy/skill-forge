@@ -33,7 +33,7 @@ def evaluate_hook_request(request: HookRequest) -> HookDecision:
         return _evaluate_shell(request)
     if request.tool_name == "apply_patch":
         return _evaluate_patch(request)
-    if request.tool_name in {"Edit", "Write"}:
+    if request.tool_name in {"Edit", "Write", "NotebookEdit"}:
         return _evaluate_file_write(request)
     return _ALLOW
 
@@ -67,11 +67,15 @@ def _evaluate_shell(request: HookRequest) -> HookDecision:
                 if not decision.allowed:
                     return decision
         elif executable == "git":
-            decision = _evaluate_git(arguments)
+            decision = _evaluate_git(arguments, request)
             if not decision.allowed:
                 return decision
         elif executable == "rm":
             decision = _evaluate_rm(arguments, request)
+            if not decision.allowed:
+                return decision
+        else:
+            decision = _evaluate_host_dependency_install(executable, arguments)
             if not decision.allowed:
                 return decision
     return _ALLOW
@@ -114,7 +118,7 @@ def _is_environment_assignment(token: str) -> bool:
     return bool(separator and name and (name[0].isalpha() or name[0] == "_") and name.replace("_", "a").isalnum())
 
 
-def _evaluate_git(arguments: list[str]) -> HookDecision:
+def _evaluate_git(arguments: list[str], request: HookRequest) -> HookDecision:
     subcommand_index = _git_subcommand_index(arguments)
     if subcommand_index is None:
         return _ALLOW
@@ -135,6 +139,61 @@ def _evaluate_git(arguments: list[str]) -> HookDecision:
         for option in options
     ):
         return HookDecision(False, "git.force-push", "Force-pushing can rewrite shared history.")
+    if subcommand == "commit":
+        branch = _current_git_branch(_git_worktree(arguments, request))
+        if branch in {"main", "master"}:
+            return HookDecision(False, "git.protected-branch-commit", f"Direct commits on {branch} are not allowed; create a working branch first.")
+    return _ALLOW
+
+
+def _git_worktree(arguments: list[str], request: HookRequest) -> Path:
+    for index, argument in enumerate(arguments):
+        if argument == "-C" and index + 1 < len(arguments):
+            candidate = Path(arguments[index + 1])
+            return (candidate if candidate.is_absolute() else request.cwd / candidate).resolve(strict=False)
+    return request.project_root
+
+
+def _current_git_branch(worktree: Path) -> str | None:
+    git_entry = worktree / ".git"
+    git_dir = git_entry
+    if git_entry.is_file():
+        try:
+            marker, value = git_entry.read_text(encoding="utf-8").strip().split(":", 1)
+        except (OSError, ValueError):
+            return None
+        if marker != "gitdir":
+            return None
+        candidate = Path(value.strip())
+        git_dir = candidate if candidate.is_absolute() else (worktree / candidate).resolve(strict=False)
+    try:
+        head = (git_dir / "HEAD").read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    prefix = "ref: refs/heads/"
+    return head.removeprefix(prefix) if head.startswith(prefix) else None
+
+
+def _evaluate_host_dependency_install(executable: str | None, arguments: list[str]) -> HookDecision:
+    if executable is None:
+        return _ALLOW
+    install = False
+    if executable == "uv":
+        install = "sync" in arguments or ("pip" in arguments and "install" in arguments)
+    elif executable == "poetry":
+        install = any(argument in {"add", "install", "update"} for argument in arguments)
+    elif executable == "npm":
+        install = any(argument in {"i", "install", "ci", "add", "update"} for argument in arguments)
+    elif executable == "pnpm":
+        install = any(argument in {"i", "install", "add", "update"} for argument in arguments)
+    elif executable == "yarn":
+        install = not arguments or any(argument in {"add", "install", "upgrade"} for argument in arguments) or all(argument.startswith("-") for argument in arguments)
+    elif executable == "pip" or re.fullmatch(r"pip\d+(?:\.\d+)?", executable):
+        install = "install" in arguments
+    elif re.fullmatch(r"python\d*(?:\.\d+)?", executable):
+        install = "-m" in arguments and "pip" in arguments and "install" in arguments
+    if install:
+        return HookDecision(False, "dependency.host-install", "Project dependencies must be installed through the approved Docker/container entrypoint.")
     return _ALLOW
 
 

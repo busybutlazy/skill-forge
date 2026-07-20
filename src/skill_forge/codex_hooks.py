@@ -193,7 +193,7 @@ def install_codex_hooks(
 
 
 def _expected_matcher_groups() -> list[dict[str, object]]:
-    return [_expected_matcher_group("Bash"), _expected_matcher_group("Edit|Write")]
+    return [_expected_matcher_group("Bash"), _expected_matcher_group("Edit|Write|NotebookEdit")]
 
 
 def _expected_matcher_group(matcher: str) -> dict[str, object]:

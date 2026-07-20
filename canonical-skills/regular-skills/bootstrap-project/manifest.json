@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "instruction.md",
-      "sha256": "d0278efa85c818116db461bab653cd9f82c167d1a8714edf654cc5f67bce4942"
+      "sha256": "d4bdb3b6744686b12a364d21550580190faf1f8bc4d218f16ecd1c445d89dbe1"
     },
     {
       "path": "targets/claude.frontmatter.json",
@@ -18,7 +18,7 @@
     },
     {
       "path": "references/BOOTSTRAP_PLAN_TEMPLATE.md",
-      "sha256": "456c314ff20cbdeb604bbe171d5f16501f37254dc4ce748f2332edf6665e1603"
+      "sha256": "543d3926ab65d8d42b54239a26bf3f1283c9be0a0e5af5a5ba7abb672a3cd1d4"
     },
     {
       "path": "references/CHANGE_ARTIFACT_TEMPLATES.md",
@@ -26,7 +26,7 @@
     },
     {
       "path": "references/DOCKER_BASELINE_CHECKLIST.md",
-      "sha256": "1c39ab39f4ffaf1822d289363d478f3b8e6afe8a8cffecec8003d6d3f9ac238b"
+      "sha256": "eadcc9347ed75a413701a62626823c5ab6bd0403892315543966df0911aa1120"
     },
     {
       "path": "references/NODE_PROFILE.md",
@@ -37,5 +37,5 @@
       "sha256": "72f4d124e8e7699ddbde3286a3286d182b46bea57c5e9da65dc4516195aa03be"
     }
   ],
-  "package_sha256": "cc3fce5d4e17dee41550c1de4dd0e7ca10e0a543b7f8b1361c2a6b08275428de"
+  "package_sha256": "2187a51a8f1ae4065ca088e0a18fb741cd19faf2a9b32a11ee8e365f71267820"
 }

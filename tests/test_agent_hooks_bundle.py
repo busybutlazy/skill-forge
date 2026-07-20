@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -27,6 +28,7 @@ class AgentHooksBundleTests(unittest.TestCase):
         self.project = Path(self.temp_dir.name) / "project"
         self.project.mkdir()
         (self.project / ".git").mkdir()
+        (self.project / ".git" / "HEAD").write_text("ref: refs/heads/feature/test\n")
         self.runtime = PythonRuntime(("python3",), sys.version_info[:3])
 
     def tearDown(self) -> None:
@@ -36,6 +38,7 @@ class AgentHooksBundleTests(unittest.TestCase):
         source = load_managed_bundle(REPO_ROOT, "agent-hooks")
         self.assertIsNotNone(source)
         self.assertEqual(source.name, "agent-hooks")
+        self.assertEqual(source.version, "0.3.0")
         self.assertEqual([artifact.spec.artifact_id for artifact in source.artifacts], ["safety-check"])
 
     def test_claude_install_is_transactional_and_up_to_date(self) -> None:
@@ -75,6 +78,7 @@ class AgentHooksBundleTests(unittest.TestCase):
             ({"tool_name": "Write", "tool_input": {"file_path": str(self.project / "src/app.py"), "content": "ok"}}, True, None),
             ({"tool_name": "Write", "tool_input": {"file_path": str(self.project / ".env"), "content": "secret"}}, False, "path.protected-write"),
             ({"tool_name": "Edit", "tool_input": {"file_path": str(self.project / ".env.local"), "old_string": "a", "new_string": "b"}}, False, "path.protected-write"),
+            ({"tool_name": "NotebookEdit", "tool_input": {"notebook_path": str(self.project / ".env.notebook")}}, False, "path.protected-write"),
             ({"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Add File: .git/config\n+x\n*** End Patch"}}, False, "path.protected-write"),
         ]
         for partial_payload, allowed, rule_id in cases:
@@ -113,6 +117,20 @@ class AgentHooksBundleTests(unittest.TestCase):
             ("rm -rf build/*.tmp", "shell.unresolved-recursive-delete"),
             ("rm -rf $DIR/*", "shell.unresolved-recursive-delete"),
             ("rm -rf build/cache", None),
+            ("pip install requests", "dependency.host-install"),
+            ("pip3.12 install requests", "dependency.host-install"),
+            ("pip --quiet install requests", "dependency.host-install"),
+            ("python3 -m pip install requests", "dependency.host-install"),
+            ("uv sync", "dependency.host-install"),
+            ("uv pip install requests", "dependency.host-install"),
+            ("poetry add requests", "dependency.host-install"),
+            ("npm ci", "dependency.host-install"),
+            ("npm --prefix app install", "dependency.host-install"),
+            ("pnpm install", "dependency.host-install"),
+            ("yarn", "dependency.host-install"),
+            ("docker run image pip install requests", None),
+            ("docker compose run app npm ci", None),
+            ("make setup", None),
         )
         for command, expected_rule in cases:
             with self.subTest(command=command):
@@ -140,6 +158,44 @@ class AgentHooksBundleTests(unittest.TestCase):
                     runner_rule = reason.split("]", 1)[0].removeprefix("[")
                 self.assertEqual(internal_rule, expected_rule)
                 self.assertEqual(runner_rule, expected_rule)
+
+    def test_runner_and_policy_block_commit_only_on_protected_branch(self) -> None:
+        install_claude_hooks(REPO_ROOT, self.project, runtime=self.runtime)
+        runner = self.project / ".claude" / "hooks" / "skill-forge" / "safety_check.py"
+        for branch, expected_rule in (("main", "git.protected-branch-commit"), ("master", "git.protected-branch-commit"), ("feature/work", None)):
+            with self.subTest(branch=branch):
+                (self.project / ".git" / "HEAD").write_text(f"ref: refs/heads/{branch}\n")
+                internal = evaluate_hook_request(HookRequest("Bash", "git commit -m test", self.project, self.project))
+                internal_rule = None if internal.allowed else internal.rule_id
+                result = subprocess.run(
+                    [sys.executable, str(runner)],
+                    input=json.dumps({"cwd": str(self.project), "tool_name": "Bash", "tool_input": {"command": "git commit -m test"}}),
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                runner_rule = None
+                if result.stdout:
+                    reason = json.loads(result.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
+                    runner_rule = reason.split("]", 1)[0].removeprefix("[")
+                self.assertEqual(internal_rule, expected_rule)
+                self.assertEqual(runner_rule, expected_rule)
+
+    def test_runner_uses_declared_project_root_when_git_is_absent(self) -> None:
+        non_git = Path(self.temp_dir.name) / "non-git"
+        nested = non_git / "src"
+        nested.mkdir(parents=True)
+        runner = REPO_ROOT / "canonical-configs" / "agent-hooks" / "hooks" / "safety_check.py"
+        result = subprocess.run(
+            [sys.executable, str(runner)],
+            input=json.dumps({"cwd": str(nested), "tool_name": "Write", "tool_input": {"file_path": str(non_git / ".env")}}),
+            text=True,
+            capture_output=True,
+            check=False,
+            env={**os.environ, "CLAUDE_PROJECT_DIR": str(non_git)},
+        )
+        reason = json.loads(result.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
+        self.assertIn("path.protected-write", reason)
 
     def test_codex_install_is_transactional_and_reports_trust_review(self) -> None:
         paths = install_codex_hooks(REPO_ROOT, self.project, runtime=self.runtime)
