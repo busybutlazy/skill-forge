@@ -30,7 +30,7 @@ If approval or task identity is ambiguous, stop. Never infer approval from a pla
 
 ## Prohibited Actions and Stop Conditions
 
-Do not rewrite requirements, expand scope, modify an approved public contract, add/update production dependencies, run migrations, access production/secrets, discard worktree changes, or approve deviations. Stop if any is required; also stop for data-loss risk, missing container entrypoints, incompatible environment, unexplained edits, or a task that cannot be completed independently. Missing Docker support belongs to the future `bootstrap-project` workflow, not a host fallback.
+Do not rewrite requirements, expand scope, modify an approved public contract, add/update production dependencies, run migrations, access production/secrets, discard worktree changes, or approve deviations. Stop if any is required; also stop for data-loss risk, missing container entrypoints, incompatible environment, unexplained edits, or a task that cannot be completed independently. Missing Docker support belongs to the `bootstrap-project` workflow, not a host fallback.
 
 ## Evidence and Handoff
 

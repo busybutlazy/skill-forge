@@ -22,7 +22,7 @@ REFERENCES = {
 class PhaseDBootstrapContractTests(unittest.TestCase):
     def test_package_validates_and_manifest_includes_every_reference(self) -> None:
         skill = load_skill(REPO_ROOT, "bootstrap-project")
-        self.assertEqual(skill.version, "0.1.0")
+        self.assertEqual(skill.version, "0.1.1")
         self.assertEqual(skill.updated_at, "2026-07-20")
         manifest = json.loads((SKILL_DIR / "manifest.json").read_text(encoding="utf-8"))
         paths = {entry["path"] for entry in manifest["files"]}
@@ -54,6 +54,15 @@ class PhaseDBootstrapContractTests(unittest.TestCase):
         self.assertIn("only from existing manifest/lock evidence", python_profile)
         self.assertIn("Multiple/conflicting lockfiles", node_profile)
         self.assertIn("Do not invent scripts", node_profile)
+
+    def test_non_git_bootstrap_requires_separate_explicit_decisions(self) -> None:
+        instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
+        plan = (SKILL_DIR / "references" / "BOOTSTRAP_PLAN_TEMPLATE.md").read_text(encoding="utf-8")
+        self.assertIn("A non-Git directory is a supported discovery result", instruction)
+        self.assertIn("Do not infer Git initialization", instruction)
+        self.assertIn("git init -b <approved-working-branch>", instruction)
+        self.assertIn("Checkpoint commit authorized", plan)
+        self.assertIn("separate decisions", plan)
 
     def test_both_targets_install_every_reference_idempotently(self) -> None:
         for target, relative_root in (

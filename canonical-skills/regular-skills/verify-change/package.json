@@ -2,7 +2,7 @@
   "schema_version": 1,
   "identity": {
     "name": "verify-change",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Verify an implemented change through canonical container commands and produce traceable evidence",
     "updated_at": "2026-07-20",
     "tags": [
@@ -29,6 +29,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "d73263dc78bab2c5cd934ef1c770b5a192726e50fdcb73718efa44ad856c440a"
+    "package_sha256": "3cf4e6179b377597429dcc3c02e9f6dc540e9f1631c5282942971b08b66c9d5e"
   }
 }

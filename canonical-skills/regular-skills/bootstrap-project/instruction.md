@@ -17,7 +17,7 @@ Existing infrastructure is unmanaged architecture. If it exists or conflicts wit
 
 ## Required Inputs
 
-- Stable `<change-id>`, bootstrap request, repository instructions, specifications/contracts/ADRs, and Git state.
+- Stable `<change-id>`, bootstrap request, repository instructions, specifications/contracts/ADRs, and repository/Git state (including an explicit non-Git finding when `.git` is absent).
 - Human-confirmed stack/runtime version, base image, package manager/lock strategy, canonical commands, proposed files, CI scope, risks, and rollback.
 
 Ambiguous versions, commands, package managers, existing infrastructure ownership, or acceptance criteria require a question, not a guess.
@@ -25,7 +25,7 @@ Ambiguous versions, commands, package managers, existing infrastructure ownershi
 ## D1 — Read-Only Discovery
 
 1. Read repository rules and sources of truth.
-2. Inspect Git status and record unexplained edits without altering them.
+2. Inspect repository/Git state and record unexplained edits without altering them. A non-Git directory is a supported discovery result, not implicit permission to initialize or commit it.
 3. Inspect language/runtime indicators, lockfiles, manifests, documented commands, and existing Dockerfile/Compose/Make/task-runner/CI files.
 4. Do not install dependencies or execute application tools/tests. Host tools may only inspect/write repository text, invoke Git, and invoke Docker after approval.
 5. Classify the repository using [the baseline checklist](./references/DOCKER_BASELINE_CHECKLIST.md):
@@ -42,6 +42,8 @@ Prepare a plan using [the bootstrap plan template](./references/BOOTSTRAP_PLAN_T
 
 Present the complete plan and **stop**. Do not create or modify infrastructure until a human explicitly approves that exact plan. A request to analyze, a generated plan, silence, or prior approval of this skill is not write approval. Material deviations require a revised plan and new approval.
 
+For a non-Git directory, the plan must separately state whether to run `git init`, the approved initial working-branch name, and whether a checkpoint commit is authorized with an exact file set. Do not infer Git initialization, branch naming, author identity, staging, or commit approval from bootstrap approval alone.
+
 ## D3 — Minimum Approved Infrastructure
 
 Only after explicit approval, create only missing files listed in the approved plan:
@@ -52,6 +54,8 @@ Only after explicit approval, create only missing files listed in the approved p
 - `docs/agent-rules.md` using [the template](./references/AGENT_RULES_TEMPLATE.md).
 - `.github/workflows/ci.yml` using the same canonical entrypoint as local work.
 - `changes/<change-id>/` artifacts using [the templates](./references/CHANGE_ARTIFACT_TEMPLATES.md).
+
+If the approved plan includes Git initialization, run `git init -b <approved-working-branch>` before creating the baseline. Create a checkpoint commit only when that exact commit and file set were separately approved and Git author identity is already valid; otherwise leave the reviewed diff for the human handoff.
 
 The canonical surface covers `setup`, `format` or `format-check`, `lint`, `typecheck`, `test-unit`, optional `test-integration`, `verify`, `build`, and `run`. Unsupported commands must fail clearly or be documented as unavailable with a reason; they must never silently invoke host tools. Do not add application dependencies solely to make a command exist.
 

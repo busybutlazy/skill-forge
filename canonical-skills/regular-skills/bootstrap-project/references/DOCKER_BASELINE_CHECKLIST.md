@@ -7,6 +7,7 @@ Use this during read-only discovery and plan review. Do not turn unchecked assum
 - [ ] Repository rules, specification, contracts, ADRs, and Git status inspected.
 - [ ] Runtime files, manifests, lockfiles, and documented commands inventoried.
 - [ ] Existing `Dockerfile*`, Compose files, `.dockerignore`, task runners, and CI inventoried.
+- [ ] Git repository presence is recorded; a non-Git directory is not initialized implicitly.
 - [ ] Profile classified as Python, Node/TypeScript, generic/unknown, or existing infrastructure.
 - [ ] Ambiguous runtime version, package manager, commands, or ownership raised for human decision.
 
@@ -19,6 +20,7 @@ Use this during read-only discovery and plan review. Do not turn unchecked assum
 - [ ] Unavailable commands have honest reasons rather than fabricated tools.
 - [ ] Risks, verification, rollback, and no-host-execution statement are explicit.
 - [ ] A human approved this exact plan before any infrastructure write.
+- [ ] For a non-Git directory, `git init`, working-branch name, and any checkpoint commit/file set have separate explicit decisions.
 
 ## Minimum Baseline Review
 

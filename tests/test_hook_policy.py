@@ -127,7 +127,7 @@ class HookPolicyTests(unittest.TestCase):
         self.assertTrue(self.evaluate("apply_patch", patch).allowed)
 
     def test_edit_and_write_protect_paths_from_claude_payloads(self) -> None:
-        for tool_name in ("Edit", "Write"):
+        for tool_name in ("Edit", "Write", "NotebookEdit"):
             with self.subTest(tool_name=tool_name):
                 denied = self.evaluate_write(tool_name, str(self.project_root / ".env"))
                 self.assertFalse(denied.allowed)

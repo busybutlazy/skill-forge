@@ -33,7 +33,7 @@ If the request, acceptance criteria, or change identifier is missing, stop and r
 
 ## Stop Conditions
 
-Stop for conflicting requirements, unexplained worktree changes, missing canonical container entrypoints, required production/secret access, irreversible data operations, unapproved dependencies/migrations, or scope/contract changes. Missing Docker support points to the separate `bootstrap-project` roadmap workflow; it never permits host project execution.
+Stop for conflicting requirements, unexplained worktree changes, missing canonical container entrypoints, required production/secret access, irreversible data operations, unapproved dependencies/migrations, or scope/contract changes. Missing Docker support points to the separate `bootstrap-project` workflow; it never permits host project execution.
 
 ## Evidence and Handoff
 

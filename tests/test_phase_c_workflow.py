@@ -7,6 +7,13 @@ from skill_forge.repository import load_skill
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ["plan-change", "implement-task", "verify-change", "report-change", "review-change"]
+VERSIONS = {
+    "plan-change": "0.1.1",
+    "implement-task": "0.1.1",
+    "verify-change": "0.1.1",
+    "report-change": "0.1.0",
+    "review-change": "0.1.0",
+}
 REFERENCES = {
     "plan-change": "IMPLEMENTATION_PLAN_TEMPLATE.md",
     "implement-task": "TASK_HANDOFF_CHECKLIST.md",
@@ -21,7 +28,7 @@ class PhaseCWorkflowContractTests(unittest.TestCase):
         for name in SKILLS:
             with self.subTest(skill=name):
                 skill = load_skill(REPO_ROOT, name)
-                self.assertEqual(skill.version, "0.1.0")
+                self.assertEqual(skill.version, VERSIONS[name])
                 self.assertEqual(skill.updated_at, "2026-07-20")
                 manifest = json.loads(
                     (REPO_ROOT / "canonical-skills" / "regular-skills" / name / "manifest.json")
@@ -56,6 +63,15 @@ class PhaseCWorkflowContractTests(unittest.TestCase):
         self.assertIn("已提供的 Change Workflow skills", guideline)
         for name in SKILLS:
             self.assertIn(f"`{name}`", guideline)
+
+    def test_delivered_bootstrap_is_not_described_as_future_roadmap(self) -> None:
+        stale_phrases = ("bootstrap-project` roadmap", "Phase D `bootstrap-project`", "future `bootstrap-project`")
+        for name in ("plan-change", "implement-task", "verify-change"):
+            instruction = (
+                REPO_ROOT / "canonical-skills" / "regular-skills" / name / "instruction.md"
+            ).read_text(encoding="utf-8")
+            for phrase in stale_phrases:
+                self.assertNotIn(phrase, instruction)
 
 
 if __name__ == "__main__":

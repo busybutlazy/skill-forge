@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shlex
 import sys
@@ -27,15 +28,15 @@ def main() -> int:
     if not isinstance(tool_name, str) or not isinstance(tool_input, dict):
         return deny("hook.invalid-payload", "Hook input is missing tool_name or tool_input.")
     cwd = Path(str(payload.get("cwd", "."))).resolve(strict=False)
-    project_root = find_project_root(cwd)
+    project_root = find_project_root(cwd, os.environ.get("CLAUDE_PROJECT_DIR"))
 
     decision = None
     if tool_name == "Bash":
         decision = evaluate_shell(str(tool_input.get("command", "")), cwd, project_root)
     elif tool_name == "apply_patch":
         decision = evaluate_patch(str(tool_input.get("command", "")), project_root)
-    elif tool_name in {"Edit", "Write"}:
-        file_path = tool_input.get("file_path")
+    elif tool_name in {"Edit", "Write", "NotebookEdit"}:
+        file_path = tool_input.get("notebook_path") if tool_name == "NotebookEdit" else tool_input.get("file_path")
         if not isinstance(file_path, str) or not file_path:
             decision = ("write.malformed", "File-write request is missing file_path.")
         elif is_protected_path(file_path, project_root):
@@ -46,12 +47,16 @@ def main() -> int:
     return deny(*decision)
 
 
-def find_project_root(cwd: Path) -> Path:
+def find_project_root(cwd: Path, declared_root: str | None = None) -> Path:
     current = cwd
     while True:
         if (current / ".git").exists():
             return current
         if current.parent == current:
+            if declared_root:
+                candidate = Path(declared_root)
+                if candidate.is_absolute():
+                    return candidate.resolve(strict=False)
             return cwd
         current = current.parent
 
@@ -82,11 +87,15 @@ def evaluate_shell(command: str, cwd: Path, project_root: Path) -> tuple[str, st
                 if decision:
                     return decision
         elif executable == "git":
-            decision = evaluate_git(arguments)
+            decision = evaluate_git(arguments, cwd, project_root)
             if decision:
                 return decision
         elif executable == "rm":
             decision = evaluate_rm(arguments, cwd, project_root)
+            if decision:
+                return decision
+        else:
+            decision = evaluate_host_dependency_install(executable, arguments)
             if decision:
                 return decision
     return None
@@ -110,7 +119,7 @@ def is_assignment(token: str) -> bool:
     return bool(separator and name and (name[0].isalpha() or name[0] == "_") and name.replace("_", "a").isalnum())
 
 
-def evaluate_git(arguments: list[str]) -> tuple[str, str] | None:
+def evaluate_git(arguments: list[str], cwd: Path, project_root: Path) -> tuple[str, str] | None:
     index = git_subcommand_index(arguments)
     if index is None:
         return None
@@ -130,6 +139,61 @@ def evaluate_git(arguments: list[str]) -> tuple[str, str] | None:
         for option in options
     ):
         return ("git.force-push", "Force-pushing can rewrite shared history.")
+    if subcommand == "commit":
+        branch = current_git_branch(git_worktree(arguments, cwd, project_root))
+        if branch in {"main", "master"}:
+            return ("git.protected-branch-commit", f"Direct commits on {branch} are not allowed; create a working branch first.")
+    return None
+
+
+def git_worktree(arguments: list[str], cwd: Path, project_root: Path) -> Path:
+    for index, argument in enumerate(arguments):
+        if argument == "-C" and index + 1 < len(arguments):
+            candidate = Path(arguments[index + 1])
+            return (candidate if candidate.is_absolute() else cwd / candidate).resolve(strict=False)
+    return project_root
+
+
+def current_git_branch(worktree: Path) -> str | None:
+    git_entry = worktree / ".git"
+    git_dir = git_entry
+    if git_entry.is_file():
+        try:
+            marker, value = git_entry.read_text(encoding="utf-8").strip().split(":", 1)
+        except (OSError, ValueError):
+            return None
+        if marker != "gitdir":
+            return None
+        candidate = Path(value.strip())
+        git_dir = candidate if candidate.is_absolute() else (worktree / candidate).resolve(strict=False)
+    try:
+        head = (git_dir / "HEAD").read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    prefix = "ref: refs/heads/"
+    return head.removeprefix(prefix) if head.startswith(prefix) else None
+
+
+def evaluate_host_dependency_install(executable: str | None, arguments: list[str]) -> tuple[str, str] | None:
+    if executable is None:
+        return None
+    install = False
+    if executable == "uv":
+        install = "sync" in arguments or ("pip" in arguments and "install" in arguments)
+    elif executable == "poetry":
+        install = any(argument in {"add", "install", "update"} for argument in arguments)
+    elif executable == "npm":
+        install = any(argument in {"i", "install", "ci", "add", "update"} for argument in arguments)
+    elif executable == "pnpm":
+        install = any(argument in {"i", "install", "add", "update"} for argument in arguments)
+    elif executable == "yarn":
+        install = not arguments or any(argument in {"add", "install", "upgrade"} for argument in arguments) or all(argument.startswith("-") for argument in arguments)
+    elif executable == "pip" or re.fullmatch(r"pip\d+(?:\.\d+)?", executable):
+        install = "install" in arguments
+    elif re.fullmatch(r"python\d*(?:\.\d+)?", executable):
+        install = "-m" in arguments and "pip" in arguments and "install" in arguments
+    if install:
+        return ("dependency.host-install", "Project dependencies must be installed through the approved Docker/container entrypoint.")
     return None
 
 
