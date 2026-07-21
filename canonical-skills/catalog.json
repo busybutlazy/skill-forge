@@ -6,8 +6,12 @@
       "skills": ["commit", "create-pr", "code-review"]
     },
     {
+      "name": "Roadmap Delivery",
+      "skills": ["deliver-roadmap-phase"]
+    },
+    {
       "name": "Change Workflow",
-      "skills": ["plan-change", "implement-task", "verify-change", "report-change", "review-change"]
+      "skills": ["plan-change", "implement-task", "run-approved-change", "verify-change", "report-change", "review-change"]
     },
     {
       "name": "Project Bootstrap",

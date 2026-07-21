@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
   "identity": {
-    "name": "plan-change",
-    "version": "0.2.0",
-    "description": "Analyze a non-trivial change read-only and produce an approval-ready implementation plan",
+    "name": "deliver-roadmap-phase",
+    "version": "0.1.0",
+    "description": "Deliver one exact Roadmap phase through governed planning, approved execution, verification, and review handoff",
     "updated_at": "2026-07-21",
     "tags": [
+      "roadmap",
       "change-workflow",
-      "planning",
+      "orchestration",
       "governance"
     ]
   },
@@ -16,6 +17,16 @@
   },
   "distribution": {
     "scope": "public"
+  },
+  "dependencies": {
+    "skills": [
+      "plan-change",
+      "implement-task",
+      "run-approved-change",
+      "verify-change",
+      "report-change",
+      "review-change"
+    ]
   },
   "targets": {
     "codex": {
@@ -29,6 +40,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "3e868cd2a35beae0de952cf150a4523fdc7af3323e5ec383b396a509e1beb32a"
+    "package_sha256": "ab198017ae8cd094f0dc7c0cbd284fa8db5a346649d0bf1178c801ea3cd58586"
   }
 }

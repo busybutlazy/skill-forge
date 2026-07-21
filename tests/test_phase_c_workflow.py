@@ -6,17 +6,27 @@ from skill_forge.repository import load_skill
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ["plan-change", "implement-task", "verify-change", "report-change", "review-change"]
+SKILLS = ["plan-change", "implement-task", "run-approved-change", "verify-change", "report-change", "review-change"]
 VERSIONS = {
-    "plan-change": "0.1.1",
+    "plan-change": "0.2.0",
     "implement-task": "0.1.1",
+    "run-approved-change": "0.1.0",
     "verify-change": "0.1.1",
     "report-change": "0.1.0",
     "review-change": "0.1.0",
 }
+UPDATED_AT = {
+    "plan-change": "2026-07-21",
+    "implement-task": "2026-07-20",
+    "run-approved-change": "2026-07-21",
+    "verify-change": "2026-07-20",
+    "report-change": "2026-07-20",
+    "review-change": "2026-07-20",
+}
 REFERENCES = {
     "plan-change": "IMPLEMENTATION_PLAN_TEMPLATE.md",
     "implement-task": "TASK_HANDOFF_CHECKLIST.md",
+    "run-approved-change": "AUTO_EXECUTION_CHECKLIST.md",
     "verify-change": "VERIFICATION_REPORT_TEMPLATE.md",
     "report-change": "CHANGE_REPORT_TEMPLATE.md",
     "review-change": "REVIEW_REPORT_TEMPLATE.md",
@@ -29,7 +39,7 @@ class PhaseCWorkflowContractTests(unittest.TestCase):
             with self.subTest(skill=name):
                 skill = load_skill(REPO_ROOT, name)
                 self.assertEqual(skill.version, VERSIONS[name])
-                self.assertEqual(skill.updated_at, "2026-07-20")
+                self.assertEqual(skill.updated_at, UPDATED_AT[name])
                 manifest = json.loads(
                     (REPO_ROOT / "canonical-skills" / "regular-skills" / name / "manifest.json")
                     .read_text(encoding="utf-8")

@@ -1,0 +1,1 @@
+{"name":"run-approved-change","description":"Supervised-auto change executor. Use only for an explicitly approved low/medium-risk plan whose current revision names supervised-auto tasks and paths; execute, verify, report, and stop before independent review.","tools":"Read, Grep, Glob, Bash, Write, Edit"}

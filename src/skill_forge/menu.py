@@ -16,7 +16,7 @@ from .guideline import (
 )
 from .install import install_skill, list_installed, remove_skill, target_root, update_skill
 from .models import CanonicalSkill, InstalledStatus
-from .repository import SUPPORTED_TARGETS, load_all_skills
+from .repository import SUPPORTED_TARGETS, load_all_skills, resolve_skill_install_set
 from .security_check import (
     check_security_settings,
     format_applied_report,
@@ -366,21 +366,29 @@ class InteractiveMenu:
             print(_color("Install cancelled.", DIM))
             return
 
-        selected = [items[index] for index in selections]
+        requested = [items[index] for index in selections]
+        selected = resolve_skill_install_set(
+            self.repo_root,
+            [skill.name for skill in requested],
+            self.target,
+            allowed_scopes={"public"},
+        )
+        requested_names = {skill.name for skill in requested}
         self._clear_screen()
         self._print_header()
         print()
         print(_color("Will install/update:", BOLD))
         for skill in selected:
+            dependency_note = "" if skill.name in requested_names else _color(" (required)", DIM)
             current = statuses.get(skill.name)
             if current is None:
-                print(f"  • {skill.name} {_color(f'v{skill.version}', GREEN)} {_color('(new)', DIM)}")
+                print(f"  • {skill.name} {_color(f'v{skill.version}', GREEN)} {_color('(new)', DIM)}{dependency_note}")
                 continue
             current_version = current.version or "unknown"
             print(
                 f"  • {skill.name} {_color(f'local v{current_version}', DIM)} "
                 f"{_color('→', DIM)} {_color(f'v{skill.version}', GREEN)} "
-                f"{self._render_status_badge(current.status)}"
+                f"{self._render_status_badge(current.status)}{dependency_note}"
             )
 
         if not self._check_skills_dir_writable():

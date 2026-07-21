@@ -16,6 +16,17 @@
 
 ## Contract, Schema, Dependency, and Migration Impact
 
+## Execution Policy
+
+- Plan revision:
+- Risk level: low / medium / high / extreme
+- Automation mode: one-task-at-a-time / supervised-auto
+- Auto-approved task IDs (`supervised-auto` only):
+- Approved file/path scope:
+- Human checkpoints:
+- Mandatory stop conditions:
+- Commit/push permission: **No unless separately approved after review.**
+
 ## Tasks
 
 ### Task 1 — <bounded outcome>
@@ -34,4 +45,8 @@
 ## Human Decisions and Approval
 
 - Decisions required:
-- Approval evidence: **Not approved until a human records it here.**
+- Status: Draft / Approved / Superseded
+- Approved plan revision:
+- Approved risk level and automation mode:
+- Approved by/date:
+- Approval evidence: **Not approved until a human explicitly records it here. Material plan changes invalidate approval.**

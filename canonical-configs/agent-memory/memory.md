@@ -27,10 +27,12 @@ Contract：docs/CONTRACTS.md
 1. 唯讀分析現況（不改 code、不裝 dependency）。
 2. 產生 implementation plan（含 scope、測試案例、rollback）。
 3. 取得人類批准後才實作。
-4. 一次只執行一個已批准的 Task。
+4. 依 Plan 明確批准的 Execution Policy 執行：預設一次一個 Task；只有低／中風險且人類明確批准 `supervised-auto` 時，才能連續執行列出的 auto-approved Tasks。
 5. 執行驗證並如實記錄命令與結果。
 6. 產生變更報告，揭露完成、未完成與偏差。
 7. 接受獨立審查。
+
+若工作來源是 Roadmap，優先使用 `deliver-roadmap-phase` 並明確指定 Roadmap 路徑與唯一 Phase ID／標題。它是使用者入口，會把一個 Phase 拆成受控 Changes；不得用「繼續 Roadmap」推定下一階段，也不得一次涵蓋多個 Phase。
 
 完整流程、風險分級與報告格式見 `docs/agent-guideline.md`。
 
@@ -42,6 +44,7 @@ Contract：docs/CONTRACTS.md
 - 可能造成資料遺失或擴大權限。
 - 需要新增 production dependency。
 - Git 工作區已有無法辨識的修改。
+- `supervised-auto` 需要新增 Task／路徑、偏離批准 Plan、觸發人工 checkpoint，或完整驗證失敗。
 
 ### Definition of Done（同時符合才能宣稱完成）
 
