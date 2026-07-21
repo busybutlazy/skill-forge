@@ -12,6 +12,8 @@ This reference covers three features that live outside the canonical skill packa
 
 Controls how the interactive menu groups, orders, and highlights skills. The file lives next to the canonical buckets but is **not** part of any skill package, so editing it never changes a `package_sha256`.
 
+Catalog groups are presentation only. Installable bundles use `package.json.dependencies.skills`; the CLI and interactive menu disclose and install those dependencies before the requested facade skill. `deliver-roadmap-phase` uses this mechanism to install the complete Change Workflow toolset without merging the atomic skills into one source package.
+
 ```json
 {
   "schema_version": 1,
@@ -82,8 +84,8 @@ An item whose canonical source directory is missing is simply unavailable and sk
 Instead of a sidecar metadata file, each rendered file ends with one marker line naming its item:
 
 ```html
-<!-- skill-forge:agent-memory version=0.4.0 sha256=<hash-of-body> -->
-<!-- skill-forge:agent-guideline version=0.5.0 sha256=<hash-of-body> -->
+<!-- skill-forge:agent-memory version=0.6.0 sha256=<hash-of-body> -->
+<!-- skill-forge:agent-guideline version=0.7.0 sha256=<hash-of-body> -->
 ```
 
 The hash covers the canonical body (trailing newlines normalized), so the file is self-describing and drift detection needs no extra state. The `skill-forge:agent-memory` marker format is unchanged from the pre-guideline releases, so already-installed files stay recognized.

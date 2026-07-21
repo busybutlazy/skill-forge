@@ -33,6 +33,7 @@ class CanonicalSkill:
     manifest_file: str
     targets: dict[str, TargetConfig]
     asset_dirs: list[str] = field(default_factory=list)
+    skill_dependencies: list[str] = field(default_factory=list)
 
 @dataclass(frozen=True)
 class ValidationResult:

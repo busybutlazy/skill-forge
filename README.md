@@ -439,6 +439,17 @@ The agent will:
 3. Install or update the skills you choose
 4. Report results and remind you to reload the session
 
+For Roadmap-driven delivery, install `deliver-roadmap-phase`. Its required Change Workflow skills are disclosed and installed automatically. After reloading the agent session, invoke it with one exact phase:
+
+```text
+Use deliver-roadmap-phase.
+Roadmap: docs/Roadmap.md
+Phase: Phase 1 — Walking Skeleton
+Mode: supervised-auto
+```
+
+The skill plans only that phase, asks for one execution approval, coordinates the approved child Changes, and stops for independent review and final human acceptance. It never infers the next phase or implicitly commits, pushes, merges, releases, or deploys.
+
 Example output:
 
 ```
@@ -1017,6 +1028,17 @@ Agent 將會：
 2. 呈現含版本與狀態標記的選單
 3. 安裝或更新你選取的 skills
 4. 回報結果並提醒你 reload session
+
+若要依 Roadmap 開發，安裝 `deliver-roadmap-phase` 即可；安裝器會揭露並自動帶入所需的 Change Workflow skills。重新開啟 agent session 後，以唯一 Phase 呼叫：
+
+```text
+請使用 deliver-roadmap-phase。
+Roadmap: docs/Roadmap.md
+Phase: Phase 1 — Walking Skeleton
+Mode: supervised-auto
+```
+
+它只會規劃指定 Phase、要求一次執行批准、協調已批准的子 Changes，最後停在獨立審查與人類驗收；不會自行推定下一 Phase，也不會隱含 commit、push、merge、release 或 deploy。
 
 範例畫面：
 

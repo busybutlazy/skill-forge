@@ -1,0 +1,1 @@
+{"name":"run-approved-change","description":"Use this skill to execute all explicitly auto-approved tasks from a human-approved low/medium-risk supervised-auto plan, verify and report the change, then stop before independent review."}

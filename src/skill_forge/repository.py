@@ -136,6 +136,21 @@ def validate_skill_dir(skill_dir: Path, target_filter: set[str] | None = None) -
         if not isinstance(content, dict) or content.get("instruction_file") != "instruction.md":
             issues.append("content.instruction_file must be instruction.md")
 
+        dependencies = package_data.get("dependencies", {})
+        if not isinstance(dependencies, dict):
+            issues.append("package.json dependencies must be an object")
+        else:
+            skill_dependencies = dependencies.get("skills", [])
+            if (
+                not isinstance(skill_dependencies, list)
+                or not all(isinstance(name, str) and _SKILL_NAME_RE.match(name) for name in skill_dependencies)
+            ):
+                issues.append("dependencies.skills must be a list of canonical skill names")
+            elif len(skill_dependencies) != len(set(skill_dependencies)):
+                issues.append("dependencies.skills must not contain duplicates")
+            elif skill_dir.name in skill_dependencies:
+                issues.append("dependencies.skills must not include the skill itself")
+
         integrity = package_data.get("integrity")
         if not isinstance(integrity, dict):
             issues.append("package.json missing integrity object")
@@ -268,7 +283,44 @@ def load_skill(
         manifest_file=package_data["integrity"]["manifest_file"],
         targets=targets,
         asset_dirs=asset_dirs,
+        skill_dependencies=list((package_data.get("dependencies") or {}).get("skills", [])),
     )
+
+
+def resolve_skill_install_set(
+    repo_root: Path,
+    skill_names: list[str],
+    target: str,
+    *,
+    allowed_scopes: set[str] | None = None,
+) -> list[CanonicalSkill]:
+    """Resolve transitive dependencies in dependency-first install order."""
+    resolved: list[CanonicalSkill] = []
+    visited: set[str] = set()
+    active: list[str] = []
+
+    def visit(name: str) -> None:
+        if name in visited:
+            return
+        if name in active:
+            cycle = " -> ".join([*active[active.index(name):], name])
+            raise ValueError(f"canonical skill dependency cycle: {cycle}")
+        active.append(name)
+        skill = load_skill(
+            repo_root,
+            name,
+            target_filter={target},
+            allowed_scopes=allowed_scopes,
+        )
+        for dependency in skill.skill_dependencies:
+            visit(dependency)
+        active.pop()
+        visited.add(name)
+        resolved.append(skill)
+
+    for skill_name in skill_names:
+        visit(skill_name)
+    return resolved
 
 
 def load_all_skills(

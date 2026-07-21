@@ -52,6 +52,9 @@ If a skill needs fixed, maintainer-editable agent prompts, store them under `ref
   "distribution": {
     "scope": "public"
   },
+  "dependencies": {
+    "skills": ["plan-change", "implement-task"]
+  },
   "targets": {
     "codex": {
       "frontmatter_file": "targets/codex.frontmatter.json",
@@ -75,6 +78,7 @@ Field rules:
 - `identity.*`: shared identity; target overrides must not replace `name` or `version`
 - `content.instruction_file`: shared instruction body
 - `distribution.scope`: whether the canonical package is `public` or `maintainer`
+- `dependencies.skills`: optional canonical skill dependencies installed transitively in dependency-first order
 - `targets.<target>.frontmatter_file`: target wrapper definition
 - `targets.<target>.install_path`: output path template used by the renderer
 - `integrity.*`: package-level integrity metadata
@@ -201,6 +205,9 @@ canonical-skills/regular-skills/<skill>/
   "distribution": {
     "scope": "public"
   },
+  "dependencies": {
+    "skills": ["plan-change", "implement-task"]
+  },
   "targets": {
     "codex": {
       "frontmatter_file": "targets/codex.frontmatter.json",
@@ -224,6 +231,7 @@ canonical-skills/regular-skills/<skill>/
 - `identity.*`：共享 identity；target override 不得覆寫 `name` 或 `version`
 - `content.instruction_file`：共享 instruction 主體
 - `distribution.scope`：canonical package 屬於 `public` 或 `maintainer`
+- `dependencies.skills`：選用的 canonical skill 相依清單；安裝時依 dependency-first 順序遞迴展開
 - `targets.<target>.frontmatter_file`：target wrapper 定義
 - `targets.<target>.install_path`：renderer 使用的輸出路徑樣板
 - `integrity.*`：package-level 完整性資訊

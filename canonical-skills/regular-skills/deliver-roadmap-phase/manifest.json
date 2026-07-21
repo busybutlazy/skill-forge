@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "instruction.md",
+      "sha256": "a2541a1930858eebeda9a6e30f5a2b06b2a93b7977b9062e130cf71998167efe"
+    },
+    {
+      "path": "targets/claude.frontmatter.json",
+      "sha256": "b1aae26ebdcf75a962b42c77c1ff77858a93e2b3322c21799566e7226e34c9de"
+    },
+    {
+      "path": "targets/codex.frontmatter.json",
+      "sha256": "eab3ff7dfa3dc836ea4909015030c8ca304f9395185909e11bfc518174838045"
+    },
+    {
+      "path": "references/PHASE_DELIVERY_PACKET_TEMPLATE.md",
+      "sha256": "53b62333d72c6981ef017ae946bda11096de5bfed2e217ec4ca8d20345458be2"
+    }
+  ],
+  "package_sha256": "ab198017ae8cd094f0dc7c0cbd284fa8db5a346649d0bf1178c801ea3cd58586"
+}

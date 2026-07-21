@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.4.0",
+  "version": "0.6.0",
   "description": "Shared agent memory rendered to CLAUDE.md (claude) and AGENTS.md (codex) at the project root",
-  "updated_at": "2026-07-17"
+  "updated_at": "2026-07-21"
 }

@@ -43,6 +43,7 @@ from .repository import (
     load_all_skills,
     load_manager_catalog_skills,
     load_skill,
+    resolve_skill_install_set,
     resolve_skill_dir,
     validate_skill_dir,
 )
@@ -184,7 +185,7 @@ def run_catalog(args: argparse.Namespace) -> int:
     skills = load_all_skills(repo_root, target_filter={args.target}, scopes=source_scopes)
     if args.json:
         print(json.dumps(
-            [{"name": s.name, "version": s.version, "description": s.description, "scope": s.scope, "tags": s.tags} for s in skills],
+            [{"name": s.name, "version": s.version, "description": s.description, "scope": s.scope, "tags": s.tags, "dependencies": s.skill_dependencies} for s in skills],
             ensure_ascii=False,
             indent=2,
         ))
@@ -209,15 +210,26 @@ def run_render(args: argparse.Namespace) -> int:
 def run_install(args: argparse.Namespace) -> int:
     repo_root = _repo_root_from_args(args)
     confirm = (lambda _: True) if args.yes else _prompt_yes_no
-    installed = install_skill(
-        repo_root,
-        Path(args.project).resolve(),
-        args.skill,
-        args.target,
-        force=args.force,
-        confirm=confirm,
+    install_set = resolve_skill_install_set(
+        repo_root, [args.skill], args.target, allowed_scopes={"public"}
     )
-    print(installed)
+    if len(install_set) > 1:
+        dependencies = ", ".join(skill.name for skill in install_set[:-1])
+        if not args.yes and not _prompt_yes_no(
+            f"{args.skill} requires: {dependencies}. Install the complete bundle? [y/N]: "
+        ):
+            raise ValueError("dependency bundle installation cancelled")
+        print(f"Installing dependency bundle: {dependencies}", file=sys.stderr)
+    for skill in install_set:
+        installed = install_skill(
+            repo_root,
+            Path(args.project).resolve(),
+            skill.name,
+            args.target,
+            force=args.force,
+            confirm=confirm,
+        )
+        print(installed)
     return 0
 
 

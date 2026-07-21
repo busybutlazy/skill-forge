@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "identity": {
-    "name": "plan-change",
-    "version": "0.2.0",
-    "description": "Analyze a non-trivial change read-only and produce an approval-ready implementation plan",
+    "name": "run-approved-change",
+    "version": "0.1.0",
+    "description": "Execute an explicitly approved low/medium-risk change in supervised-auto mode through verification and reporting",
     "updated_at": "2026-07-21",
     "tags": [
       "change-workflow",
-      "planning",
+      "automation",
       "governance"
     ]
   },
@@ -29,6 +29,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "3e868cd2a35beae0de952cf150a4523fdc7af3323e5ec383b396a509e1beb32a"
+    "package_sha256": "b9b9be12d9660cd1d94d44a06fa6ec004abf29df265ce6dfd72e05ffc42aee4c"
   }
 }
