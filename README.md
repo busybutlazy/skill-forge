@@ -1,6 +1,6 @@
 # skill-forge
 
-Version: 1.2.0
+[![GitHub release](https://img.shields.io/github/v/release/busybutlazy/skill-forge)](https://github.com/busybutlazy/skill-forge/releases)
 
 Write skills once, govern centrally, deploy to multiple coding AI targets.
 

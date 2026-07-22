@@ -1,7 +1,5 @@
 FROM python:3.11-slim
 
-ARG FORGE_VERSION=1.2.0
-
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -10,7 +8,6 @@ ENV SKILL_FORGE_PROJECT_DIR=/workspace/project
 
 LABEL org.opencontainers.image.title="skill-forge"
 LABEL org.opencontainers.image.description="Containerized CLI for validating, rendering, and installing canonical skills"
-LABEL org.opencontainers.image.version="${FORGE_VERSION}"
 
 WORKDIR /opt/skill-forge
 

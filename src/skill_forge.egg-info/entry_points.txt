@@ -1,2 +1,0 @@
-[console_scripts]
-skill-forge = skill_forge.cli:main

@@ -19,6 +19,7 @@
 tmp/
 __pycache__/
 *.pyc
+*.egg-info/
 
 # Local project installs used only for smoke tests
 test-project/

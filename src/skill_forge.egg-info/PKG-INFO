@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: skill-forge
-Version: 1.1.2
-Summary: Canonical skill-forge CLI for Codex and Claude targets
-Requires-Python: >=3.11
-License-File: LICENSE
-Dynamic: license-file
