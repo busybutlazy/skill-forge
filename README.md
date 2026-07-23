@@ -1,6 +1,6 @@
 # skill-forge
 
-[![GitHub release](https://img.shields.io/github/v/release/busybutlazy/skill-forge)](https://github.com/busybutlazy/skill-forge/releases)
+[![GitHub tag](https://img.shields.io/github/v/tag/busybutlazy/skill-forge)](https://github.com/busybutlazy/skill-forge/tags)
 
 Write an AI development workflow once, govern it in one canonical source, and install it for Codex or Claude.
 
