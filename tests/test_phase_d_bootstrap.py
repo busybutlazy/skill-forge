@@ -90,7 +90,7 @@ class PhaseDBootstrapContractTests(unittest.TestCase):
 
     def test_catalog_and_guideline_mark_bootstrap_available_not_recommended(self) -> None:
         catalog = json.loads((REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8"))
-        bootstrap = next(group for group in catalog["groups"] if group["name"] == "Start a Project")
+        bootstrap = next(group for group in catalog["groups"] if group["name"] == "Project Lifecycle")
         self.assertEqual(
             bootstrap["skills"],
             ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"],

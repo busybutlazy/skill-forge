@@ -83,7 +83,7 @@ class ProjectLifecycleRoutingTests(unittest.TestCase):
         catalog = json.loads(
             (REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8")
         )
-        group = next(item for item in catalog["groups"] if item["name"] == "Start a Project")
+        group = next(item for item in catalog["groups"] if item["name"] == "Project Lifecycle")
         self.assertEqual(
             group["skills"],
             [

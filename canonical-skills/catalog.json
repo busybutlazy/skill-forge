@@ -2,7 +2,7 @@
   "schema_version": 1,
   "groups": [
     {
-      "name": "Start a Project",
+      "name": "Project Lifecycle",
       "skills": ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"]
     },
     {

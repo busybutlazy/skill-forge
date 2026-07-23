@@ -20,21 +20,22 @@ Reject admission for a clear bounded change, approved task execution, verificati
 ## Workflow
 
 1. Read the user's goal, repository policy, existing project documents, code, relevant `CONTEXT.md` or `CONTEXT-MAP.md`, and ADRs.
-2. Build the current decision tree and classify known nodes.
-3. Identify load-bearing unresolved decisions: choices that affect scope, observable contracts, the domain model, major architecture, acceptance, security, data ownership, or costly implementation direction.
-4. Resolve them in dependency order using `grilling`. Ask one primary question at a time and wait for the user's answer.
-5. For each question provide:
-   - the decision;
-   - why it must be decided now;
-   - a concrete recommended answer and rationale;
-   - the meaningful alternatives;
-   - the costs and trade-offs of each option.
-6. Verify facts from the repository instead of asking the user. Never treat a recommendation or inference as a confirmed decision.
-7. Pressure-test answers with concrete scenarios, failure cases, and boundary cases. Challenge ambiguous, contradictory, or conflicting answers.
-8. Apply `domain-modeling` when terminology, entities, relationships, boundaries, ownership, or invariants change. Write only confirmed terms to the canonical glossary.
-9. Record an ADR only when the decision is hard to reverse, surprising without context, and a real trade-off.
-10. Continue until no blocking decisions remain, or the user explicitly asks to stop.
-11. Produce the Decision Readiness Summary below.
+2. Apply `grilling` to inventory every unresolved choice within the current project or change scope and classify its ownership. Prioritize Load-Bearing Decisions without omitting smaller choices that affect observable behavior, failure handling, data semantics, operations, or acceptance.
+3. Investigate facts from repository evidence. Resolve user-owned decisions through explicit confirmation. Record implementation-owned defaults without presenting them as product decisions.
+4. Apply `domain-modeling` whenever confirmed answers change terminology, entities, relationships, boundaries, ownership, or invariants. Record only qualifying ADRs.
+5. Apply the Safe Deferral Gate to every proposed deferred decision.
+6. Maintain decision artifacts inline and finish with the Decision Readiness Summary.
+
+## Safe Deferral Gate
+
+A decision is `intentionally deferred` only when all conditions hold:
+
+1. No current specification, Externally Observable Contract, Walking Skeleton, or included near-term Phase requires an assumed answer.
+2. Deferral does not change the meaning of current acceptance criteria.
+3. A named decision owner or authority is recorded.
+4. The exact phase, event, date, or condition that makes the decision blocking is recorded.
+
+Otherwise classify it as `blocking unresolved`.
 
 ## Authority Boundary
 
@@ -65,13 +66,23 @@ Every completion or stop must output exactly these sections:
 ## Recommended Next Workflow
 ```
 
+Record every deferred decision as:
+
+```markdown
+- Decision:
+- Why Safe Now:
+- Affected Scope:
+- Decision Owner:
+- Becomes Blocking When:
+```
+
 `Recommended Next Workflow` must name one concrete route: `define-project`, `plan-change`, `continue grill-with-docs`, or `return to human decision owner`.
 
 Only when `Blocking Open Decisions: None` may the summary declare `Ready for define-project`. If any blocking decision remains, do not soften the block with “mostly ready,” an implementation assumption, or a recommendation presented as a decision.
 
 ## Exit Criteria
 
-Every Load-Bearing Decision affecting scope, Externally Observable Contracts, domain model, major architecture, acceptance, security, data ownership, or costly implementation direction is resolved or intentionally deferred.
+Every unresolved choice in the current scope has an owner and readiness classification. Every user-owned decision required now is resolved, every deferred decision passes the Safe Deferral Gate, and no Blocking Decision remains.
 
 ## Handoff
 

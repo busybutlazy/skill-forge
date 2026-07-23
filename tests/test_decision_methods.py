@@ -29,7 +29,7 @@ class DecisionMethodTests(unittest.TestCase):
         catalog = json.loads(
             (REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8")
         )
-        group = next(item for item in catalog["groups"] if item["name"] == "Start a Project")
+        group = next(item for item in catalog["groups"] if item["name"] == "Project Lifecycle")
         self.assertEqual(
             group["skills"],
             ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"],
@@ -53,6 +53,38 @@ class DecisionMethodTests(unittest.TestCase):
             self.assertIn(heading, instruction)
         self.assertIn("Only when `Blocking Open Decisions: None`", instruction)
         self.assertIn("Ready for define-project", instruction)
+
+    def test_grilling_inventories_and_assigns_every_unresolved_choice(self) -> None:
+        instruction = (SKILLS_ROOT / "grilling" / "instruction.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Inventory every unresolved choice", instruction)
+        for classification in (
+            "`fact`",
+            "`user-owned decision`",
+            "`implementation-owned decision`",
+            "`intentionally deferred decision`",
+            "`blocking unresolved decision`",
+        ):
+            self.assertIn(classification, instruction)
+        self.assertIn("never silently omit smaller choices", instruction)
+
+    def test_safe_deferral_requires_evidence_owner_and_trigger(self) -> None:
+        instruction = (SKILLS_ROOT / "grill-with-docs" / "instruction.md").read_text(
+            encoding="utf-8"
+        )
+        for required in (
+            "## Safe Deferral Gate",
+            "No current specification",
+            "does not change the meaning of current acceptance criteria",
+            "named decision owner or authority",
+            "exact phase, event, date, or condition",
+            "Otherwise classify it as `blocking unresolved`",
+            "- Why Safe Now:",
+            "- Decision Owner:",
+            "- Becomes Blocking When:",
+        ):
+            self.assertIn(required, instruction)
 
     def test_authority_adapter_survives_render_for_both_targets(self) -> None:
         required = {

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "identity": {
     "name": "define-project",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "description": "Synthesize resolved project decisions into an approval-ready specification, contracts, and outcome-based roadmap",
     "updated_at": "2026-07-23",
     "tags": [
@@ -30,6 +30,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "1cbfe904054992442fde2d17ca4ca87c55e57f5e3f4a385bda2c7192b7d59fd1"
+    "package_sha256": "87ff93718c0955abeffe2e25a26b277c527faaa3676c2323c986b6023a82293d"
   }
 }

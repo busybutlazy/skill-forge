@@ -13,7 +13,8 @@ Required evidence:
 - observable success criteria;
 - confirmed scope boundaries;
 - confirmed domain terminology;
-- every load-bearing decision is resolved or explicitly deferred;
+- every Load-Bearing Decision required by the Project Definition, Walking Skeleton, or included Roadmap phases is resolved;
+- every other deferred decision has a safe-deferral rationale, named owner, and explicit blocking trigger;
 - known constraints;
 - a Decision Readiness Summary or equivalent evidence.
 
@@ -37,59 +38,21 @@ Admission fails when readiness evidence is missing or any Blocking Decision rema
    - produce an observable outcome;
    - be independently acceptable;
    - define included scope and acceptance criteria;
-   - state dependencies, risks, and deferred work;
+   - state dependencies, risks, Decision Gates, and deferred work;
    - form an independently acceptable Vertical Slice, not a horizontal technical layer.
-7. Preserve intentionally deferred decisions and state when they become blocking.
+7. Map every deferred decision to the Roadmap Phase or condition where it becomes blocking. Each Decision Gate names the owner, required timing, and current status.
 8. Cross-reference `CONTEXT.md`, ADRs, and readiness evidence instead of copying them wholesale.
-9. Assemble the Project Approval Packet using [PROJECT_APPROVAL_PACKET_TEMPLATE.md](./references/PROJECT_APPROVAL_PACKET_TEMPLATE.md).
+9. Write project-definition artifacts using [PROJECT_DEFINITION_FORMAT.md](./references/PROJECT_DEFINITION_FORMAT.md), then assemble the Project Approval Packet using [PROJECT_APPROVAL_PACKET_TEMPLATE.md](./references/PROJECT_APPROVAL_PACKET_TEMPLATE.md).
 10. Stop and wait for explicit human project approval.
 
 ## Outputs
 
-Create project-definition artifacts only as needed:
+- `docs/SPEC.md`
+- conditional `docs/CONTRACTS.md`
+- `docs/ROADMAP.md`, including per-phase Decision Gates
+- Project Approval Packet
 
-### `docs/SPEC.md`
-
-```markdown
-# Project Specification
-
-## Problem
-## Users and Actors
-## Observable Outcomes
-## Success Criteria
-## In Scope
-## Out of Scope
-## Domain Invariants
-## System Boundaries
-## Non-Functional Requirements
-## Known Constraints
-## Intentionally Deferred Decisions
-```
-
-### `docs/CONTRACTS.md`
-
-Create this only when the project has an externally observable contract, such as an API or event contract, authorization invariant, error contract, data-ownership boundary, or compatibility requirement. Do not describe internal implementation details as contracts.
-
-### `docs/ROADMAP.md`
-
-```markdown
-# Roadmap
-
-## Walking Skeleton
-
-## Phase N
-
-### Observable Outcome
-### Included Scope
-### Acceptance Criteria
-### Dependencies
-### Risks
-### Deferred Work
-```
-
-### Project Approval Packet
-
-The packet must identify the artifacts being approved, readiness evidence, Walking Skeleton, Roadmap outcomes, deferred decisions, risks, unresolved non-blocking concerns, and the exact approval requested. It must make clear that silence or approval of earlier decisions is not project approval.
+The formats and conditional creation rules are defined in the referenced templates. Silence or approval of earlier decisions is not Project Approval.
 
 ## Authority Boundary
 

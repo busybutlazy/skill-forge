@@ -2,7 +2,7 @@
   "schema_version": 1,
   "identity": {
     "name": "grilling",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "description": "Internal decision-interview method for resolving dependent choices one question at a time",
     "updated_at": "2026-07-23",
     "tags": [
@@ -37,6 +37,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "e246ef7c23d451ac7e410a31143b8ea5a0d5507f53faca1a2a08703788a7da6b"
+    "package_sha256": "f5591038aa248883fda12d573d048f3cefdd6267592e820fbf57ba3323c33db8"
   }
 }

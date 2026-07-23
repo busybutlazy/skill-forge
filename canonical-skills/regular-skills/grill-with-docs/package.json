@@ -2,7 +2,7 @@
   "schema_version": 1,
   "identity": {
     "name": "grill-with-docs",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "description": "Resolve load-bearing project decisions through a documented one-question-at-a-time workflow",
     "updated_at": "2026-07-23",
     "tags": [
@@ -43,6 +43,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "3c4eebde0f7d547b40a747238bcb822cb31b34b945bcc29691994e8e0f8f9015"
+    "package_sha256": "4b3874b3b1a80c5224ffb1f6d9f3b8917f4e01a428bc5c9b976c67cdf00f1809"
   }
 }

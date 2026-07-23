@@ -29,14 +29,14 @@ Read [the phase delivery packet template](./references/PHASE_DELIVERY_PACKET_TEM
 ## Phase Readiness Gate
 
 A phase must have an approved observable outcome, scope, acceptance criteria,
-and resolved blocking decisions. If it still contains an undecided external
-contract, data ownership rule, security boundary, or major architecture
-alternative, stop and route to `grill-with-docs`. Do not conduct a full
-interview or resolve the choice by assumption inside phase delivery.
+and Decision Gates. Read every gate before planning. A Phase cannot enter
+planning when any decision required before Phase start remains unresolved.
+
+If a gate or phase scope still contains an undecided external contract, data ownership rule, security boundary, or major architecture alternative, stop and route to `grill-with-docs`. Do not conduct a full interview or resolve the choice by assumption inside phase delivery.
 
 ## Phase Workflow
 
-1. Resolve exactly one Roadmap phase. Quote its stable ID/heading and boundaries in `changes/<phase-run-id>/PHASE_REQUEST.md`. Stop if it is absent, ambiguous, already complete, or depends on unresolved product decisions.
+1. Resolve exactly one Roadmap phase. Quote its stable ID/heading, boundaries, and Decision Gates in `changes/<phase-run-id>/PHASE_REQUEST.md`. Stop if it is absent, ambiguous, already complete, or has an unresolved decision required before Phase start.
 2. Perform read-only discovery. Read applicable specifications, contracts, ADR index/entries, project rules, current Git state, tests, and container commands. Do not modify production code during discovery.
 3. Decompose the phase into the smallest independently verifiable child Changes. Define dependency order, acceptance criteria, risk, execution mode, allowed paths, checkpoints, rollback, and the Roadmap outcomes covered by each child.
 4. Write `changes/<phase-run-id>/PHASE_EXECUTION_PLAN.md` using the template. Create draft child `REQUEST.md` and `IMPLEMENTATION_PLAN.md` artifacts under distinct `changes/<change-id>/` directories. Planning artifacts are the only writes allowed before approval.
