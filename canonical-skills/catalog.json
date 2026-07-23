@@ -3,7 +3,7 @@
   "groups": [
     {
       "name": "Project Definition / Decision Making",
-      "skills": ["grill-with-docs"]
+      "skills": ["grill-with-docs", "define-project"]
     },
     {
       "name": "Git & Review",

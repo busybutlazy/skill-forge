@@ -33,7 +33,7 @@ class DecisionMethodTests(unittest.TestCase):
             item for item in catalog["groups"]
             if item["name"] == "Project Definition / Decision Making"
         )
-        self.assertEqual(group["skills"], ["grill-with-docs"])
+        self.assertEqual(group["skills"], ["grill-with-docs", "define-project"])
         grouped = {name for item in catalog["groups"] for name in item["skills"]}
         self.assertNotIn("grilling", grouped)
         self.assertNotIn("domain-modeling", grouped)

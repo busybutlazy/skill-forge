@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "define-project",
+    "version": "0.1.0",
+    "description": "Synthesize resolved project decisions into an approval-ready specification, contracts, and outcome-based roadmap",
+    "updated_at": "2026-07-23",
+    "tags": [
+      "project-definition",
+      "specification",
+      "roadmap",
+      "entrypoint"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "dd4f61cde70c0b80a9c33971cbe24c626ea2e9c903848d2b6c7a512d0964b393"
+  }
+}
