@@ -8,7 +8,7 @@ from skill_forge.repository import load_skill
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ["plan-change", "implement-task", "run-approved-change", "verify-change", "report-change", "review-change"]
 VERSIONS = {
-    "plan-change": "0.2.1",
+    "plan-change": "0.2.2",
     "implement-task": "0.1.1",
     "run-approved-change": "0.1.0",
     "verify-change": "0.1.1",

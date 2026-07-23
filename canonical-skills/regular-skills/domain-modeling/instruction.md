@@ -1,8 +1,10 @@
 # Domain Modeling
 
-Use this internal method when a calling workflow must actively clarify or change a project's domain language, boundaries, relationships, or invariants. Merely reading `CONTEXT.md` for existing vocabulary does not require this method.
+## Purpose
 
-## Discover the model
+Internal method for actively changing a project's ubiquitous language, boundaries, relationships, ownership, or invariants. Reading existing vocabulary alone does not invoke this method.
+
+## Method
 
 - Read the relevant `CONTEXT.md`, `CONTEXT-MAP.md`, ADRs, project documents, and code before proposing definitions.
 - Surface overloaded, vague, inconsistent, or contradictory terms immediately.
@@ -12,13 +14,13 @@ Use this internal method when a calling workflow must actively clarify or change
 - When the stated model conflicts with documentation or code, present the conflict for resolution rather than silently choosing a side.
 - Never promote an unconfirmed inference into the canonical model.
 
-## Maintain the glossary
+### Canonical Glossary
 
 When a term is confirmed, update the applicable `CONTEXT.md` inline using [CONTEXT-FORMAT.md](./references/CONTEXT-FORMAT.md). If `CONTEXT-MAP.md` exists, use the context it identifies; ask when the correct context is genuinely ambiguous. Create the glossary lazily when the first term is confirmed.
 
 `CONTEXT.md` is canonical glossary and domain context only. It is not a full specification, work log, implementation plan, ADR collection, or scratchpad.
 
-## Record ADRs sparsely
+### Sparse ADRs
 
 Create or offer an ADR only when all three conditions hold:
 
@@ -28,12 +30,17 @@ Create or offer an ADR only when all three conditions hold:
 
 Use [ADR-FORMAT.md](./references/ADR-FORMAT.md), and create `docs/adr/` lazily. If any criterion is missing, do not create an ADR.
 
-## Authority
+## Authority Adapter
 
-Only update project-definition artifacts permitted by the calling workflow and repository policy. This method never grants production-code authority.
+| Capability | Authority |
+|---|---|
+| Read context, ADRs, documents, and code | Allowed |
+| Update confirmed glossary terms | Allowed when the caller permits |
+| Create an ADR meeting all three criteria | Allowed when the caller permits |
+| Record an unconfirmed inference as canonical | Denied |
+| Modify production code, dependencies, migrations, runtime, or deployment | Denied |
+| Approve, commit, push, or merge | Denied |
 
-It also never grants dependency, migration, runtime-configuration, deployment, approval, commit, push, or merge authority.
-
-## Completion
+## Return Contract
 
 Return control when the calling workflow has the confirmed terminology, boundaries, invariants, glossary changes, and any genuinely necessary ADRs it needs. Identify unresolved contradictions explicitly.

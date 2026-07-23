@@ -18,7 +18,7 @@ class DefineProjectTests(unittest.TestCase):
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
         for required in (
             "Decision Readiness Summary or equivalent evidence",
-            "If decision-readiness evidence is missing",
+            "Admission fails when readiness evidence is missing",
             "do not infer an answer",
             "do not turn a recommendation into an approved decision",
             "stop and route to `grill-with-docs`",
@@ -57,10 +57,10 @@ class DefineProjectTests(unittest.TestCase):
     def test_walking_skeleton_and_phases_are_observable_vertical_outcomes(self) -> None:
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
         for required in (
-            "genuinely executable",
-            "principal system boundaries",
-            "A blank scaffold does not qualify",
-            "vertical outcome slice rather than a horizontal technical layer",
+            "Walking Skeleton: executable",
+            "primary system boundaries",
+            "A structural scaffold does not qualify",
+            "Vertical Slice, not a horizontal technical layer",
             "independently acceptable",
         ):
             self.assertIn(required, instruction)
@@ -68,13 +68,10 @@ class DefineProjectTests(unittest.TestCase):
     def test_authority_is_definition_only_and_requires_human_approval(self) -> None:
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
         for required in (
-            "project-definition artifacts only",
-            "must not write production code",
-            "add dependencies",
-            "run migrations",
-            "approve the project",
-            "start `bootstrap-project`",
-            "explicit human project approval",
+            "| Write production code or runtime implementation | Denied |",
+            "| Add dependencies, run migrations, or establish deployment | Denied |",
+            "| Approve the project or start `bootstrap-project` | Denied |",
+            "explicit Human Project Approval",
         ):
             self.assertIn(required, instruction)
 
@@ -112,7 +109,10 @@ class DefineProjectTests(unittest.TestCase):
                 rendered = (
                     Path(result.stdout.strip()) / "SKILL.md"
                 ).read_text(encoding="utf-8")
-                self.assertIn("must not write production code", rendered)
+                self.assertIn(
+                    "| Write production code or runtime implementation | Denied |",
+                    rendered,
+                )
                 self.assertIn("Stop and wait for explicit human project approval", rendered)
                 self.assertIn("stop and route to `grill-with-docs`", rendered)
 

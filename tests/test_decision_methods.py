@@ -56,9 +56,9 @@ class DecisionMethodTests(unittest.TestCase):
 
     def test_authority_adapter_survives_render_for_both_targets(self) -> None:
         required = {
-            "grilling": "never grants production-code",
-            "domain-modeling": "never grants production-code authority",
-            "grill-with-docs": "must not write production code",
+            "grilling": "| Modify production code, dependencies, migrations, runtime, or deployment | Denied |",
+            "domain-modeling": "| Modify production code, dependencies, migrations, runtime, or deployment | Denied |",
+            "grill-with-docs": "| Write production code, dependencies, migrations, runtime, deployment, or implementation tasks | Denied |",
         }
         for target in ("codex", "claude"):
             for skill, marker in required.items():

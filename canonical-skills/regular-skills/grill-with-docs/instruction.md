@@ -1,10 +1,12 @@
 # Grill with Docs
 
-Use this user-facing workflow to resolve important project or change decisions before project definition or change planning. Apply the installed `grilling` method for the interview and `domain-modeling` whenever terminology, boundaries, invariants, or ADR-worthy choices emerge.
+## Objective
 
-## Admission
+Reach Decision Readiness before project definition or change planning. Use `grilling` for the interview and `domain-modeling` for terminology, boundaries, invariants, and ADR-worthy choices.
 
-Use this workflow when:
+## Admission Criteria
+
+Admit when any of these are true:
 
 - a new project has only an initial idea;
 - a major feature has multiple viable directions;
@@ -13,9 +15,9 @@ Use this workflow when:
 - requirements affect external contracts, data ownership or models, authorization, security boundaries, acceptance, or major architecture;
 - `define-project` or `plan-change` cannot proceed without guessing.
 
-Do not use it for a small change whose requirements, contract, scope, and acceptance criteria are already clear; execution of an approved task; verification or review alone; or a local fix with a known root cause.
+Reject admission for a clear bounded change, approved task execution, verification or review alone, or a local fix with a known root cause.
 
-## Process
+## Workflow
 
 1. Read the user's goal, repository policy, existing project documents, code, relevant `CONTEXT.md` or `CONTEXT-MAP.md`, and ADRs.
 2. Build the current decision tree and classify known nodes.
@@ -34,16 +36,16 @@ Do not use it for a small change whose requirements, contract, scope, and accept
 10. Continue until no blocking decisions remain, or the user explicitly asks to stop.
 11. Produce the Decision Readiness Summary below.
 
-## Writes and authority
+## Authority Boundary
 
-Subject to repository policy, this workflow may write:
-
-- `CONTEXT.md` or context-specific glossary files;
-- `docs/adr/**`;
-- dedicated decision notes;
-- a grilling session summary.
-
-It must not write production code, dependency files, migrations, runtime or deployment configuration, or implementation tasks. Loading this workflow or either method dependency never grants those permissions. It cannot approve a decision for the user, start implementation, commit, push, merge, or invoke a higher-authority workflow automatically.
+| Capability | Authority |
+|---|---|
+| Read repository, documents, code, context, and ADRs | Allowed |
+| Write confirmed glossary terms and qualifying ADRs | Allowed by repository policy |
+| Write dedicated decision notes or session summary | Allowed by repository policy |
+| Write production code, dependencies, migrations, runtime, deployment, or implementation tasks | Denied |
+| Approve a decision | Denied |
+| Start implementation, commit, push, merge, or invoke a higher-authority workflow | Denied |
 
 ## Decision Readiness Summary
 
@@ -67,6 +69,10 @@ Every completion or stop must output exactly these sections:
 
 Only when `Blocking Open Decisions: None` may the summary declare `Ready for define-project`. If any blocking decision remains, do not soften the block with “mostly ready,” an implementation assumption, or a recommendation presented as a decision.
 
-## Completion
+## Exit Criteria
 
-The workflow is complete only when every important decision affecting project scope, externally observable contracts, domain model, major architecture, acceptance, or costly implementation direction is resolved or explicitly deferred. Return the summary and stop; the named next workflow requires its own admission and authority.
+Every Load-Bearing Decision affecting scope, Externally Observable Contracts, domain model, major architecture, acceptance, security, data ownership, or costly implementation direction is resolved or intentionally deferred.
+
+## Handoff
+
+Return the Decision Readiness Summary and stop. The named next workflow requires its own Admission Criteria and authority.

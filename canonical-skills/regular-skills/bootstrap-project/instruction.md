@@ -1,13 +1,15 @@
 # Bootstrap Project
 
-Create the minimum explicitly approved Docker-first development and CI baseline. Discovery is read-only; no infrastructure write is allowed until a human approves the bootstrap plan.
+## Objective
 
-## Use This For
+Create the minimum approved Docker-first development and CI baseline. Discovery has an empty Write Set until Human Bootstrap Approval.
+
+## Admission Criteria
 
 - A new or unbootstrapped repository lacks an approved Docker/Compose workflow, canonical commands, CI baseline, or project-specific agent rules.
 - A human explicitly asks to establish the Docker-first prerequisite before normal implementation.
 
-## Do Not Use This For
+Reject admission for:
 
 - Rewriting or replacing mature Docker, Compose, task-runner, or CI infrastructure.
 - Application implementation, architecture invention, dependency upgrades, deployment, Kubernetes, cloud/IAM, production, or secret handling.
@@ -97,6 +99,6 @@ Use references as decision guidance, not universal files to copy blindly. Preser
 
 Stop for missing explicit approval, Docker unavailable, conflicting or unexplained infrastructure/worktree state, unapproved file or command changes, uncertain runtime/package-manager evidence, dependency or architecture expansion, data-loss risk, production/secret access, or failed verification requiring a material plan deviation. There is no host fallback.
 
-## Evidence Standard
+## Exit Criteria and Handoff
 
 Separate observed evidence, approved decisions, executed results, and assumptions. Never claim bootstrap completion when required checks failed or were not run. The created baseline remains subject to independent review and CI.

@@ -1,13 +1,15 @@
 # Plan Change
 
-Prepare an approval-ready plan without implementing the change. The only permitted write is the owned plan artifact.
+## Objective
 
-## Use This For
+Produce an approval-ready Implementation Plan without implementing the Change. The Write Set is limited to the owned plan artifact.
+
+## Admission Criteria
 
 - Planning a non-trivial feature, fix, migration, contract change, or refactor before implementation.
 - Re-planning when approved scope or repository evidence has materially changed.
 
-## Do Not Use This For
+Reject admission for:
 
 - Implementing code, changing configuration, installing dependencies, running migrations, or approving a plan.
 - A trivial documentation or formatting edit whose scope and validation are already explicit.
@@ -43,6 +45,6 @@ planning or present a recommended option as an approved decision.
 
 Stop for conflicting requirements, unexplained worktree changes, missing canonical container entrypoints, required production/secret access, irreversible data operations, unapproved dependencies/migrations, or scope/contract changes. Missing Docker support points to the separate `bootstrap-project` workflow; it never permits host project execution.
 
-## Evidence and Handoff
+## Exit Criteria and Handoff
 
 Separate observed facts from assumptions. Cite files, symbols, baseline commands, and results precisely. The handoff is the plan path, task list, risks, and questions awaiting human approval. A written plan is not approval.

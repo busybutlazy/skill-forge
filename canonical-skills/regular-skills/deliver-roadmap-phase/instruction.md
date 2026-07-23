@@ -1,14 +1,16 @@
 # Deliver Roadmap Phase
 
-Turn one exact Roadmap phase into bounded governed changes, obtain one execution approval, coordinate the approved work, and stop for final human acceptance.
+## Objective
 
-## Use This For
+Deliver one approved Roadmap Phase as bounded governed Changes, then stop for Human Phase Acceptance.
+
+## Admission Criteria
 
 - The user wants to deliver one named phase or milestone from an existing Roadmap.
 - The project has enough specifications, contracts, architecture decisions, and containerized verification commands to plan the phase without inventing requirements.
 - The user wants a single entry point instead of invoking each change-workflow skill manually.
 
-## Do Not Use This For
+Reject admission for:
 
 - “Continue the Roadmap,” multiple phases, or an ambiguous heading. Require the Roadmap path and one uniquely matching phase ID or heading.
 - Product discovery, changing Roadmap scope, or filling missing requirements by assumption.
@@ -57,4 +59,12 @@ On stop, preserve evidence, name the blocked child/outcome, and request the smal
 
 ## Authority Boundary
 
-This skill is an orchestrating facade over the installed atomic workflow skills. It does not weaken their admission gates or grant authority beyond the approved Phase Delivery Packet. Planning approval, independent review, final acceptance, and Git/release actions remain distinct authorities.
+| Capability | Authority |
+|---|---|
+| Coordinate installed atomic workflow skills | Allowed within the approved Phase Delivery Packet |
+| Weaken an atomic skill's Admission Criteria | Denied |
+| Expand scope, paths, tasks, or execution mode | Denied without revised approval |
+| Review or self-approve implementation | Denied |
+| Commit, push, merge, release, or deploy | Denied |
+
+Planning approval, independent review, Human Phase Acceptance, and Git/release actions remain distinct authorities.

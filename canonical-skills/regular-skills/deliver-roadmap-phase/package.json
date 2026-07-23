@@ -2,7 +2,7 @@
   "schema_version": 1,
   "identity": {
     "name": "deliver-roadmap-phase",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Deliver one exact Roadmap phase through governed planning, approved execution, verification, and review handoff",
     "updated_at": "2026-07-23",
     "tags": [
@@ -40,6 +40,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "d2bf308f8fbea99e9217a953a85e4637d56eddf8fbb21500563a31f98b7a598f"
+    "package_sha256": "cd567f2c5310953bcb8dd20bee65ae72e77ab816d64fb6ccae4b53ca6d116bf2"
   }
 }

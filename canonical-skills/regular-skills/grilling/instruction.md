@@ -1,6 +1,12 @@
 # Grilling
 
-Use this internal method when a calling workflow must resolve important decisions in a plan, design, or idea. It supplies the interview technique; it does not grant authority or start implementation.
+## Purpose
+
+Internal decision-interview method for resolving a plan's decision tree. It supplies technique, not workflow authority.
+
+## Invocation Context
+
+Use when a calling workflow has unresolved decisions. Authority and readiness criteria come from that workflow.
 
 ## Method
 
@@ -15,14 +21,21 @@ Use this internal method when a calling workflow must resolve important decision
 9. Pressure-test answers with concrete scenarios, edge cases, failure cases, and boundary cases.
 10. Continue until the calling workflow's readiness condition is met or the user explicitly stops.
 
-Do not replace analysis with an abstract question such as “What do you want to do?” Do not dump a bulk questionnaire: preserve the decision tree by resolving one dependent choice at a time.
+Never replace analysis with “What do you want to do?” or a bulk questionnaire.
 
-## Authority
+## Authority Adapter
 
-Authority is inherited from the calling workflow and repository policy. This method may read the repository and maintain decision notes that the caller permits. It never grants production-code, dependency, migration, runtime-configuration, deployment, approval, or implementation authority.
+| Capability | Authority |
+|---|---|
+| Read repository evidence | Allowed |
+| Maintain caller-owned decision notes | Allowed when the caller permits |
+| Recommend an option | Analysis only |
+| Approve a decision | Denied |
+| Modify production code, dependencies, migrations, runtime, or deployment | Denied |
+| Start implementation or another workflow | Denied |
 
-Do not act on a decision merely because the method recommended it. Do not enter implementation or declare shared understanding until the user confirms the relevant decisions.
+Recommendations are not decisions. Shared understanding requires confirmation from the decision owner.
 
-## Completion
+## Return Contract
 
 Return control to the calling workflow with the decision tree classified into resolved, intentionally deferred, and blocking unresolved decisions.
