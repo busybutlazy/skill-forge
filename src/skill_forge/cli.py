@@ -42,6 +42,7 @@ from .repository import (
     iter_skill_dirs,
     load_all_skills,
     load_manager_catalog_skills,
+    load_recommended_skills,
     load_skill,
     resolve_skill_install_set,
     resolve_skill_dir,
@@ -73,6 +74,14 @@ def build_parser() -> argparse.ArgumentParser:
     catalog_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
     catalog_parser.add_argument("--scope", choices=[*SUPPORTED_SCOPES, "all"], default="public", help="Which canonical source scope to include")
     catalog_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
+
+    plan_parser = subparsers.add_parser(
+        "plan",
+        help="Merged public catalog + install status with badges and recommendations (single call for install-my-skill)",
+    )
+    plan_parser.add_argument("--target", choices=SUPPORTED_TARGETS, required=True)
+    plan_parser.add_argument("--project", required=True, help="Target project root")
+    plan_parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON output")
 
     install_parser = subparsers.add_parser("install", help="Install a rendered package into a project")
     install_parser.add_argument("skill", help="Skill name")
@@ -196,6 +205,60 @@ def run_catalog(args: argparse.Namespace) -> int:
     for skill in skills:
         tags = ", ".join(skill.tags) if skill.tags else "-"
         print(f"{skill.name}\t{skill.version}\t{skill.scope}\t{skill.description}\t[{tags}]")
+    return 0
+
+
+_PLAN_BADGES = {
+    "up_to_date": "✓ 已安裝（最新）",
+    "update_available": "⬆ 有更新",
+    "drift": "⚠ 已安裝（有本地修改）",
+    "broken": "✗ 損壞",
+    "unmanaged": "◌ 非 skill-forge 管理（不會覆寫）",
+    "not_installed": "○ 未安裝",
+}
+
+
+def run_plan(args: argparse.Namespace) -> int:
+    """Single call for the install-my-skill flow: merge the public catalog with
+    installed status and hand-maintained recommendations. Public scope only, so
+    maintainer skills can never surface to a regular user."""
+    repo_root = _repo_root_from_args(args)
+    project_dir = Path(args.project).resolve()
+    catalog = load_all_skills(repo_root, target_filter={args.target}, scopes={"public"})
+    statuses = {
+        status.name: status
+        for status in list_installed(repo_root, project_dir, args.target, source_scopes={"public"})
+    }
+    always, intents = load_recommended_skills(repo_root)
+    always_set = set(always)
+
+    skills = []
+    for skill in catalog:
+        status = statuses.get(skill.name)
+        raw_status = status.status if status is not None else "not_installed"
+        installed_version = status.version if status is not None else None
+        badge = _PLAN_BADGES.get(raw_status, raw_status)
+        if raw_status == "update_available":
+            badge = f"⬆ 有更新（{installed_version or '?'} → {skill.version}）"
+        skills.append({
+            "name": skill.name,
+            "catalog_version": skill.version,
+            "installed_version": installed_version,
+            "status": raw_status,
+            "badge": badge,
+            "recommended": skill.name in always_set,
+            "tags": skill.tags,
+            "description": skill.description,
+            "dependencies": skill.skill_dependencies,
+        })
+
+    payload = {"target": args.target, "skills": skills, "intent_hints": intents}
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    for entry in skills:
+        star = "★" if entry["recommended"] else " "
+        print(f"{star} {entry['name']}\t{entry['catalog_version']}\t{entry['badge']}")
     return 0
 
 
@@ -538,6 +601,7 @@ def main(argv: list[str] | None = None) -> int:
         "validate": run_validate,
         "render": run_render,
         "catalog": run_catalog,
+        "plan": run_plan,
         "install": run_install,
         "list": run_list,
         "remove": run_remove,

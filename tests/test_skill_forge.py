@@ -24,6 +24,7 @@ from skill_forge.menu import _pad, _visible_len
 from skill_forge.package_ops import refresh_skill_metadata
 from skill_forge.repository import (
     load_all_skills,
+    load_recommended_skills,
     load_skill,
     validate_skill_dir,
 )
@@ -261,6 +262,70 @@ class WorkflowTests(CliTestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("commit", result.stdout)
         self.assertIn("install-my-skill", result.stdout)
+
+    def test_plan_json_is_public_only_with_badges_and_recommendations(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-plan-") as tmp_dir:
+            project_root = Path(tmp_dir)
+            result = self.run_cli(
+                "plan", "--target", "claude", "--project", str(project_root), "--json"
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["target"], "claude")
+            self.assertIn("intent_hints", payload)
+            skills = {s["name"]: s for s in payload["skills"]}
+            # public skills present, maintainer skills structurally excluded
+            self.assertIn("commit", skills)
+            self.assertIn("install-my-skill", skills)
+            self.assertNotIn("create-skill", skills)
+            self.assertNotIn("install-manager-skill", skills)
+            # a fresh project has nothing installed
+            self.assertEqual(skills["commit"]["status"], "not_installed")
+            self.assertEqual(skills["commit"]["badge"], "○ 未安裝")
+            for entry in skills.values():
+                for key in (
+                    "catalog_version",
+                    "installed_version",
+                    "status",
+                    "badge",
+                    "recommended",
+                    "tags",
+                    "description",
+                ):
+                    self.assertIn(key, entry)
+            # `recommended` reflects membership in the hand-maintained always list
+            always, intents = load_recommended_skills(REPO_ROOT)
+            always_set = set(always)
+            for name, entry in skills.items():
+                self.assertEqual(entry["recommended"], name in always_set)
+            # intent hints are surfaced so the agent can recommend by intent
+            self.assertEqual(payload["intent_hints"], intents)
+
+    def test_plan_tabular_excludes_maintainer_and_marks_always(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-plan-") as tmp_dir:
+            result = self.run_cli(
+                "plan", "--target", "claude", "--project", tmp_dir
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("commit", result.stdout)
+            self.assertNotIn("create-skill", result.stdout)
+            # every always-list skill is starred in the tabular output
+            always, _ = load_recommended_skills(REPO_ROOT)
+            for name in always:
+                self.assertIn(f"★ {name}", result.stdout)
+
+    def test_load_recommended_skills_reads_always_and_intents(self) -> None:
+        always, intents = load_recommended_skills(REPO_ROOT)
+        self.assertIsInstance(always, list)
+        self.assertIsInstance(intents, dict)
+        # commit is categorised under at least one project intent
+        self.assertTrue(any("commit" in names for names in intents.values()))
+
+    def test_load_recommended_skills_missing_file_returns_empty(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="skill-forge-rec-") as tmp_dir:
+            always, intents = load_recommended_skills(Path(tmp_dir))
+            self.assertEqual(always, [])
+            self.assertEqual(intents, {})
 
     def test_wrapper_no_interactive_flag_stripped_from_help_text(self) -> None:
         wrapper = REPO_ROOT / "skill-manager"

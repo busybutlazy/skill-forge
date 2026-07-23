@@ -11,6 +11,7 @@ OPTIONAL_ASSET_DIRS = ["examples", "references", "scripts", "assets"]
 SUPPORTED_TARGETS = ("codex", "claude")
 SUPPORTED_SCOPES = ("public", "maintainer")
 SHARED_MANAGER_TAG = "shared"
+RECOMMENDED_SKILLS_FILE = "recommended-skills.json"
 CANONICAL_BUCKETS = {
     "regular-skills": "public",
     "manager-skills": "maintainer",
@@ -333,6 +334,34 @@ def load_all_skills(
     if scopes is None:
         return skills
     return [skill for skill in skills if skill.scope in scopes]
+
+
+def load_recommended_skills(repo_root: Path) -> tuple[list[str], dict[str, list[str]]]:
+    """Load the hand-maintained recommendation lists.
+
+    Returns ``(always, intents)`` where ``always`` is the list of skill names
+    recommended regardless of project intent, and ``intents`` maps a
+    plain-language intent label to the skill names worth recommending for it.
+    A missing or malformed file yields empty lists rather than raising.
+    """
+    path = repo_root / RECOMMENDED_SKILLS_FILE
+    if not path.is_file():
+        return [], {}
+    try:
+        data = json.loads(read_text(path))
+    except (json.JSONDecodeError, OSError):
+        return [], {}
+    if not isinstance(data, dict):
+        return [], {}
+    always_raw = data.get("always", [])
+    always = [name for name in always_raw if isinstance(name, str)] if isinstance(always_raw, list) else []
+    intents_raw = data.get("intents", {})
+    intents: dict[str, list[str]] = {}
+    if isinstance(intents_raw, dict):
+        for label, names in intents_raw.items():
+            if isinstance(label, str) and isinstance(names, list):
+                intents[label] = [name for name in names if isinstance(name, str)]
+    return always, intents
 
 
 def load_shared_regular_skills(

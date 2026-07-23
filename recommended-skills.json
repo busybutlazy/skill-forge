@@ -1,0 +1,36 @@
+{
+  "_comment": "Hand-maintained by maintainers. `always` marks skills recommended regardless of project intent (empty = every recommendation is intent-driven). `intents` maps a plain-language project intent to the skills worth recommending for it; install-my-skill surfaces these to the agent so it can suggest matches after asking the user's goal. Skill names must be public (regular) skills.",
+  "always": [],
+  "intents": {
+    "Git / Code Review": [
+      "commit",
+      "create-pr",
+      "code-review"
+    ],
+    "專案生命週期": [
+      "grill-with-docs",
+      "define-project",
+      "bootstrap-project",
+      "deliver-roadmap-phase"
+    ],
+    "Change Workflow": [
+      "plan-change",
+      "implement-task",
+      "run-approved-change",
+      "verify-change",
+      "report-change",
+      "review-change"
+    ],
+    "文件與知識管理": [
+      "dto-organizer",
+      "translate-pdf-book",
+      "experience-card"
+    ],
+    "系統操作": [
+      "verified-operator"
+    ],
+    "程式碼風格": [
+      "ponytail-forge"
+    ]
+  }
+}
