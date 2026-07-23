@@ -8,7 +8,7 @@ from skill_forge.repository import load_skill
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ["plan-change", "implement-task", "run-approved-change", "verify-change", "report-change", "review-change"]
 VERSIONS = {
-    "plan-change": "0.2.0",
+    "plan-change": "0.2.1",
     "implement-task": "0.1.1",
     "run-approved-change": "0.1.0",
     "verify-change": "0.1.1",
@@ -16,7 +16,7 @@ VERSIONS = {
     "review-change": "0.1.0",
 }
 UPDATED_AT = {
-    "plan-change": "2026-07-21",
+    "plan-change": "2026-07-23",
     "implement-task": "2026-07-20",
     "run-approved-change": "2026-07-21",
     "verify-change": "2026-07-20",
@@ -70,7 +70,7 @@ class PhaseCWorkflowContractTests(unittest.TestCase):
         guideline = (
             REPO_ROOT / "canonical-configs" / "agent-guideline" / "guideline.md"
         ).read_text(encoding="utf-8")
-        self.assertIn("已提供的 Change Workflow skills", guideline)
+        self.assertIn("已提供的 Workflow skills", guideline)
         for name in SKILLS:
             self.assertIn(f"`{name}`", guideline)
 

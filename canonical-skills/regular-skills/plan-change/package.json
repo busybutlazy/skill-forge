@@ -2,9 +2,9 @@
   "schema_version": 1,
   "identity": {
     "name": "plan-change",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Analyze a non-trivial change read-only and produce an approval-ready implementation plan",
-    "updated_at": "2026-07-21",
+    "updated_at": "2026-07-23",
     "tags": [
       "change-workflow",
       "planning",
@@ -29,6 +29,6 @@
   },
   "integrity": {
     "manifest_file": "manifest.json",
-    "package_sha256": "3e868cd2a35beae0de952cf150a4523fdc7af3323e5ec383b396a509e1beb32a"
+    "package_sha256": "696fe8ab6cf781e062a1545ff1c05cf2f8e52bf0a633854ef083c7df1c4a55c7"
   }
 }

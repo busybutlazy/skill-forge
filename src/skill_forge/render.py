@@ -28,6 +28,15 @@ def _metadata_payload(skill: CanonicalSkill) -> dict[str, object]:
     }
 
 
+def _render_codex_agent_config(skill: CanonicalSkill, destination: Path) -> None:
+    source = skill.root / "targets" / "codex.agent.yaml"
+    if not source.is_file():
+        return
+    agent_dir = destination / "agents"
+    agent_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source, agent_dir / "openai.yaml")
+
+
 def render_skill(skill: CanonicalSkill, target: str, output_root: Path) -> Path:
     if target not in skill.targets:
         raise ValueError(f"skill {skill.name} does not define target {target}")
@@ -42,6 +51,7 @@ def render_skill(skill: CanonicalSkill, target: str, output_root: Path) -> Path:
         metadata = _metadata_payload(skill)
         write_text(target_path / "SKILL.md", skill_md)
         write_text(target_path / "metadata.json", json.dumps(metadata, ensure_ascii=False, indent=2) + "\n")
+        _render_codex_agent_config(skill, target_path)
         _copy_assets(skill, target_path)
         return target_path
 

@@ -15,6 +15,29 @@ Create the minimum explicitly approved Docker-first development and CI baseline.
 
 Existing infrastructure is unmanaged architecture. If it exists or conflicts with the proposed baseline, stop and recommend adoption analysis or a separate approved `plan-change` migration; never overwrite it automatically.
 
+## Project Readiness Gate
+
+This workflow establishes the development, container, canonical-command, and CI
+baseline. It does not define the product, domain model, system architecture, or
+Roadmap.
+
+For a greenfield project, confirm before discovery proceeds that:
+
+- an approval-ready Project Definition exists;
+- a human has explicitly approved that Project Definition;
+- the runtime, toolchain, and other bootstrap-affecting choices are resolved in
+  the approved definition or approval record.
+
+If any of these are missing, stop. Route unresolved product, domain, contract,
+security, data-model, data-ownership, or major architecture decisions to
+`grill-with-docs`; route resolved decisions that still need formal project
+artifacts to `define-project`. Never invent architecture or product decisions
+inside bootstrap.
+
+An existing project that only lacks an engineering baseline may use this
+workflow independently when its product and architecture sources of truth are
+already established.
+
 ## Required Inputs
 
 - Stable `<change-id>`, bootstrap request, repository instructions, specifications/contracts/ADRs, and repository/Git state (including an explicit non-Git finding when `.git` is absent).

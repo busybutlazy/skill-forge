@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "grilling",
+    "version": "0.1.1",
+    "description": "Internal decision-interview method for resolving dependent choices one question at a time",
+    "updated_at": "2026-07-23",
+    "tags": [
+      "decision-making",
+      "method",
+      "internal"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "provenance": {
+    "repository": "https://github.com/mattpocock/skills",
+    "commit": "ed37663cc5fbef691ddfecd080dff42f7e7e350d",
+    "source_path": "skills/productivity/grilling",
+    "upstream_skill": "grilling",
+    "import_type": "adapted",
+    "license": "MIT"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "e8912e367064169e24b13de5038ddbabde1f57ec3113657f144f79a5ddc8ecab"
+  }
+}

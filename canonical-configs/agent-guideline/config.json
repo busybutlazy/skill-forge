@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.7.0",
+  "version": "0.8.1",
   "description": "Coding agent governance guideline rendered to docs/agent-guideline.md in the target project",
-  "updated_at": "2026-07-21"
+  "updated_at": "2026-07-23"
 }

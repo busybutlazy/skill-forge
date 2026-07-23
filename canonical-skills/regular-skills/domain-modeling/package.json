@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "domain-modeling",
+    "version": "0.1.1",
+    "description": "Internal method for sharpening domain language, boundaries, invariants, and sparse architectural decisions",
+    "updated_at": "2026-07-23",
+    "tags": [
+      "domain-modeling",
+      "method",
+      "internal"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "provenance": {
+    "repository": "https://github.com/mattpocock/skills",
+    "commit": "ed37663cc5fbef691ddfecd080dff42f7e7e350d",
+    "source_path": "skills/engineering/domain-modeling",
+    "upstream_skill": "domain-modeling",
+    "import_type": "adapted",
+    "license": "MIT"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "a3c691d68d81fbe86f339157b77aeed48124140470a58f2a7f474093703684b1"
+  }
+}

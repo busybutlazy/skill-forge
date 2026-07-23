@@ -22,8 +22,8 @@ REFERENCES = {
 class PhaseDBootstrapContractTests(unittest.TestCase):
     def test_package_validates_and_manifest_includes_every_reference(self) -> None:
         skill = load_skill(REPO_ROOT, "bootstrap-project")
-        self.assertEqual(skill.version, "0.1.1")
-        self.assertEqual(skill.updated_at, "2026-07-20")
+        self.assertEqual(skill.version, "0.1.2")
+        self.assertEqual(skill.updated_at, "2026-07-23")
         manifest = json.loads((SKILL_DIR / "manifest.json").read_text(encoding="utf-8"))
         paths = {entry["path"] for entry in manifest["files"]}
         self.assertTrue(REFERENCES.issubset(paths))
@@ -90,10 +90,11 @@ class PhaseDBootstrapContractTests(unittest.TestCase):
 
     def test_catalog_and_guideline_mark_bootstrap_available_not_recommended(self) -> None:
         catalog = json.loads((REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8"))
-        change_index = next(i for i, group in enumerate(catalog["groups"]) if group["name"] == "Change Workflow")
-        bootstrap_index = next(i for i, group in enumerate(catalog["groups"]) if group["name"] == "Project Bootstrap")
-        self.assertEqual(bootstrap_index, change_index + 1)
-        self.assertEqual(catalog["groups"][bootstrap_index]["skills"], ["bootstrap-project"])
+        bootstrap = next(group for group in catalog["groups"] if group["name"] == "Start a Project")
+        self.assertEqual(
+            bootstrap["skills"],
+            ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"],
+        )
         self.assertNotIn("bootstrap-project", catalog["recommended"])
 
         guideline = (REPO_ROOT / "canonical-configs" / "agent-guideline" / "guideline.md").read_text(encoding="utf-8")
