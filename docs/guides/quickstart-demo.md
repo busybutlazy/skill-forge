@@ -22,7 +22,7 @@ canonical-skills/regular-skills/commit/
         |                  |
         v                  v
  .agents/skills/      .claude/skills/
-   commit/              commit.md
+   commit/              commit/
         \                  /
          \                /
           +---- install --+
@@ -69,7 +69,7 @@ Pick `codex` or `claude` in the menu.
 
 5. Install an approved skill.
 
-Select `Install` and choose a managed skill such as `commit` or `create-pr`.
+Select `Install / Update skills` and choose a managed skill such as `commit` or `create-pr`.
 
 6. Check status.
 
@@ -174,7 +174,7 @@ canonical-skills/regular-skills/commit/
         |                  |
         v                  v
  .agents/skills/      .claude/skills/
-   commit/              commit.md
+   commit/              commit/
         \                  /
          \                /
           +---- install --+
@@ -221,7 +221,7 @@ PowerShell:
 
 5. 安裝 approved skill。
 
-選 `Install`，再安裝像 `commit` 或 `create-pr` 這樣的 managed skill。
+選 `Install / Update skills`，再安裝像 `commit` 或 `create-pr` 這樣的 managed skill。
 
 6. 檢查狀態。
 

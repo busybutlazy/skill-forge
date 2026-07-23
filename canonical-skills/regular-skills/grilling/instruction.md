@@ -10,6 +10,8 @@ Use when a calling workflow has unresolved decisions. Authority and readiness cr
 
 ## Method
 
+Read and apply [DECISION_OWNERSHIP.md](./references/DECISION_OWNERSHIP.md) before classifying choices.
+
 1. Inventory every unresolved choice discoverable within the caller's current scope, observable behavior, failure handling, data semantics, operations, and acceptance criteria.
 2. Record dependencies between choices so earlier answers can reshape later branches.
 3. Classify each choice:
@@ -18,6 +20,7 @@ Use when a calling workflow has unresolved decisions. Authority and readiness cr
    - `implementation-owned decision`: recommend a default and record it without presenting it as a product decision;
    - `intentionally deferred decision`: apply the caller's Safe Deferral Gate;
    - `blocking unresolved decision`: prevent downstream readiness.
+   When classification is uncertain, never default to `implementation-owned`; classify the choice as `user-owned` or `blocking unresolved`.
 4. Prioritize Load-Bearing Decisions, but never silently omit smaller choices that affect observable behavior, failure handling, data semantics, operations, or acceptance.
 5. For each user-owned decision, explain why it matters now, recommend a concrete answer with reasons, and identify meaningful alternatives and their costs.
 6. Challenge vague, contradictory, or mutually incompatible answers.

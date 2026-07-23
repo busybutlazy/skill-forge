@@ -2,11 +2,11 @@
   "files": [
     {
       "path": "instruction.md",
-      "sha256": "3f55c6993df62118de969dfe70ed1af00ff90755d1818ec0c0fa01d95e674eef"
+      "sha256": "ca337a89d6a83aaf06701f5cabf4d7d2daf2fd921f2a59da32fa3387d5474b89"
     },
     {
       "path": "targets/claude.frontmatter.json",
-      "sha256": "7582e72f687fd1b7d224e989c48bfd3258bf73cc3474be58052c2687d4ade268"
+      "sha256": "c1c76d013bde97acd1a9e507459ff2b7c1485d7d566adeb78c6f5d65a8633a41"
     },
     {
       "path": "targets/codex.agent.yaml",
@@ -14,8 +14,16 @@
     },
     {
       "path": "targets/codex.frontmatter.json",
-      "sha256": "38c7ae2230a94e2a99d394f082dcf5f39c761e288432467b4a939e5020c6ebb3"
+      "sha256": "79995ff1a10f844c6b497669b3e3183c3d25737e3c3c25bee40cb2ff6b3ecb14"
+    },
+    {
+      "path": "references/DECISION_INVENTORY_FORMAT.md",
+      "sha256": "579eb3bcd228d722105f0517d5a6c4838a6d8baead778ba50f7d50cbc86133ec"
+    },
+    {
+      "path": "references/READINESS_SUMMARY_FORMAT.md",
+      "sha256": "4fa64a25c17ccac0f6ab5da9ab6fa4b14bcdbd2c8b1f482d93171c78260af95d"
     }
   ],
-  "package_sha256": "4b3874b3b1a80c5224ffb1f6d9f3b8917f4e01a428bc5c9b976c67cdf00f1809"
+  "package_sha256": "c9bb7f6c5b2b969406142f58c037b9b3a7304c6df1a53466b10e618c6515a498"
 }

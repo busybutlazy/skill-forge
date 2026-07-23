@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "instruction.md",
-      "sha256": "b4c99637b889dfb428963b5fd8dc6d1a66fdcd0f1b1909c7175cdaa2e141c46d"
+      "sha256": "9b0634151bc48d5a6403ee127e00567f3417c3850003f56643f97d7bd638271f"
     },
     {
       "path": "targets/claude.frontmatter.json",
@@ -14,8 +14,8 @@
     },
     {
       "path": "references/PHASE_DELIVERY_PACKET_TEMPLATE.md",
-      "sha256": "53b62333d72c6981ef017ae946bda11096de5bfed2e217ec4ca8d20345458be2"
+      "sha256": "83a77cd46fee2eb097b37eab69385346c974380f85b2d39d29531a7205957cfc"
     }
   ],
-  "package_sha256": "0642f4bb6ef384bf9a0bcf9da8686de85ae48fa062337539edb4ea2775ba81bb"
+  "package_sha256": "d842d5627deb3ef96f57735a79585bca694d14eba78ec53e17711f1068629cce"
 }

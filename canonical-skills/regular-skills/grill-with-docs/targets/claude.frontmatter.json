@@ -1,1 +1,1 @@
-{"name":"grill-with-docs","description":"User-invoked decision-readiness workflow for ambiguous projects or major changes. Resolves load-bearing decisions one at a time and records confirmed domain context and sparse ADRs.","disable-model-invocation":true}
+{"name":"grill-with-docs","description":"User-invoked decision-readiness workflow that inventories unresolved choices, prioritizes load-bearing decisions, and records confirmed domain context and sparse ADRs.","disable-model-invocation":true}

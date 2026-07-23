@@ -28,6 +28,13 @@
 | Order | Change ID | Outcome covered | Depends on | Risk | Mode | Allowed paths | Checkpoint |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 
+## Decision Gate Checkpoints
+
+| Decision | Required before | Blocks | Owner | Current status | Resolution evidence |
+| --- | --- | --- | --- | --- | --- |
+
+Every non-start Decision Gate must map to an explicit checkpoint. An unresolved gate blocks its named child, event, dependent work, or Phase completion.
+
 ## Verification and Rollback
 
 - Per-change verification:

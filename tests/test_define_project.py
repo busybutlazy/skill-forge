@@ -17,13 +17,30 @@ class DefineProjectTests(unittest.TestCase):
     def test_admission_requires_decision_readiness_and_routes_blockers(self) -> None:
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
         for required in (
-            "Decision Readiness Summary or equivalent evidence",
+            "Decision Readiness Summary, or equivalent evidence",
+            "DECISION_READINESS_EVIDENCE.md",
             "Admission fails when readiness evidence is missing",
             "do not infer an answer",
             "do not turn a recommendation into an approved decision",
             "stop and route to `grill-with-docs`",
         ):
             self.assertIn(required, instruction)
+
+    def test_equivalent_evidence_has_complete_scope_freshness_and_conflict_gates(self) -> None:
+        evidence = (
+            SKILL_DIR / "references" / "DECISION_READINESS_EVIDENCE.md"
+        ).read_text(encoding="utf-8")
+        for required in (
+            "complete Decision Inventory",
+            "decision ownership and dependencies",
+            "implementation-owned defaults",
+            "## Scope",
+            "## Freshness",
+            "## Conflict",
+            "Uncovered areas are not implicitly ready",
+            "routes to `grill-with-docs`",
+        ):
+            self.assertIn(required, evidence)
 
     def test_outputs_define_spec_roadmap_contracts_and_approval_packet(self) -> None:
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
@@ -53,6 +70,8 @@ class DefineProjectTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("## Approval Requested", template)
         self.assertIn("Blocking Open Decisions", template)
+        self.assertIn("decision owner", template)
+        self.assertIn("Roadmap Decision Gate or other blocking trigger", template)
 
     def test_contracts_are_conditional_and_not_implementation_details(self) -> None:
         definition_format = (
@@ -84,8 +103,10 @@ class DefineProjectTests(unittest.TestCase):
             "Walking Skeleton: executable",
             "primary system boundaries",
             "A structural scaffold does not qualify",
-            "Vertical Slice, not a horizontal technical layer",
-            "independently acceptable",
+            "prefer an independently acceptable Vertical Slice",
+            "qualifying enabling Phase",
+            "independently verifiable capability",
+            "cannot be safely folded into the first dependent slice",
         ):
             self.assertIn(required, instruction)
 
@@ -145,6 +166,12 @@ class DefineProjectTests(unittest.TestCase):
                     / "PROJECT_DEFINITION_FORMAT.md"
                 ).read_text(encoding="utf-8")
                 self.assertIn("### Decision Gates", rendered_format)
+                rendered_evidence = (
+                    Path(result.stdout.strip())
+                    / "references"
+                    / "DECISION_READINESS_EVIDENCE.md"
+                ).read_text(encoding="utf-8")
+                self.assertIn("## Freshness", rendered_evidence)
 
                 if target == "codex":
                     agent_config = (

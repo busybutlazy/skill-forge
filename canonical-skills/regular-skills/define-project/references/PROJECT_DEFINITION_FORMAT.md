@@ -61,4 +61,5 @@ Every Decision Gate uses:
 
 `Required Before` names phase start, phase completion, or another explicit
 event. A decision deferred in `SPEC.md` must appear in the first Phase whose
-scope requires an answer.
+scope requires an answer. A non-start gate becomes an explicit execution
+checkpoint; dependent work remains blocked until its owner resolves it.
