@@ -116,6 +116,17 @@ class DefineProjectTests(unittest.TestCase):
                 self.assertIn("Stop and wait for explicit human project approval", rendered)
                 self.assertIn("stop and route to `grill-with-docs`", rendered)
 
+                if target == "codex":
+                    agent_config = (
+                        Path(result.stdout.strip()) / "agents" / "openai.yaml"
+                    ).read_text(encoding="utf-8")
+                    self.assertIn("allow_implicit_invocation: false", agent_config)
+                else:
+                    self.assertIn("disable-model-invocation: true", rendered)
+                    self.assertFalse(
+                        (Path(result.stdout.strip()) / "agents" / "openai.yaml").exists()
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()

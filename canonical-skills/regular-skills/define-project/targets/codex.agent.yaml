@@ -1,0 +1,6 @@
+interface:
+  display_name: "Define Project"
+  short_description: "Synthesize an approval-ready project definition"
+
+policy:
+  allow_implicit_invocation: false

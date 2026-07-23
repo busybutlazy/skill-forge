@@ -34,6 +34,8 @@ Optional outputs:
 - `references/`
 - `scripts/`
 - `assets/`
+- `agents/openai.yaml`, projected only when canonical
+  `targets/codex.agent.yaml` exists
 
 Prompt-file convention:
 
@@ -100,6 +102,8 @@ The renderer must guarantee:
 
 - Codex-only metadata is not leaked into Claude output
 - Claude-only tool permission fields are not leaked into Codex output
+- Codex-only `targets/codex.agent.yaml` is projected to
+  `agents/openai.yaml` only for Codex and never leaked into Claude output
 - file ordering outside the manifest is not arbitrarily reshuffled into noisy diffs
 - artifacts can be regenerated from the canonical package without depending on existing target directories
 
@@ -146,6 +150,8 @@ Using the `commit` skill as a validation example, the system should confirm:
 - `references/`
 - `scripts/`
 - `assets/`
+- `agents/openai.yaml`；只有 canonical package 存在
+  `targets/codex.agent.yaml` 時才投影
 
 Prompt 檔案慣例：
 
@@ -212,6 +218,8 @@ renderer 必須保證：
 
 - 不會把 Codex 專屬 metadata 帶進 Claude output
 - 不會把 Claude 專屬 tool 權限欄位帶進 Codex output
+- Codex-only `targets/codex.agent.yaml` 只會投影到 Codex 的
+  `agents/openai.yaml`，不會洩漏到 Claude output
 - 不會任意重排 manifest 以外的檔案順序造成雜訊 diff
 - 可以直接從 canonical package 重新生成 artifact，而不依賴既有 target 目錄內容
 

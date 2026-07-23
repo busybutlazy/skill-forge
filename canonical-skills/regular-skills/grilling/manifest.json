@@ -6,12 +6,12 @@
     },
     {
       "path": "targets/claude.frontmatter.json",
-      "sha256": "202b73f0eed393e0c1896722060eaccd77da986d67d6f3d3595ddefc81d91a4c"
+      "sha256": "578b5205f31e75c8c093dd8253bb55ef0b77eff71546e31c4f484e568fc97dc3"
     },
     {
       "path": "targets/codex.frontmatter.json",
       "sha256": "ff569808fe99a6ec8d7862efca3944b8f1f7d827e5fe9722307c7e1fc13f081f"
     }
   ],
-  "package_sha256": "f1b1c6dce1b5fa73e220c17719852f8d2da976db72e945f324af52e71b1498da"
+  "package_sha256": "e8912e367064169e24b13de5038ddbabde1f57ec3113657f144f79a5ddc8ecab"
 }

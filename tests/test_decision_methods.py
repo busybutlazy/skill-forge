@@ -79,6 +79,53 @@ class DecisionMethodTests(unittest.TestCase):
                     )
                     self.assertIn(marker, rendered)
 
+    def test_entrypoint_invocation_gates_and_internal_method_visibility(self) -> None:
+        claude_expectations = {
+            "grill-with-docs": "disable-model-invocation: true",
+            "grilling": "user-invocable: false",
+            "domain-modeling": "user-invocable: false",
+        }
+        for skill, marker in claude_expectations.items():
+            with self.subTest(target="claude", skill=skill), tempfile.TemporaryDirectory() as tmp:
+                result = subprocess.run(
+                    [
+                        sys.executable, "-m", "skill_forge", "--repo-root", str(REPO_ROOT),
+                        "render", skill, "--target", "claude", "--output", tmp,
+                    ],
+                    cwd=REPO_ROOT,
+                    env=dict(os.environ, PYTHONPATH=str(REPO_ROOT / "src")),
+                    text=True,
+                    capture_output=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                rendered = (
+                    Path(result.stdout.strip()) / "SKILL.md"
+                ).read_text(encoding="utf-8")
+                self.assertIn(marker, rendered)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            result = subprocess.run(
+                [
+                    sys.executable, "-m", "skill_forge", "--repo-root", str(REPO_ROOT),
+                    "render", "grill-with-docs", "--target", "codex", "--output", tmp,
+                ],
+                cwd=REPO_ROOT,
+                env=dict(os.environ, PYTHONPATH=str(REPO_ROOT / "src")),
+                text=True,
+                capture_output=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            agent_config = (
+                Path(result.stdout.strip()) / "agents" / "openai.yaml"
+            ).read_text(encoding="utf-8")
+            self.assertIn("allow_implicit_invocation: false", agent_config)
+
+    def test_final_catalog_does_not_leave_define_project_route_dangling(self) -> None:
+        entrypoint = load_skill(REPO_ROOT, "grill-with-docs")
+        self.assertIn("define-project", entrypoint.instruction)
+        target = load_skill(REPO_ROOT, "define-project")
+        self.assertEqual(target.scope, "public")
+
     def test_upstream_provenance_is_discoverable(self) -> None:
         notice = (REPO_ROOT / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
         for name in ("grilling", "domain-modeling", "grill-with-docs"):

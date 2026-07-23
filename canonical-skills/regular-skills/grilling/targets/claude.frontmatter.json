@@ -1,1 +1,1 @@
-{"name":"grilling","description":"Internal decision-interview primitive. Use through a calling workflow such as grill-with-docs, not as the primary user entrypoint.","disable-model-invocation":true}
+{"name":"grilling","description":"Internal decision-interview primitive. Use through a calling workflow such as grill-with-docs, not as the primary user entrypoint.","user-invocable":false}

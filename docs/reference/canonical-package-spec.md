@@ -20,6 +20,7 @@ canonical-skills/regular-skills/<skill>/
 ├── manifest.json
 ├── targets/
 │   ├── codex.frontmatter.json
+│   ├── codex.agent.yaml
 │   └── claude.frontmatter.json
 ├── examples/
 ├── references/
@@ -29,6 +30,11 @@ canonical-skills/regular-skills/<skill>/
 ```
 
 Only `package.json`, `instruction.md`, `manifest.json`, and at least one target override are required. The other directories are optional.
+
+`targets/codex.agent.yaml` is an optional Codex-only agent configuration. When
+present, the Codex renderer projects it to `agents/openai.yaml`; it is never
+included in Claude output. Use it for supported Codex invocation policy and UI
+metadata such as `policy.allow_implicit_invocation`.
 
 If a skill needs fixed, maintainer-editable agent prompts, store them under `references/agent-prompts/`. These files are shared canonical reference material and are not target-specific.
 
@@ -173,6 +179,7 @@ canonical-skills/regular-skills/<skill>/
 ├── manifest.json
 ├── targets/
 │   ├── codex.frontmatter.json
+│   ├── codex.agent.yaml
 │   └── claude.frontmatter.json
 ├── examples/
 ├── references/
@@ -182,6 +189,11 @@ canonical-skills/regular-skills/<skill>/
 ```
 
 只有 `package.json`、`instruction.md`、`manifest.json` 與至少一個 target override 是必要檔案，其餘目錄皆為選用。
+
+`targets/codex.agent.yaml` 是選用的 Codex-only agent 設定。存在時，
+Codex renderer 會將它投影為 `agents/openai.yaml`，且不會帶入 Claude
+輸出。它用來承載 Codex 支援的 invocation policy 與 UI metadata，例如
+`policy.allow_implicit_invocation`。
 
 如果某個 skill 需要固定且可由維護者編輯的 agent prompt，建議放在 `references/agent-prompts/`。這些檔案屬於共享 canonical reference material，不是 target-specific 設定。
 

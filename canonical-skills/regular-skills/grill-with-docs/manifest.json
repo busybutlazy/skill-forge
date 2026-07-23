@@ -9,9 +9,13 @@
       "sha256": "7582e72f687fd1b7d224e989c48bfd3258bf73cc3474be58052c2687d4ade268"
     },
     {
+      "path": "targets/codex.agent.yaml",
+      "sha256": "4dcdb9e01a65c5ca5719c5053fb4deeb4fe5ad90c78610a8d2c46b798a5e4f51"
+    },
+    {
       "path": "targets/codex.frontmatter.json",
       "sha256": "38c7ae2230a94e2a99d394f082dcf5f39c761e288432467b4a939e5020c6ebb3"
     }
   ],
-  "package_sha256": "95e9d71998cf37c79860b3e21ca80c278df0f54565233fe15ce655f119183572"
+  "package_sha256": "a8115d7401d6298ba20baa1dbd1d235f24e0c7cdbb2b4d9a2bce9b21508c1970"
 }
