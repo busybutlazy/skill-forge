@@ -2,18 +2,9 @@
 
 [![GitHub release](https://img.shields.io/github/v/release/busybutlazy/skill-forge)](https://github.com/busybutlazy/skill-forge/releases)
 
-Write skills once, govern centrally, deploy to multiple coding AI targets.
+Write an AI development workflow once, govern it in one canonical source, and install it for Codex or Claude.
 
-`skill-forge` is an open-source governance layer for AI development skills. It helps teams keep skill definitions in one canonical source, validate package integrity, and render installable target artifacts for tools such as Codex and Claude.
-
-這是一個面向 AI 開發技能的開源治理層，讓團隊可以把 skill 定義集中在單一 canonical source，驗證 package 完整性，並為 Codex、Claude 等工具產生可安裝的 target artifacts。
-
-> This repo is **not** a public skill marketplace.  
-> It is designed for teams that want controlled distribution, portable skill definitions, and a clearer trust boundary around which skills engineers are allowed to use.
-
----
-
-## Language
+把 AI 開發 workflow 寫一次、集中治理，再安裝到 Codex 或 Claude。
 
 - [English](#english)
 - [繁體中文](#繁體中文)
@@ -22,1232 +13,396 @@ Write skills once, govern centrally, deploy to multiple coding AI targets.
 
 # English
 
-## Overview
+## What is it?
 
-`skill-forge` lets teams define skills once in a canonical source tree, then render and distribute the correct artifacts to supported coding AI tools.
+`skill-forge` is a project-local skill manager and governance layer for AI coding agents.
 
-It is built for teams that care about:
+It keeps approved skills in one canonical source:
 
-- centralized governance
-- portable skill definitions
-- controlled rollout
-- repeatable installation
-- lower vendor lock-in
+```text
+canonical-skills/
+        │
+        ├── validate version, files, provenance, and package integrity
+        │
+        ├── render for Codex  →  <project>/.agents/skills/
+        └── render for Claude →  <project>/.claude/skills/
+```
 
-### What problems it solves
+End users install and update skills through `skill-manager`. Maintainers review and version the canonical packages instead of hand-editing a separate copy for every AI tool.
 
-Teams adopting coding agents usually run into the same problems:
+This repository is not a public skill marketplace. It is for teams that want to decide which workflows they trust, distribute them consistently, and detect unmanaged or modified installs.
 
-- engineers install skills from inconsistent or unknown sources
-- the same workflow gets rewritten separately for each AI tool
-- there is no shared review point for versioning, integrity, or rollout
-- switching vendors becomes expensive because skill logic is tied to one tool
+## What problem does it solve?
 
-`skill-forge` addresses this by treating `canonical-skills/` as the only source of truth, then rendering target-specific artifacts for supported tools.
+Without a governed source, AI workflows tend to drift:
 
----
+- each developer copies prompts or skills from a different source;
+- Codex and Claude versions evolve independently;
+- a local edit silently changes an approved workflow;
+- dependencies and imported-source attribution are easy to lose;
+- approval, verification, review, and Git authority become mixed together;
+- nobody can answer which version is installed in a project.
 
-## Who this is for
+`skill-forge` provides:
 
-- engineering managers who want an approved source for team skills
-- platform teams who need controlled distribution for internal AI workflows
-- developers who want a project-local skill manager without hand-maintaining per-tool copies
+| Need | What skill-forge provides |
+|---|---|
+| One reviewed source | Canonical public and maintainer skill packages |
+| Cross-tool delivery | Target adapters for Codex and Claude |
+| Reproducible packages | Versioned manifests and SHA-256 integrity |
+| Safe updates | `up_to_date`, `update_available`, `drift`, `broken`, and `unmanaged` states |
+| Workflow composition | Declared skill dependencies installed as a bundle |
+| Governance boundaries | Separate planning, approval, implementation, verification, review, and Git actions |
+| Project policy | Managed agent memory, guideline, and safety hooks |
 
-This repo is a good fit when you care more about governance, portability, and repeatable distribution than marketplace-style discovery.
+## Why not use an existing solution?
 
----
+Existing tools solve adjacent problems, and skill-forge is designed to complement them:
 
-## Recommended usage by role
+- **Native Codex or Claude skills** provide the execution surface. They do not give a team one tool-neutral, reviewable source for both targets.
+- **Marketplaces and public collections** optimize discovery. They do not decide which exact revision your team has approved.
+- **Copying dotfiles or prompts** is simple initially, but does not track provenance, dependencies, package integrity, install state, or drift.
+- **CI and sandbox policies** enforce code and runtime constraints. They do not define reusable agent workflows or render them into each supported target.
 
-### End users
+If you only need a personal one-off prompt or use one tool with no shared governance requirement, skill-forge is probably unnecessary.
 
-**Recommended path: `CLI/TUI`**
+Use it when the missing layer is:
 
-For normal users, the default path should be the interactive `skill-manager` flow.
+```text
+approved source
+→ reviewable package
+→ target-specific rendering
+→ managed project install
+→ visible update and drift state
+```
 
-Use it to:
+## Try it in one minute
 
-- install skills
-- update skills
-- check skill status
-- repair managed installs
-- remove managed skills
-- switch between `codex` and `claude`
-
-### Maintainers
-
-**Recommended path: AI collaboration**
-
-For maintainers, the default path should be working in Codex or Claude with manager skills.
-
-Use it to:
-
-- create new canonical skills
-- update existing canonical skills
-- finalize metadata and validation
-- sync manager-skills and shared regular-skills
-- refresh repo-local agent targets
-
-### Advanced fallback
-
-**Direct terminal commands are supported, but not recommended as the primary path.**
-
-Use them when you need:
-
-- debugging
-- low-level inspection
-- automation scripts
-- terminal fallback during maintainer work
-
----
-
-## Prerequisites
-
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| Docker | 20.10+ (Compose v2) | Required — `skill-manager` runs entirely inside a container |
-| Python | 3.11+ | Only needed if running `skill-forge` CLI directly outside Docker (dev / CI use) |
-| git | any recent | Needed for the auto-update check in `skill-manager` |
-
-The recommended end-user path (`skill-manager`) requires **only Docker**. You do not need a local Python installation for day-to-day use.
-
-Python 3.11+ is required inside the dev container (`Dockerfile.dev`) and when running `PYTHONPATH=src python -m skill_forge` commands directly — this is an advanced fallback, not the primary path.
-
----
-
-## Quickstart
-
-Recommended user path: `CLI/TUI`.
-
-### 1. Clone the repo
+Prerequisites: Docker and Git.
 
 ```bash
 git clone https://github.com/busybutlazy/skill-forge.git ~/skill-forge
-```
-
-PowerShell:
-
-```powershell
-git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
-```
-
-### 2. Go to your target project
-
-```bash
-cd /path/to/target-project
-```
-
-### 3. Launch the project-local skill manager
-
-```bash
+cd /path/to/your-project
 ~/skill-forge/skill-manager
 ```
 
-PowerShell:
+Then:
+
+1. choose `codex` or `claude`;
+2. open **Install / Update skills**;
+3. install a skill such as `commit`, or select the lifecycle entrypoints you need under **Project Lifecycle**;
+4. reload the agent session.
+
+Windows PowerShell:
 
 ```powershell
+git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
+Set-Location C:\path\to\your-project
 & "$HOME\skill-forge\skill-manager.ps1"
 ```
 
-Or add `~/skill-forge` to your `PATH` and run:
-
-```bash
-skill-manager
-```
-
-On Windows PowerShell, prefer `$HOME\skill-forge\skill-manager.ps1` over `~`, and keep container-internal paths such as `/workspace/project` unchanged when passing CLI arguments through Docker.
-
-If PowerShell blocks the launcher with an execution-policy error, run:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-& "$HOME\skill-forge\skill-manager.ps1"
-```
-
-### 4. Use the interactive menu
-
-Use the menu to:
-
-* choose `codex` or `claude`
-* accept or skip the recommended baseline (security settings + `install-my-skill`) with a single `[Y/n]` prompt
-* check installed skill status
-* install or update skills from a grouped list (`★ Recommended` first, then catalog groups)
-* install or update the project guideline (managed instruction files, governance document, and safety hooks) from its own top-level menu entry
-* repair broken managed installs
-* remove managed skills
-* switch targets
-* open the expert terminal only when needed
-
-Grouping, recommendations, and description keyword highlighting are configured centrally in `canonical-skills/catalog.json`. See [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md).
-
-> For normal users, `skill-manager` should remain the default entry point.
-
-If you need the low-level path, use the expert terminal and Python CLI directly, then refer to [the terminal operations guide](docs/guides/terminal-operations-guide.md) for the detailed command reference.
-
----
-
-## Canonical model
-
-Public skills live under:
+To install from an existing Codex or Claude session, bootstrap `install-my-skill` once through the menu, reload the session, then ask:
 
 ```text
-canonical-skills/regular-skills/<name>/
+Help me install or update a skill.
 ```
 
-Required files:
-
-* `package.json`
-* `instruction.md`
-* `manifest.json`
-* `targets/codex.frontmatter.json`
-* `targets/claude.frontmatter.json`
-
-Optional content:
-
-* `examples/`
-* `references/`
-* `scripts/`
-* `assets/`
-
-Detailed references:
-
-* [docs/reference/canonical-package-spec.md](docs/reference/canonical-package-spec.md)
-* [docs/reference/adapter-contract.md](docs/reference/adapter-contract.md)
-* [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
-* [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)
-
-### Project guideline
-
-Besides skills, the repo also manages a set of project guideline config items, each with its own canonical source:
-
-```text
-canonical-configs/
-├── agent-memory/       # memory.md → CLAUDE.md (claude) / AGENTS.md (codex)
-│   ├── config.json
-│   └── memory.md
-├── agent-guideline/    # guideline.md → docs/agent-guideline.md (both targets)
-│   ├── config.json
-│   └── guideline.md
-└── agent-hooks/        # safety_check.py + additive native hook configuration
-    ├── config.json
-    └── hooks/safety_check.py
-```
-
-The two document items use trailing HTML markers for version and drift detection. `agent-hooks` installs a marker-managed Python runner and structurally merges only skill-forge-owned entries into `.claude/settings.json` or `.codex/hooks.json`; unrelated user settings and hooks are preserved. Existing conflicting files without ownership markers are treated as `unmanaged` and never overwritten.
-
-Managed hooks require a `python3` command running Python 3.11 or newer. Claude uses native `PreToolUse` hooks for `Bash`, `Edit`, and `Write`; Codex uses project `.codex/hooks.json` for `Bash` and `apply_patch`. Codex may require review/trust for each exact hook definition, and `[features] hooks = false` is reported as `inactive`. These hooks are defense in depth—not a replacement for sandboxing, permissions, CI, or human approval.
-
-Recursive forced deletion with an unresolved glob (for example `rm -rf *` or `rm -rf build/*.tmp`) is denied because the hook cannot safely know the expanded target set. Use an explicit scoped path or obtain human approval outside the hook.
-
-Install the items from the `Install / Update project guideline` entry of the interactive menu, or via the CLI:
-
-```bash
-skill-forge guideline status  [--item NAME] --target <codex|claude> --project <path> [--json]
-skill-forge guideline install [--item NAME] --target <codex|claude> --project <path> [--force] [--yes]
-```
-
-Both commands default to all available items; a failed item is reported without aborting the rest. `skill-forge memory status|install` remains a compatibility command for the same `agent-memory` file and marker, while preserving its legacy output shape (`memory status --json` returns an object; the equivalent filtered `guideline` command returns a one-element array).
-
-Use `--item agent-hooks` to manage only the safety bundle. Drift requires `--force` plus confirmation; `unmanaged` files are never overwritten. There is currently no automatic uninstall command: manually remove only the skill-forge-owned matcher handlers and the marker-managed `hooks/skill-forge/safety_check.py` file. Windows launcher support and the Git pre-commit fallback remain deferred.
-
----
-
-## Public skills vs maintainer skills
-
-### `canonical-skills/regular-skills/`
-
-* canonical source for normal end-user skills
-* the only source normal installs should come from
-
-### `canonical-skills/manager-skills/`
-
-* canonical source for maintainer-only workflows
-* includes workflows such as:
-
-  * `create-skill`
-  * `update-skill`
-  * `finalize-skill`
-  * `import-plugin-skill`
-  * `install-manager-skill`
-  * `skill-review-packet`
-
-### `shared` tag
-
-Skills under `regular-skills/` may optionally carry the `shared` tag.
-
-This means the skill remains a regular skill, but may also be synced through manager install flows.
-
-### `.agents/skills/`
-
-* rendered artifacts used by this repo itself
-* not canonical source
-* should not be edited by hand as source
-
----
-
-## Maintainer workflow
-
-There are two maintainer paths, but only one should be the default.
-
-### Preferred: AI collaboration
-
-Use this path when working inside Codex or Claude.
-
-Recommended flow:
-
-1. Open this repo in Codex or Claude.
-2. Only edit canonical source:
-
-   * `canonical-skills/regular-skills/`
-   * `canonical-skills/manager-skills/`
-3. Use manager skills:
-
-   * `create-skill`
-   * `update-skill`
-   * `finalize-skill`
-   * `import-plugin-skill`
-   * `install-manager-skill`
-   * `skill-review-packet`
-4. Fall back to terminal commands only when needed.
-5. Do not hand-edit rendered artifacts such as:
-
-   * `.agents/skills/`
-   * `.claude/skills/`
-
-Recommended responsibility split:
-
-* add a new skill → `create-skill`
-* revise an existing skill → `update-skill`
-* import a downloaded external skill → `import-plugin-skill`
-* finalize and validate changes → `finalize-skill`
-* sync manager targets → `install-manager-skill` or `sync-manager-catalog`
-
-### External Skill Import Policy
-
-Downloaded external skills should not be copied straight into `canonical-skills/`.
-
-Maintainers should use `import-plugin-skill` to:
-
-- inspect one local external skill source
-- run `skillkeeper` before rewrite to decide whether the skill is worth canonicalizing
-- stage a draft outside canonical source through `imitator`, `reviewer`, and final `skillkeeper` admission
-- generate a `skill-review-packet` before asking for final human approval
-- choose explicitly whether approved content belongs in `regular-skills/` or `manager-skills/`
-- finish intake with finalize plus a Codex smoke test
-- clean the matching `tmp/import-candidates/` draft only after the full intake flow succeeds
-
-Recommended local workspace layout:
-
-```text
-tmp/
-├── foreign_skills/
-└── import-candidates/
-```
-
-- `tmp/foreign_skills/`: downloaded external skill sources
-- `tmp/import-candidates/`: staged canonical drafts after review
-
-Promotion is not the end of the workflow. Successful imports should be promoted, finalized, smoke-tested, and then cleaned up.
-
-Detailed workflow:
-
-* [docs/guides/external-skill-import-guide.md](docs/guides/external-skill-import-guide.md)
-
-### Fallback: terminal workflow
-
-Use terminal only when AI collaboration is not suitable, or when low-level inspection is needed.
-
-For the full command reference, see [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md).
-
-#### Containerized development environment
-
-```bash
-docker build -f Dockerfile.dev -t skill-forge-dev .
-docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-forge-dev
-```
-
-#### Validate canonical skills
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . validate
-```
-
-#### Refresh metadata
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata create-skill --today
-```
-
-#### Sync maintainer-only skills into the local Codex directory
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex --force
-```
-
-#### Sync manager-skills and `shared` regular-skills into local targets
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog --project . --target all --force
-```
-
-#### Inspect install status
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project . --scope all --json
-```
-
-#### Run tests
-
-```bash
-docker run --rm -e PYTHONPATH=src -v "$PWD:/workspace" -w /workspace \
-  skill-forge-dev python -m unittest discover -s tests
-```
-
-#### Runtime smoke test
-
-```bash
-make up
-```
-
----
-
-## Installing skills from within Claude or Codex
-
-The `install-my-skill` skill lets you install and update skills without leaving your AI session.
-
-### Prerequisites
-
-- `install-my-skill` must be installed first. On first setup, install it via `skill-manager`:
-
-  ```bash
-  ~/skill-forge/skill-manager
-  # Choose Install / Update skills → select install-my-skill
-  ```
-
-  Or, if `install-my-skill` is already in your shared catalog, it is included automatically when you run `sync-manager-catalog`.
-
-### Usage
-
-Inside a Claude or Codex session, say:
-
-> "Help me install a skill" or "Update my skills"
-
-The agent will:
-
-1. Fetch the available skill catalog and your current install status
-2. Present a selection list with version and status badges
-3. Install or update the skills you choose
-4. Report results and remind you to reload the session
-
-### Recommended project lifecycle
-
-For a new project, install the skills listed under the `Project Lifecycle` catalog group and choose the first entry whose admission criteria match the current state:
-
-| Current state | Start with | Then |
-|---------------|------------|------|
-| The idea is ambiguous or important decisions remain open | `grill-with-docs` | `define-project` |
-| Decisions are ready but formal project artifacts do not exist | `define-project` | human project approval |
-| The Project Definition is approved but the development baseline is missing | `bootstrap-project` | `deliver-roadmap-phase` |
-| One Roadmap Phase is approved and ready | `deliver-roadmap-phase` | human phase acceptance |
-
-The usual greenfield sequence is:
+For an ambiguous new project, a typical workflow is:
 
 ```text
 grill-with-docs
 → define-project
-→ human project approval
+→ Human Project Approval
 → bootstrap-project
 → deliver-roadmap-phase
-→ human phase acceptance
+→ Human Phase Acceptance
 → commit
 → create-pr
 ```
 
-Do not run every step unconditionally. Skip `grill-with-docs` when the decisions are already complete, and use `plan-change` instead of `define-project` for a clear bounded change to an existing project. Each workflow stops at its own approval boundary; no step authorizes implicit commit, push, merge, release, or deployment.
+Do not run every step unconditionally. Start at the first entry whose admission criteria match the current project state. See the [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md).
 
-See the [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md) for installation advice, example prompts, routing rules, and expected artifacts.
+## What does the result look like?
 
-For Roadmap-driven delivery, install `deliver-roadmap-phase`. Its required Change Workflow skills are disclosed and installed automatically. After reloading the agent session, invoke it with one exact phase:
+### Skills appear in the target project
 
-```text
-Use deliver-roadmap-phase.
-Roadmap: docs/Roadmap.md
-Phase: Phase 1 — Walking Skeleton
-Mode: supervised-auto
-```
-
-The skill plans only that phase, asks for one execution approval, coordinates the approved child Changes, and stops for independent review and final human acceptance. It never infers the next phase or implicitly commits, pushes, merges, releases, or deploys.
-
-Example output:
-
-```
-請選擇要安裝/更新的 skill（可複選）：
-
- 1. commit        v1.3.0  ✓ 已安裝（最新）
- 2. create-pr     v1.2.0  ⬆ 有更新（1.1.0→1.2.0）
- 3. dto-organizer v0.3.0  ○ 未安裝
-```
-
-### Known limits
-
-- **Reload required:** skills load at session startup. After installing, restart your Claude or Codex session for new skills to take effect.
-- **Requires Docker:** the agent shells out to `skill-manager`, which runs inside Docker.
-- **Unmanaged skills are never overwritten:** if a skill exists but was not installed by skill-forge, the agent will refuse and explain.
-
----
-
-## CLI and safety model
-
-Core commands:
-
-* `validate`
-* `render`
-* `install`
-* `list`
-* `remove`
-* `update`
-* `refresh-metadata`
-* `sync-maintainer`
-* `sync-manager-catalog`
-* `guideline status` / `guideline install`
-* `memory status` / `memory install` (compatibility commands for the `agent-memory` item)
-
-Managed install states:
-
-* `up_to_date`
-* `update_available`
-* `drift`
-* `broken`
-* `unmanaged`
-
-Key safety rules:
-
-* `install` overwrites managed `up_to_date` and `update_available`
-* `install` asks for confirmation before repairing `broken`
-* `install` requires `--force` before overwriting `drift`
-* `install` refuses to overwrite `unmanaged`
-* `update` only works on managed installs and also requires `--force` for `drift`
-* `remove` refuses to delete `unmanaged`
-
----
-
-## Project layout
+Codex:
 
 ```text
-skill-forge/
-├── AGENTS.md
-├── .agents/
-├── canonical-skills/
-│   ├── catalog.json
-│   ├── regular-skills/
-│   └── manager-skills/
-├── canonical-configs/
-│   ├── agent-memory/
-│   ├── agent-guideline/
-│   └── agent-hooks/
-├── docs/
-│   ├── concepts/
-│   ├── guides/
-│   └── reference/
-├── src/
-├── tests/
-├── Dockerfile
-├── Dockerfile.dev
-├── compose.yaml
-├── Makefile
-├── skill-manager
-└── skill-manager.ps1
+your-project/
+└── .agents/skills/
+    ├── grill-with-docs/
+    ├── define-project/
+    └── commit/
 ```
 
----
+Claude:
 
-## How to read this repo
+```text
+your-project/
+└── .claude/skills/
+    ├── grill-with-docs/
+    ├── define-project/
+    └── commit/
+```
 
-Recommended reading order:
+The canonical source remains in skill-forge. Rendered target files are managed output, not a second source tree.
 
-1. `README.md`
-2. [docs/concepts/governance.md](docs/concepts/governance.md)
-3. [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md)
-4. [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md)
-5. [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md)
-6. [docs/guides/external-skill-import-guide.md](docs/guides/external-skill-import-guide.md)
+### Install state is explicit
 
-For normal users, start with quickstart and the `skill-manager` flow.
-For maintainers, then go deeper into governance and terminal operations.
+```text
+grill-with-docs      up_to_date       0.3.0
+define-project       update_available 0.2.1
+commit               drift
+local-custom-skill   unmanaged
+```
 
----
+- `up_to_date`: matches the canonical package;
+- `update_available`: a reviewed canonical version is available;
+- `drift`: a managed install was locally modified;
+- `broken`: required managed files are missing or invalid;
+- `unmanaged`: skill-forge did not install it and will not overwrite it.
 
-## Positioning
+### Dependencies remain visible
 
-### Not a marketplace
+Installing `grill-with-docs` also installs its internal decision methods. Installing `deliver-roadmap-phase` installs its required Change Workflow skills. The installer discloses the bundle instead of silently flattening multiple responsibilities into one skill.
 
-`skill-forge` is not trying to maximize public discovery.
-It is trying to provide a controlled source, a repeatable packaging model, and a safer install/update path for approved skills.
+### Workflow outputs are reviewable
 
-### Not vendor lock-in
+A governed project workflow produces artifacts such as:
 
-Skill logic should be written once as a tool-neutral canonical package, then adapted to supported targets instead of maintained as parallel per-tool copies.
+```text
+docs/
+├── SPEC.md
+├── CONTRACTS.md
+└── ROADMAP.md
 
-### Not a replacement for native AI tool features
+changes/<change-id>/
+├── REQUEST.md
+├── IMPLEMENTATION_PLAN.md
+├── VERIFICATION_REPORT.md
+├── CHANGE_REPORT.md
+└── REVIEW_REPORT.md
+```
 
-Codex, Claude, and similar tools still own their in-product execution experience.
+Each workflow stops at its own authority boundary. Project approval does not imply implementation authority; Phase acceptance does not imply commit, push, merge, release, or deployment.
 
-`skill-forge` solves a different problem: canonical source, governance, distribution, and cross-tool portability.
+## Where to go next
 
----
+### End users
 
-## Current version focus
+- [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md)
+- [Quickstart Demo](docs/guides/quickstart-demo.md)
+- [Terminal Operations Guide](docs/guides/terminal-operations-guide.md)
 
-Version `1.1.2` extends the `1.0.0` end-user baseline with a formal maintainer workflow and canonical manager skill model.
+### Teams evaluating adoption
 
-This stage focuses on:
+- [Adoption Guide](docs/guides/adoption-guide.md)
+- [Governance Model](docs/concepts/governance.md)
 
-* formally splitting `canonical-skills/` into:
+### Maintainers
 
-  * `canonical-skills/regular-skills/`
-  * `canonical-skills/manager-skills/`
-* adding `finalize-skill`
-* adding `install-manager-skill`
-* aligning maintainer guidance around the create / update / finalize / install loop
-
----
-
-## Roadmap
-
-The current roadmap focuses on:
-
-* clearer external positioning
-* better adoption guidance
-* stronger governance framing
-
-CLI/TUI and AI collaboration remain the primary operating surfaces for now.
-
-See `ROADMAP.md` for current priorities and direction.
-
----
-
-## Compatibility note
-
-`skill-manager.sh` remains a compatibility shim only.
-`skill-manager.ps1` is the Windows PowerShell launcher.
-
-The real workflow is now:
-
-* end users: `skill-manager`
-* maintainers: AI collaboration first, Python CLI as fallback
+- [Canonical Package Specification](docs/reference/canonical-package-spec.md)
+- [Adapter Contract](docs/reference/adapter-contract.md)
+- [Catalog and Managed Agent Configuration](docs/reference/catalog-and-agent-memory.md)
+- [External Skill Import Guide](docs/guides/external-skill-import-guide.md)
+- [Release Guide](docs/release-guide.md)
 
 ---
 
 # 繁體中文
 
-## 專案簡介
+## 這是什麼？
 
-`skill-forge` 讓團隊可以把 skills 集中定義在同一套 canonical source 中，再依不同 coding AI 工具 render 並分發對應的 artifacts。
+`skill-forge` 是給 AI coding agents 使用的 project-local skill manager 與治理層。
 
-它適合那些在意以下幾件事的團隊：
+它把團隊批准的 skills 保存在單一 canonical source：
 
-* 集中治理
-* skill 定義可移植
-* 發佈與安裝流程可控
-* 安裝結果可重現
-* 降低 vendor lock-in
+```text
+canonical-skills/
+        │
+        ├── 驗證版本、檔案、來源與 package 完整性
+        │
+        ├── render 給 Codex  →  <project>/.agents/skills/
+        └── render 給 Claude →  <project>/.claude/skills/
+```
 
-### 這個專案解決什麼問題
+一般使用者透過 `skill-manager` 安裝與更新；maintainer 只需審查和版本化 canonical packages，不必為每個 AI 工具手動維護平行版本。
 
-導入 coding agents 的團隊，常會遇到這些問題：
+這不是 public skill marketplace。它適合希望自行決定可信 workflow、穩定分發，並能辨識未受管理或被修改安裝內容的團隊。
 
-* 工程師各自安裝不同來源的 skills，缺乏一致管理
-* 同一套 workflow 被迫為不同 AI 工具重寫
-* 沒有明確的版本、完整性與發佈審查點
-* skill 邏輯綁死在單一工具上，未來切換成本高
+## 解決什麼問題？
 
-`skill-forge` 的做法，是把 `canonical-skills/` 當作唯一 source of truth，再為支援的工具 render 出 target-specific artifacts。
+缺少治理來源時，AI workflows 很容易產生 drift：
 
----
+- 每位開發者從不同來源複製 prompt 或 skill；
+- Codex 與 Claude 版本各自演進；
+- 本地修改悄悄改變已批准 workflow；
+- dependency 與外部來源 attribution 容易遺失；
+- approval、implementation、verification、review 與 Git 權限混在一起；
+- 團隊無法回答某個專案到底安裝哪個版本。
 
-## 適合誰使用
+`skill-forge` 提供：
 
-* 想建立團隊 approved skill source 的 engineering managers
-* 需要可控分發內部 AI workflows 的 platform teams
-* 想用 project-local skill manager，而不是手動維護多套工具版本的 developers
+| 需求 | skill-forge 的做法 |
+|---|---|
+| 單一審查來源 | Canonical public 與 maintainer skill packages |
+| 跨工具分發 | Codex 與 Claude target adapters |
+| 可重現 package | 版本化 manifest 與 SHA-256 integrity |
+| 安全更新 | `up_to_date`、`update_available`、`drift`、`broken`、`unmanaged` |
+| Workflow composition | 宣告 dependencies 並以 bundle 安裝 |
+| 治理邊界 | 分離 planning、approval、implementation、verification、review 與 Git actions |
+| 專案政策 | Managed agent memory、guideline 與 safety hooks |
 
-如果你在意的是治理、可移植性與可重現分發，而不是公開 marketplace 式的探索體驗，這個 repo 會比較適合你。
+## 為什麼不用現有方案？
 
----
+既有方案解決的是相鄰問題；skill-forge 用來補上它們之間的治理層：
 
-## 依角色區分的建議用法
+- **Codex／Claude 原生 skills** 提供執行介面，但不會替團隊維持同一份跨 target、可審查的 tool-neutral source。
+- **Marketplaces 與公開 skill collections** 適合探索，但不負責判斷團隊批准的是哪一個 exact revision。
+- **直接複製 dotfiles 或 prompts** 起步很快，但不會追蹤 provenance、dependencies、package integrity、install status 或 drift。
+- **CI 與 sandbox policy** 負責 code/runtime enforcement，但不定義可重用 agent workflow，也不會 render 到各 target。
 
-### 一般使用者
+如果你只需要個人一次性 prompt，或只使用單一工具且不需要共享治理，可能不需要 skill-forge。
 
-**建議路徑：`CLI/TUI`**
+適合使用 skill-forge 的缺口是：
 
-對一般使用者來說，預設應該走 `skill-manager` 的互動式流程，而不是直接記憶底層命令。
+```text
+approved source
+→ reviewable package
+→ target-specific rendering
+→ managed project install
+→ visible update and drift state
+```
 
-適合用來：
+## 怎麼在一分鐘內試用？
 
-* 安裝 skills
-* 更新 skills
-* 檢查 skill 狀態
-* 修復 managed installs
-* 移除 managed skills
-* 在 `codex` 與 `claude` 間切換
-
-### 維護者
-
-**建議路徑：AI 協作**
-
-對維護者來說，預設應該是在 Codex 或 Claude 中，搭配 manager skills 進行維護，而不是一開始就手打 terminal 命令。
-
-適合用來：
-
-* 建立新的 canonical skills
-* 修改既有 canonical skills
-* 收尾 metadata 與 validation
-* 同步 manager-skills 與 shared regular-skills
-* 更新 repo-local agent targets
-
-### 進階 fallback
-
-**直接輸入 terminal 命令仍然支援，但不建議作為主路徑。**
-
-適合用在：
-
-* 除錯
-* 低階檢查
-* 自動化腳本整合
-* 維護者在協作流程中需要 fallback 時
-
----
-
-## 環境需求
-
-| 需求 | 版本 | 說明 |
-|------|------|------|
-| Docker | 20.10+（Compose v2）| 必須 — `skill-manager` 完整執行在容器內 |
-| Python | 3.11+ | 僅在直接使用 `skill-forge` CLI（不透過 Docker）時需要，如 dev / CI |
-| git | 任意近期版本 | `skill-manager` 自動更新檢查所需 |
-
-推薦的一般使用者路徑（`skill-manager`）**只需要 Docker**，不需要在本機安裝 Python。
-
-Python 3.11+ 是 dev 容器（`Dockerfile.dev`）與直接執行 `PYTHONPATH=src python -m skill_forge` 命令時的需求——這是進階 fallback，不是主要路徑。
-
----
-
-## 快速開始
-
-推薦的一般使用者路徑是 `CLI/TUI`。
-
-### 1. Clone repo
+前置需求：Docker 與 Git。
 
 ```bash
 git clone https://github.com/busybutlazy/skill-forge.git ~/skill-forge
-```
-
-PowerShell:
-
-```powershell
-git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
-```
-
-### 2. 進入你的 target project
-
-```bash
-cd /path/to/target-project
-```
-
-### 3. 啟動 project-local skill manager
-
-```bash
+cd /path/to/your-project
 ~/skill-forge/skill-manager
 ```
 
-PowerShell:
+接著：
+
+1. 選擇 `codex` 或 `claude`；
+2. 進入 **Install / Update skills**；
+3. 安裝 `commit` 等單一 skill，或從 **Project Lifecycle** 選擇目前需要的入口；
+4. 重新載入 agent session。
+
+Windows PowerShell：
 
 ```powershell
+git clone https://github.com/busybutlazy/skill-forge.git "$HOME\skill-forge"
+Set-Location C:\path\to\your-project
 & "$HOME\skill-forge\skill-manager.ps1"
 ```
 
-如果你已經把 `~/skill-forge` 加進 `PATH`，也可以直接執行：
-
-```bash
-skill-manager
-```
-
-在 Windows PowerShell 請優先使用 `$HOME\skill-forge\skill-manager.ps1`，不要把 `~` 當成預設寫法；但像 `/workspace/project` 這種容器內路徑在 CLI 參數中仍應保留斜線形式，不要全部改成反斜線。
-
-如果 PowerShell 因為 execution policy 擋住啟動器，可以先執行：
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-& "$HOME\skill-forge\skill-manager.ps1"
-```
-
-### 4. 在互動式選單中完成操作
-
-你可以透過選單進行：
-
-* 選擇 `codex` 或 `claude`
-* 用單一 `[Y/n]` 提問決定是否寫入建議基本配置（security settings + `install-my-skill`）
-* 檢查已安裝 skill 狀態
-* 從分群清單安裝或更新 skills（`★ Recommended` 在最上，其後依 catalog 群組排列）
-* 用獨立的 `Install / Update project guideline` 選項安裝或更新 project guideline（納管的 instruction files、治理文件與安全 hooks）
-* 修復 broken 的 managed install
-* 移除 managed skills
-* 切換 target
-* 只有在需要時才進入 expert terminal
-
-分群、推薦清單與描述關鍵字上色都集中設定在 `canonical-skills/catalog.json`，詳見 [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)。
-
-> 對一般使用者來說，`skill-manager` 應該是預設入口。
-
-如果你需要走低階路徑，可以進 expert terminal 直接使用 Python CLI，詳細指令請參考 [terminal 操作手冊](docs/guides/terminal-operations-guide.md)。
-
----
-
-## Canonical Model
-
-公開 skills 放在：
+若要直接在既有 Codex／Claude session 中安裝，先透過選單安裝一次 `install-my-skill`，reload session，然後說：
 
 ```text
-canonical-skills/regular-skills/<name>/
+幫我安裝或更新 skill。
 ```
 
-至少包含：
-
-* `package.json`
-* `instruction.md`
-* `manifest.json`
-* `targets/codex.frontmatter.json`
-* `targets/claude.frontmatter.json`
-
-可選內容：
-
-* `examples/`
-* `references/`
-* `scripts/`
-* `assets/`
-
-詳細規格請參考：
-
-* [docs/reference/canonical-package-spec.md](docs/reference/canonical-package-spec.md)
-* [docs/reference/adapter-contract.md](docs/reference/adapter-contract.md)
-* [docs/reference/drift-policy.md](docs/reference/drift-policy.md)
-* [docs/reference/catalog-and-agent-memory.md](docs/reference/catalog-and-agent-memory.md)
-
-### Project guideline
-
-除了 skills 之外，這個 repo 也納管一組 project guideline 設定項，每一項都有自己的 canonical source：
-
-```text
-canonical-configs/
-├── agent-memory/       # memory.md → CLAUDE.md（claude）/ AGENTS.md（codex）
-│   ├── config.json
-│   └── memory.md
-├── agent-guideline/    # guideline.md → docs/agent-guideline.md（兩個 target 相同）
-│   ├── config.json
-│   └── guideline.md
-└── agent-hooks/        # safety_check.py + additive native hook 設定
-    ├── config.json
-    └── hooks/safety_check.py
-```
-
-兩個文件項目使用檔尾 HTML marker 做版本與 drift 偵測。`agent-hooks` 會安裝帶 marker 的 Python runner，並只把 skill-forge 擁有的 entries 結構化合併至 `.claude/settings.json` 或 `.codex/hooks.json`；其他使用者設定與 hooks 都會保留。既有衝突檔案若沒有 ownership marker，會被視為 `unmanaged`，永遠不會覆蓋。
-
-Managed hooks 需要 `python3` 指向 Python 3.11 或更新版本。Claude 使用原生 `PreToolUse` hooks 保護 `Bash`、`Edit`、`Write`；Codex 使用 project `.codex/hooks.json` 保護 `Bash` 與 `apply_patch`。Codex 可能需要針對每個精確 hook definition 執行 review/trust；`[features] hooks = false` 會回報為 `inactive`。Hooks 只是縱深防禦，不能取代 sandbox、權限、CI 或人工批准。
-
-Recursive forced deletion 若含有無法解析的 glob（例如 `rm -rf *` 或 `rm -rf build/*.tmp`）會被拒絕，因為 hook 無法安全判定展開後的目標集合。請改用明確且局部的路徑，或在 hook 之外取得人工批准。
-
-可從互動選單的 `Install / Update project guideline` 選項安裝，或用 CLI：
-
-```bash
-skill-forge guideline status  [--item NAME] --target <codex|claude> --project <path> [--json]
-skill-forge guideline install [--item NAME] --target <codex|claude> --project <path> [--force] [--yes]
-```
-
-兩個指令預設涵蓋所有可用項目；某一項安裝失敗會回報錯誤但不會中斷其餘項目。`skill-forge memory status|install` 保留為操作同一份 `agent-memory` 檔案與 marker 的相容指令，但維持舊版輸出形狀（`memory status --json` 回傳單一物件；對應的 `guideline` 篩選指令回傳單元素陣列）。
-
-使用 `--item agent-hooks` 可只管理安全 bundle。Drift 需要 `--force` 加確認；`unmanaged` 永遠不覆蓋。目前沒有自動 uninstall 指令：手動 recovery 時只移除 skill-forge 擁有的 matcher handlers，以及帶 marker 的 `hooks/skill-forge/safety_check.py`。Windows launcher 支援與 Git pre-commit fallback 仍延後處理。
-
----
-
-## 公開 skills 與 maintainer skills
-
-### `canonical-skills/regular-skills/`
-
-* 一般使用者 skills 的 canonical source
-* 一般安裝流程應以這裡為來源
-
-### `canonical-skills/manager-skills/`
-
-* 維護者工作流的 canonical source
-* 例如：
-
-  * `create-skill`
-  * `update-skill`
-  * `finalize-skill`
-  * `import-plugin-skill`
-  * `install-manager-skill`
-  * `skill-review-packet`
-
-### `shared` tag
-
-`regular-skills/` 下的 skill 可以帶 `shared` tag。
-
-這代表它仍然是 regular skill，但也可以透過 manager install flow 一起同步。
-
-### `.agents/skills/`
-
-* 這是本 repo 自己使用的 rendered artifacts
-* 不是 canonical source
-* 不應手動當作 source 編輯
-
----
-
-## 維護者工作流程
-
-維護者其實有兩條路，但只有一條應該是主路徑。
-
-### 首選：AI 協作
-
-這條路徑適合在 Codex 或 Claude 中維護。
-
-建議流程：
-
-1. 用 Codex 或 Claude 打開這個 repo。
-2. 只編輯 canonical source：
-
-   * `canonical-skills/regular-skills/`
-   * `canonical-skills/manager-skills/`
-3. 用 manager skills 進行操作：
-
-   * `create-skill`
-   * `update-skill`
-   * `finalize-skill`
-   * `import-plugin-skill`
-   * `install-manager-skill`
-   * `skill-review-packet`
-4. 只有在必要時才退回 terminal 命令。
-5. 不要手動修改 rendered artifacts，例如：
-
-   * `.agents/skills/`
-   * `.claude/skills/`
-
-建議分工：
-
-* 新增 skill → `create-skill`
-* 修改 skill → `update-skill`
-* 匯入下載回來的外部 skill → `import-plugin-skill`
-* 收尾與驗證 → `finalize-skill`
-* 同步 manager targets → `install-manager-skill` 或 `sync-manager-catalog`
-
-### 外部 skill 匯入策略
-
-下載回來的外部 skill 不應直接複製進 `canonical-skills/`。
-
-維護者應透過 `import-plugin-skill`：
-
-- 檢查單一本機外部 skill 來源
-- 先由 `skillkeeper` 判斷這個 skill 是否值得 canonicalize
-- 透過 `imitator`、`reviewer` 與 final `skillkeeper` admission 產出 staged draft
-- 在詢問最終人工同意前，先產出 `skill-review-packet`
-- 明確決定正式納管到 `regular-skills/` 或 `manager-skills/`
-- promote 後直接完成 finalize 與 Codex smoke test
-- 只有在整個 intake flow 成功後才清掉對應的 staging draft
-
-建議本機工作區結構：
-
-```text
-tmp/
-├── foreign_skills/
-└── import-candidates/
-```
-
-- `tmp/foreign_skills/`：下載回來的外部 skill 來源
-- `tmp/import-candidates/`：review 後產生的 canonical draft
-
-promotion 不是流程終點。成功匯入後應完成 finalize、smoke test，再清理 staging draft。
-
-詳細流程請參考：
-
-* [docs/guides/external-skill-import-guide.md](docs/guides/external-skill-import-guide.md)
-
-### fallback：terminal workflow
-
-只有在 AI 協作不適合，或需要做更低階檢查時，再使用 terminal。
-
-完整命令說明請看 [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md)。
-
-#### 容器化開發環境
-
-```bash
-docker build -f Dockerfile.dev -t skill-forge-dev .
-docker run --rm -it -v "$PWD:/workspace" -w /workspace skill-forge-dev
-```
-
-#### 驗證 canonical skills
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . validate
-```
-
-#### 更新 metadata
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . refresh-metadata create-skill --today
-```
-
-#### 只同步 manager-only skills 到本地 Codex 目錄
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . sync-maintainer --project . --target codex --force
-```
-
-#### 同步 manager-skills 與 `shared` regular-skills 到本地 targets
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . sync-manager-catalog --project . --target all --force
-```
-
-#### 查看 install 狀態
-
-```bash
-PYTHONPATH=src python -m skill_forge --repo-root . list --target codex --project . --scope all --json
-```
-
-#### 執行測試
-
-```bash
-docker run --rm -e PYTHONPATH=src -v "$PWD:/workspace" -w /workspace \
-  skill-forge-dev python -m unittest discover -s tests
-```
-
-#### Runtime smoke test
-
-```bash
-make up
-```
-
----
-
-## 在 Claude 或 Codex 內安裝 skills
-
-`install-my-skill` 讓你不需要離開 AI session，直接在對話中安裝和更新 skills。
-
-### 前置條件
-
-- `install-my-skill` 本身需先安裝一次。首次使用時，透過 `skill-manager` 安裝：
-
-  ```bash
-  ~/skill-forge/skill-manager
-  # 選 Install / Update skills → 選取 install-my-skill
-  ```
-
-  若 `install-my-skill` 已在 shared catalog 中，執行 `sync-manager-catalog` 時會自動納入。
-
-### 使用方式
-
-在 Claude 或 Codex session 中，說：
-
-> 「幫我安裝 skill」或「更新我的 skills」
-
-Agent 將會：
-
-1. 取得可安裝清單與目前的安裝狀態
-2. 呈現含版本與狀態標記的選單
-3. 安裝或更新你選取的 skills
-4. 回報結果並提醒你 reload session
-
-### 建議的專案生命週期
-
-全新專案建議安裝 catalog 中 `Project Lifecycle` 群組列出的 skills，並依目前狀態選擇第一個符合 admission criteria 的入口：
-
-| 目前狀態 | 起始 skill | 下一步 |
-|----------|------------|--------|
-| 想法仍模糊，或重要決策尚未解決 | `grill-with-docs` | `define-project` |
-| 決策已收斂，但尚無正式專案文件 | `define-project` | 人類批准 Project Definition |
-| Project Definition 已批准，但缺開發基線 | `bootstrap-project` | `deliver-roadmap-phase` |
-| 已批准一個明確 Roadmap Phase | `deliver-roadmap-phase` | 人類驗收 Phase |
-
-一般 greenfield 專案的順序是：
+模糊的新專案通常依下列路徑進行：
 
 ```text
 grill-with-docs
 → define-project
-→ human project approval
+→ Human Project Approval
 → bootstrap-project
 → deliver-roadmap-phase
-→ human phase acceptance
+→ Human Phase Acceptance
 → commit
 → create-pr
 ```
 
-不需要無條件執行所有步驟。決策已完整時可略過 `grill-with-docs`；既有專案的明確小型 Change 應使用 `plan-change`，而不是 `define-project`。每個 workflow 都會停在自己的批准邊界，任何一步都不會授權隱含的 commit、push、merge、release 或 deployment。
+不需要無條件執行所有步驟；應從第一個符合目前專案 admission criteria 的入口開始。詳細判斷請參考 [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md)。
 
-安裝建議、prompt 範例、路由規則與預期產物請參考 [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md)。
+## 實際效果長什麼樣？
 
-若要依 Roadmap 開發，安裝 `deliver-roadmap-phase` 即可；安裝器會揭露並自動帶入所需的 Change Workflow skills。重新開啟 agent session 後，以唯一 Phase 呼叫：
+### Skills 會出現在 target project
 
-```text
-請使用 deliver-roadmap-phase。
-Roadmap: docs/Roadmap.md
-Phase: Phase 1 — Walking Skeleton
-Mode: supervised-auto
-```
-
-它只會規劃指定 Phase、要求一次執行批准、協調已批准的子 Changes，最後停在獨立審查與人類驗收；不會自行推定下一 Phase，也不會隱含 commit、push、merge、release 或 deploy。
-
-範例畫面：
-
-```
-請選擇要安裝/更新的 skill（可複選）：
-
- 1. commit        v1.3.0  ✓ 已安裝（最新）
- 2. create-pr     v1.2.0  ⬆ 有更新（1.1.0→1.2.0）
- 3. dto-organizer v0.3.0  ○ 未安裝
-```
-
-### 已知限制
-
-- **需要 reload：** skills 在 session 啟動時載入。安裝完成後，需重新開啟 Claude 或 Codex session，新 skill 才會生效。
-- **需要 Docker：** agent 透過 shell 呼叫 `skill-manager`，後者在 Docker 容器內執行。
-- **不覆蓋 unmanaged skills：** 若 skill 已存在但非由 skill-forge 管理，agent 會拒絕安裝並說明原因。
-
----
-
-## CLI 與安全模型
-
-核心指令：
-
-* `validate`
-* `render`
-* `install`
-* `list`
-* `remove`
-* `update`
-* `refresh-metadata`
-* `sync-maintainer`
-* `sync-manager-catalog`
-* `guideline status` / `guideline install`
-* `memory status` / `memory install`（操作 `agent-memory` 項目的相容指令）
-
-managed install 狀態：
-
-* `up_to_date`
-* `update_available`
-* `drift`
-* `broken`
-* `unmanaged`
-
-主要安全規則：
-
-* `install` 會直接覆蓋 managed 的 `up_to_date` 與 `update_available`
-* `install` 修復 `broken` 前會要求確認
-* `install` 覆蓋 `drift` 前必須加 `--force`
-* `install` 會拒絕覆蓋 `unmanaged`
-* `update` 只處理 managed install，遇到 `drift` 也必須加 `--force`
-* `remove` 會拒絕刪除 `unmanaged`
-
----
-
-## 專案結構
+Codex：
 
 ```text
-skill-forge/
-├── AGENTS.md
-├── .agents/
-├── canonical-skills/
-│   ├── catalog.json
-│   ├── regular-skills/
-│   └── manager-skills/
-├── canonical-configs/
-│   ├── agent-memory/
-│   ├── agent-guideline/
-│   └── agent-hooks/
-├── docs/
-│   ├── concepts/
-│   ├── guides/
-│   └── reference/
-├── src/
-├── tests/
-├── Dockerfile
-├── Dockerfile.dev
-├── compose.yaml
-├── Makefile
-├── skill-manager
-└── skill-manager.ps1
+your-project/
+└── .agents/skills/
+    ├── grill-with-docs/
+    ├── define-project/
+    └── commit/
 ```
 
----
+Claude：
 
-## 如何閱讀這個 repo
+```text
+your-project/
+└── .claude/skills/
+    ├── grill-with-docs/
+    ├── define-project/
+    └── commit/
+```
 
-建議閱讀順序：
+canonical source 仍保留在 skill-forge；render 後的 target files 是受管理輸出，不是第二份 source。
 
-1. `README.md`
-2. [docs/concepts/governance.md](docs/concepts/governance.md)
-3. [docs/guides/adoption-guide.md](docs/guides/adoption-guide.md)
-4. [docs/guides/quickstart-demo.md](docs/guides/quickstart-demo.md)
-5. [docs/guides/terminal-operations-guide.md](docs/guides/terminal-operations-guide.md)
+### 安裝狀態是明確的
 
-一般使用者優先看 quickstart 與 `skill-manager` 流程。
-維護者再深入看 governance 與 terminal 操作文件。
+```text
+grill-with-docs      up_to_date       0.3.0
+define-project       update_available 0.2.1
+commit               drift
+local-custom-skill   unmanaged
+```
 
----
+- `up_to_date`：與 canonical package 一致；
+- `update_available`：已有新的 reviewed canonical version；
+- `drift`：managed install 被本地修改；
+- `broken`：必要 managed files 遺失或無效；
+- `unmanaged`：不是由 skill-forge 安裝，因此不會被覆蓋。
 
-## 定位說明
+### Dependencies 仍然看得見
 
-### 這不是 marketplace
+安裝 `grill-with-docs` 會帶入其內部 decision methods；安裝 `deliver-roadmap-phase` 會帶入所需 Change Workflow skills。Installer 會揭露 bundle，不會把多個責任偷偷壓平成單一 skill。
 
-`skill-forge` 的目標不是最大化公開探索與上架，而是提供團隊可控來源、可重現 packaging model，以及更安全的 install / update 路徑。
+### Workflow 產物可以被審查
 
-### 這不是 vendor lock-in
+受治理的專案流程會產生例如：
 
-skill 邏輯應該先寫成 tool-neutral 的 canonical package，再適配到支援的 targets，而不是為每個工具手動維護平行版本。
+```text
+docs/
+├── SPEC.md
+├── CONTRACTS.md
+└── ROADMAP.md
 
-### 這不是用來取代原生 AI 工具能力
+changes/<change-id>/
+├── REQUEST.md
+├── IMPLEMENTATION_PLAN.md
+├── VERIFICATION_REPORT.md
+├── CHANGE_REPORT.md
+└── REVIEW_REPORT.md
+```
 
-Codex、Claude 等工具仍然負責各自產品內的執行體驗。
+每個 workflow 都停在自己的 authority boundary。Project Approval 不代表 implementation authority；Phase Acceptance 也不代表 commit、push、merge、release 或 deployment。
 
-`skill-forge` 處理的是另一個層次的問題：canonical source、治理、分發與跨工具可移植性。
+## 下一步
 
----
+### 一般使用者
 
-## 目前版本重點
+- [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md)
+- [Quickstart Demo](docs/guides/quickstart-demo.md)
+- [Terminal Operations Guide](docs/guides/terminal-operations-guide.md)
 
-`1.1.2` 是在 `1.0.0` 一般使用者基礎體驗之上，正式補齊 maintainer workflow 與 canonical manager skill model 的版本。
+### 評估導入的團隊
 
-這個版本的重點包括：
+- [Adoption Guide](docs/guides/adoption-guide.md)
+- [Governance Model](docs/concepts/governance.md)
 
-* `canonical-skills/` 正式拆分為：
+### Maintainers
 
-  * `canonical-skills/regular-skills/`
-  * `canonical-skills/manager-skills/`
-* 新增 `finalize-skill`
-* 新增 `install-manager-skill`
-* 讓維護者工作流更明確地收斂到 create / update / finalize / install 這條主線
-
----
-
-## Roadmap
-
-目前 roadmap 的重點是：
-
-* 對外定位更清楚
-* 導入說明更完整
-* 治理模型更明確
-
-現階段主要操作面仍然以 CLI/TUI 與 AI 協作流程為主。
-
-請參考 `ROADMAP.md` 了解目前方向。
-
----
-
-## 相容性說明
-
-`skill-manager.sh` 目前只保留相容提示用途。
-`skill-manager.ps1` 是給 Windows PowerShell 的啟動器。
-
-真正的工作流程已經是：
-
-* 一般使用者：`skill-manager`
-* 維護者：AI 協作優先，Python CLI 為 fallback
+- [Canonical Package Specification](docs/reference/canonical-package-spec.md)
+- [Adapter Contract](docs/reference/adapter-contract.md)
+- [Catalog and Managed Agent Configuration](docs/reference/catalog-and-agent-memory.md)
+- [External Skill Import Guide](docs/guides/external-skill-import-guide.md)
+- [Release Guide](docs/release-guide.md)
