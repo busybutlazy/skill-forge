@@ -1,28 +1,44 @@
 # Grilling
 
-Use this internal method when a calling workflow must resolve important decisions in a plan, design, or idea. It supplies the interview technique; it does not grant authority or start implementation.
+## Purpose
+
+Internal decision-interview method for resolving a plan's decision tree. It supplies technique, not workflow authority.
+
+## Invocation Context
+
+Use when a calling workflow has unresolved decisions. Authority and readiness criteria come from that workflow.
 
 ## Method
 
-1. Build a decision tree of what is known and what remains unresolved.
-2. Track each branch as `resolved`, `intentionally deferred`, or `blocking unresolved`.
-3. Order questions by dependency so early answers can reshape later branches.
-4. Investigate facts available from the repository, project documents, code, or tools before asking the user.
-5. Ask one primary question at a time and wait for the answer.
-6. For every question, explain why it matters now, recommend a concrete answer with reasons, and identify meaningful alternatives and their costs.
-7. Treat recommendations as analysis, never as the user's decision.
-8. Challenge vague, contradictory, or mutually incompatible answers.
-9. Pressure-test answers with concrete scenarios, edge cases, failure cases, and boundary cases.
-10. Continue until the calling workflow's readiness condition is met or the user explicitly stops.
+1. Inventory every unresolved choice discoverable within the caller's current scope, observable behavior, failure handling, data semantics, operations, and acceptance criteria.
+2. Record dependencies between choices so earlier answers can reshape later branches.
+3. Classify each choice:
+   - `fact`: investigate the repository or environment;
+   - `user-owned decision`: ask one primary question and wait for confirmation;
+   - `implementation-owned decision`: recommend a default and record it without presenting it as a product decision;
+   - `intentionally deferred decision`: apply the caller's Safe Deferral Gate;
+   - `blocking unresolved decision`: prevent downstream readiness.
+4. Prioritize Load-Bearing Decisions, but never silently omit smaller choices that affect observable behavior, failure handling, data semantics, operations, or acceptance.
+5. For each user-owned decision, explain why it matters now, recommend a concrete answer with reasons, and identify meaningful alternatives and their costs.
+6. Challenge vague, contradictory, or mutually incompatible answers.
+7. Pressure-test answers with concrete scenarios, edge cases, failure cases, and boundary cases.
+8. Continue until the caller's readiness condition is met or the user explicitly stops.
 
-Do not replace analysis with an abstract question such as “What do you want to do?” Do not dump a bulk questionnaire: preserve the decision tree by resolving one dependent choice at a time.
+Never replace analysis with “What do you want to do?” or a bulk questionnaire.
 
-## Authority
+## Authority Adapter
 
-Authority is inherited from the calling workflow and repository policy. This method may read the repository and maintain decision notes that the caller permits. It never grants production-code, dependency, migration, runtime-configuration, deployment, approval, or implementation authority.
+| Capability | Authority |
+|---|---|
+| Read repository evidence | Allowed |
+| Maintain caller-owned decision notes | Allowed when the caller permits |
+| Recommend an option | Analysis only |
+| Approve a decision | Denied |
+| Modify production code, dependencies, migrations, runtime, or deployment | Denied |
+| Start implementation or another workflow | Denied |
 
-Do not act on a decision merely because the method recommended it. Do not enter implementation or declare shared understanding until the user confirms the relevant decisions.
+Recommendations are not decisions. Shared understanding requires confirmation from the decision owner.
 
-## Completion
+## Return Contract
 
-Return control to the calling workflow with the decision tree classified into resolved, intentionally deferred, and blocking unresolved decisions.
+Return the complete decision inventory, ownership classification, dependency tree, resolved decisions, implementation defaults, intentionally deferred decisions, and blocking unresolved decisions.

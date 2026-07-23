@@ -18,7 +18,7 @@ class DefineProjectTests(unittest.TestCase):
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
         for required in (
             "Decision Readiness Summary or equivalent evidence",
-            "If decision-readiness evidence is missing",
+            "Admission fails when readiness evidence is missing",
             "do not infer an answer",
             "do not turn a recommendation into an approved decision",
             "stop and route to `grill-with-docs`",
@@ -32,11 +32,22 @@ class DefineProjectTests(unittest.TestCase):
             "`docs/CONTRACTS.md`",
             "`docs/ROADMAP.md`",
             "Project Approval Packet",
+            "PROJECT_DEFINITION_FORMAT.md",
+        ):
+            self.assertIn(required, instruction)
+        definition_format = (
+            SKILL_DIR / "references" / "PROJECT_DEFINITION_FORMAT.md"
+        ).read_text(encoding="utf-8")
+        for required in (
             "## Walking Skeleton",
             "### Observable Outcome",
             "### Acceptance Criteria",
+            "### Decision Gates",
+            "- Required Before:",
+            "- Owner:",
+            "- Current Status:",
         ):
-            self.assertIn(required, instruction)
+            self.assertIn(required, definition_format)
         template = (
             SKILL_DIR / "references" / "PROJECT_APPROVAL_PACKET_TEMPLATE.md"
         ).read_text(encoding="utf-8")
@@ -44,23 +55,36 @@ class DefineProjectTests(unittest.TestCase):
         self.assertIn("Blocking Open Decisions", template)
 
     def test_contracts_are_conditional_and_not_implementation_details(self) -> None:
+        definition_format = (
+            SKILL_DIR / "references" / "PROJECT_DEFINITION_FORMAT.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "Create this file only when the project has an Externally Observable Contract",
+            definition_format,
+        )
+        self.assertIn(
+            "Internal implementation details are not contracts",
+            definition_format,
+        )
+
+    def test_admission_and_roadmap_preserve_safe_deferral_contract(self) -> None:
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
-        self.assertIn(
-            "Create this only when the project has an externally observable contract",
-            instruction,
-        )
-        self.assertIn(
-            "Do not describe internal implementation details as contracts",
-            instruction,
-        )
+        for required in (
+            "safe-deferral rationale",
+            "named owner",
+            "explicit blocking trigger",
+            "Map every deferred decision",
+            "Each Decision Gate names the owner, required timing, and current status",
+        ):
+            self.assertIn(required, instruction)
 
     def test_walking_skeleton_and_phases_are_observable_vertical_outcomes(self) -> None:
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
         for required in (
-            "genuinely executable",
-            "principal system boundaries",
-            "A blank scaffold does not qualify",
-            "vertical outcome slice rather than a horizontal technical layer",
+            "Walking Skeleton: executable",
+            "primary system boundaries",
+            "A structural scaffold does not qualify",
+            "Vertical Slice, not a horizontal technical layer",
             "independently acceptable",
         ):
             self.assertIn(required, instruction)
@@ -68,13 +92,10 @@ class DefineProjectTests(unittest.TestCase):
     def test_authority_is_definition_only_and_requires_human_approval(self) -> None:
         instruction = (SKILL_DIR / "instruction.md").read_text(encoding="utf-8")
         for required in (
-            "project-definition artifacts only",
-            "must not write production code",
-            "add dependencies",
-            "run migrations",
-            "approve the project",
-            "start `bootstrap-project`",
-            "explicit human project approval",
+            "| Write production code or runtime implementation | Denied |",
+            "| Add dependencies, run migrations, or establish deployment | Denied |",
+            "| Approve the project or start `bootstrap-project` | Denied |",
+            "explicit Human Project Approval",
         ):
             self.assertIn(required, instruction)
 
@@ -82,7 +103,7 @@ class DefineProjectTests(unittest.TestCase):
         catalog = json.loads(
             (REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8")
         )
-        group = next(item for item in catalog["groups"] if item["name"] == "Start a Project")
+        group = next(item for item in catalog["groups"] if item["name"] == "Project Lifecycle")
         self.assertEqual(
             group["skills"],
             ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"],
@@ -112,9 +133,18 @@ class DefineProjectTests(unittest.TestCase):
                 rendered = (
                     Path(result.stdout.strip()) / "SKILL.md"
                 ).read_text(encoding="utf-8")
-                self.assertIn("must not write production code", rendered)
+                self.assertIn(
+                    "| Write production code or runtime implementation | Denied |",
+                    rendered,
+                )
                 self.assertIn("Stop and wait for explicit human project approval", rendered)
                 self.assertIn("stop and route to `grill-with-docs`", rendered)
+                rendered_format = (
+                    Path(result.stdout.strip())
+                    / "references"
+                    / "PROJECT_DEFINITION_FORMAT.md"
+                ).read_text(encoding="utf-8")
+                self.assertIn("### Decision Gates", rendered_format)
 
                 if target == "codex":
                     agent_config = (

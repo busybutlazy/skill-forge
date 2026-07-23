@@ -22,7 +22,7 @@ REFERENCES = {
 class PhaseDBootstrapContractTests(unittest.TestCase):
     def test_package_validates_and_manifest_includes_every_reference(self) -> None:
         skill = load_skill(REPO_ROOT, "bootstrap-project")
-        self.assertEqual(skill.version, "0.1.2")
+        self.assertEqual(skill.version, "0.1.3")
         self.assertEqual(skill.updated_at, "2026-07-23")
         manifest = json.loads((SKILL_DIR / "manifest.json").read_text(encoding="utf-8"))
         paths = {entry["path"] for entry in manifest["files"]}
@@ -90,7 +90,7 @@ class PhaseDBootstrapContractTests(unittest.TestCase):
 
     def test_catalog_and_guideline_mark_bootstrap_available_not_recommended(self) -> None:
         catalog = json.loads((REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8"))
-        bootstrap = next(group for group in catalog["groups"] if group["name"] == "Start a Project")
+        bootstrap = next(group for group in catalog["groups"] if group["name"] == "Project Lifecycle")
         self.assertEqual(
             bootstrap["skills"],
             ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"],
