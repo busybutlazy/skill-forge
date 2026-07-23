@@ -33,7 +33,7 @@ class RoadmapPhaseDeliveryTests(unittest.TestCase):
 
     def test_package_declares_complete_atomic_workflow_bundle(self) -> None:
         skill = load_skill(REPO_ROOT, "deliver-roadmap-phase")
-        self.assertEqual(skill.version, "0.1.0")
+        self.assertEqual(skill.version, "0.1.1")
         self.assertEqual(skill.skill_dependencies, DEPENDENCIES)
         resolved = resolve_skill_install_set(
             REPO_ROOT, [skill.name], "codex", allowed_scopes={"public"}
@@ -42,9 +42,12 @@ class RoadmapPhaseDeliveryTests(unittest.TestCase):
 
     def test_catalog_exposes_facade_separately_from_atomic_skills(self) -> None:
         catalog = json.loads((REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8"))
-        roadmap = next(group for group in catalog["groups"] if group["name"] == "Roadmap Delivery")
+        roadmap = next(group for group in catalog["groups"] if group["name"] == "Start a Project")
         workflow = next(group for group in catalog["groups"] if group["name"] == "Change Workflow")
-        self.assertEqual(roadmap["skills"], ["deliver-roadmap-phase"])
+        self.assertEqual(
+            roadmap["skills"],
+            ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"],
+        )
         self.assertEqual(workflow["skills"], DEPENDENCIES)
         self.assertNotIn("deliver-roadmap-phase", catalog["recommended"])
 

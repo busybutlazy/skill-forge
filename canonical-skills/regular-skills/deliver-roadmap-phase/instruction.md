@@ -24,6 +24,14 @@ Turn one exact Roadmap phase into bounded governed changes, obtain one execution
 
 Read [the phase delivery packet template](./references/PHASE_DELIVERY_PACKET_TEMPLATE.md) before planning. Never install dependencies or run project commands directly on the host.
 
+## Phase Readiness Gate
+
+A phase must have an approved observable outcome, scope, acceptance criteria,
+and resolved blocking decisions. If it still contains an undecided external
+contract, data ownership rule, security boundary, or major architecture
+alternative, stop and route to `grill-with-docs`. Do not conduct a full
+interview or resolve the choice by assumption inside phase delivery.
+
 ## Phase Workflow
 
 1. Resolve exactly one Roadmap phase. Quote its stable ID/heading and boundaries in `changes/<phase-run-id>/PHASE_REQUEST.md`. Stop if it is absent, ambiguous, already complete, or depends on unresolved product decisions.

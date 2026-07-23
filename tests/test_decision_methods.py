@@ -29,11 +29,11 @@ class DecisionMethodTests(unittest.TestCase):
         catalog = json.loads(
             (REPO_ROOT / "canonical-skills" / "catalog.json").read_text(encoding="utf-8")
         )
-        group = next(
-            item for item in catalog["groups"]
-            if item["name"] == "Project Definition / Decision Making"
+        group = next(item for item in catalog["groups"] if item["name"] == "Start a Project")
+        self.assertEqual(
+            group["skills"],
+            ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"],
         )
-        self.assertEqual(group["skills"], ["grill-with-docs", "define-project"])
         grouped = {name for item in catalog["groups"] for name in item["skills"]}
         self.assertNotIn("grilling", grouped)
         self.assertNotIn("domain-modeling", grouped)

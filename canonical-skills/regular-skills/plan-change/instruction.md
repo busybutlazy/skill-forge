@@ -20,6 +20,13 @@ Prepare an approval-ready plan without implementing the change. The only permitt
 
 If the request, acceptance criteria, or change identifier is missing, stop and request it. Treat conflicting sources of truth as a blocker.
 
+## Decision Readiness Gate
+
+If load-bearing product, domain, externally observable contract, security,
+data-model, data-ownership, or major architecture decisions remain unresolved,
+stop and route to `grill-with-docs`. Do not resolve them by assumption inside
+planning or present a recommended option as an approved decision.
+
 ## Workflow
 
 1. Read repository rules and sources of truth before examining implementation details.

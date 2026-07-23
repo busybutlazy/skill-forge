@@ -2,24 +2,16 @@
   "schema_version": 1,
   "groups": [
     {
-      "name": "Project Definition / Decision Making",
-      "skills": ["grill-with-docs", "define-project"]
+      "name": "Start a Project",
+      "skills": ["grill-with-docs", "define-project", "bootstrap-project", "deliver-roadmap-phase"]
     },
     {
       "name": "Git & Review",
       "skills": ["commit", "create-pr", "code-review"]
     },
     {
-      "name": "Roadmap Delivery",
-      "skills": ["deliver-roadmap-phase"]
-    },
-    {
       "name": "Change Workflow",
       "skills": ["plan-change", "implement-task", "run-approved-change", "verify-change", "report-change", "review-change"]
-    },
-    {
-      "name": "Project Bootstrap",
-      "skills": ["bootstrap-project"]
     },
     {
       "name": "Docs & Knowledge",
