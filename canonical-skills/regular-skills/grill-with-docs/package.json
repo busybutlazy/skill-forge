@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "name": "grill-with-docs",
+    "version": "0.1.0",
+    "description": "Resolve load-bearing project decisions through a documented one-question-at-a-time workflow",
+    "updated_at": "2026-07-23",
+    "tags": [
+      "project-definition",
+      "decision-making",
+      "entrypoint"
+    ]
+  },
+  "content": {
+    "instruction_file": "instruction.md"
+  },
+  "distribution": {
+    "scope": "public"
+  },
+  "dependencies": {
+    "skills": [
+      "grilling",
+      "domain-modeling"
+    ]
+  },
+  "provenance": {
+    "repository": "https://github.com/mattpocock/skills",
+    "commit": "ed37663cc5fbef691ddfecd080dff42f7e7e350d",
+    "source_path": "skills/engineering/grill-with-docs",
+    "upstream_skill": "grill-with-docs",
+    "import_type": "adapted",
+    "license": "MIT"
+  },
+  "targets": {
+    "codex": {
+      "frontmatter_file": "targets/codex.frontmatter.json",
+      "install_path": ".agents/skills/{name}/"
+    },
+    "claude": {
+      "frontmatter_file": "targets/claude.frontmatter.json",
+      "install_path": ".claude/skills/{name}/"
+    }
+  },
+  "integrity": {
+    "manifest_file": "manifest.json",
+    "package_sha256": "95e9d71998cf37c79860b3e21ca80c278df0f54565233fe15ce655f119183572"
+  }
+}

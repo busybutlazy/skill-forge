@@ -2,6 +2,10 @@
   "schema_version": 1,
   "groups": [
     {
+      "name": "Project Definition / Decision Making",
+      "skills": ["grill-with-docs"]
+    },
+    {
       "name": "Git & Review",
       "skills": ["commit", "create-pr", "code-review"]
     },
@@ -47,6 +51,8 @@
     "plan",
     "verification",
     "YAGNI",
-    "security"
+    "security",
+    "decision",
+    "project definition"
   ]
 }
