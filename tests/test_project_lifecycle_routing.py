@@ -19,6 +19,10 @@ class ProjectLifecycleRoutingTests(unittest.TestCase):
             guideline,
         )
         self.assertIn("模糊或有重大未決策：`grill-with-docs`", guideline)
+        self.assertIn(
+            "並非所有專案都必須先執行 `grill-with-docs`",
+            guideline,
+        )
 
     def test_resolved_and_approved_projects_route_to_correct_entrypoints(self) -> None:
         guideline = (

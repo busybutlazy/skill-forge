@@ -70,7 +70,7 @@ class PhaseCWorkflowContractTests(unittest.TestCase):
         guideline = (
             REPO_ROOT / "canonical-configs" / "agent-guideline" / "guideline.md"
         ).read_text(encoding="utf-8")
-        self.assertIn("已提供的 Change Workflow skills", guideline)
+        self.assertIn("已提供的 Workflow skills", guideline)
         for name in SKILLS:
             self.assertIn(f"`{name}`", guideline)
 
