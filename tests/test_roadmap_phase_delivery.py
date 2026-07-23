@@ -33,7 +33,7 @@ class RoadmapPhaseDeliveryTests(unittest.TestCase):
 
     def test_package_declares_complete_atomic_workflow_bundle(self) -> None:
         skill = load_skill(REPO_ROOT, "deliver-roadmap-phase")
-        self.assertEqual(skill.version, "0.2.0")
+        self.assertEqual(skill.version, "0.3.0")
         self.assertEqual(skill.skill_dependencies, DEPENDENCIES)
         resolved = resolve_skill_install_set(
             REPO_ROOT, [skill.name], "codex", allowed_scopes={"public"}
@@ -58,8 +58,17 @@ class RoadmapPhaseDeliveryTests(unittest.TestCase):
             "cannot enter\nplanning when any decision required before Phase start remains unresolved",
             "route to `grill-with-docs`",
             "Decision Gates in `changes/<phase-run-id>/PHASE_REQUEST.md`",
+            "Convert every non-start Decision Gate into an explicit human checkpoint",
+            "child Change cannot start while a Decision Gate",
+            "dependent work remains blocked",
+            "Phase cannot complete while such a gate remains unresolved",
         ):
             self.assertIn(required, instruction)
+        packet = (
+            SKILL_DIR / "references" / "PHASE_DELIVERY_PACKET_TEMPLATE.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("## Decision Gate Checkpoints", packet)
+        self.assertIn("| Decision | Required before | Blocks | Owner |", packet)
 
     def test_cli_installs_bundle_for_both_targets_idempotently(self) -> None:
         for target in ("codex", "claude"):

@@ -16,9 +16,9 @@ Required evidence:
 - every Load-Bearing Decision required by the Project Definition, Walking Skeleton, or included Roadmap phases is resolved;
 - every other deferred decision has a safe-deferral rationale, named owner, and explicit blocking trigger;
 - known constraints;
-- a Decision Readiness Summary or equivalent evidence.
+- a Decision Readiness Summary, or equivalent evidence that satisfies [DECISION_READINESS_EVIDENCE.md](./references/DECISION_READINESS_EVIDENCE.md).
 
-Read the Decision Readiness Summary, relevant `CONTEXT.md` or `CONTEXT-MAP.md`, ADRs, existing project documents, repository policy, and current repository structure.
+Validate readiness evidence using the referenced contract, then read relevant `CONTEXT.md` or `CONTEXT-MAP.md`, ADRs, existing project documents, repository policy, and current repository structure.
 
 Admission fails when readiness evidence is missing or any Blocking Decision remains in product, domain, contract, security, data ownership, data model, acceptance, or major architecture:
 
@@ -36,10 +36,11 @@ Admission fails when readiness evidence is missing or any Blocking Decision rema
 5. Define the minimum Walking Skeleton: executable, crossing the primary system boundaries, and testing the highest-risk assumption. A structural scaffold does not qualify.
 6. Build Roadmap phases in dependency order. Each phase must:
    - produce an observable outcome;
-   - be independently acceptable;
+   - prefer an independently acceptable Vertical Slice;
    - define included scope and acceptance criteria;
    - state dependencies, risks, Decision Gates, and deferred work;
-   - form an independently acceptable Vertical Slice, not a horizontal technical layer.
+   - avoid a horizontal technical layer unless it is a qualifying enabling Phase.
+   An enabling Phase is allowed only when it produces an independently verifiable capability, is required by later outcome slices, and cannot be safely folded into the first dependent slice.
 7. Map every deferred decision to the Roadmap Phase or condition where it becomes blocking. Each Decision Gate names the owner, required timing, and current status.
 8. Cross-reference `CONTEXT.md`, ADRs, and readiness evidence instead of copying them wholesale.
 9. Write project-definition artifacts using [PROJECT_DEFINITION_FORMAT.md](./references/PROJECT_DEFINITION_FORMAT.md), then assemble the Project Approval Packet using [PROJECT_APPROVAL_PACKET_TEMPLATE.md](./references/PROJECT_APPROVAL_PACKET_TEMPLATE.md).

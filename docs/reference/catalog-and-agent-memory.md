@@ -12,7 +12,9 @@ This reference covers three features that live outside the canonical skill packa
 
 Controls how the interactive menu groups, orders, and highlights skills. The file lives next to the canonical buckets but is **not** part of any skill package, so editing it never changes a `package_sha256`.
 
-Catalog groups are presentation only. Installable bundles use `package.json.dependencies.skills`; the CLI and interactive menu disclose and install those dependencies before the requested facade skill. `deliver-roadmap-phase` uses this mechanism to install the complete Change Workflow toolset without merging the atomic skills into one source package.
+Catalog groups are presentation only, not presets or bulk-install contracts. The `Project Lifecycle` group helps users choose among `grill-with-docs`, `define-project`, `bootstrap-project`, and `deliver-roadmap-phase`; users install the entries appropriate to their project state.
+
+Installable bundles use `package.json.dependencies.skills`; the CLI and interactive menu disclose and install those dependencies before the requested facade skill. `grill-with-docs` uses this mechanism to install the internal `grilling` and `domain-modeling` methods. `deliver-roadmap-phase` installs the complete Change Workflow toolset without merging the atomic skills into one source package. `define-project` and `bootstrap-project` remain independent entrypoints.
 
 ```json
 {

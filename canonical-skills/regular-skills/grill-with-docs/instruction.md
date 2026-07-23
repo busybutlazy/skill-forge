@@ -19,19 +19,19 @@ Reject admission for a clear bounded change, approved task execution, verificati
 
 ## Workflow
 
-1. Read the user's goal, repository policy, existing project documents, code, relevant `CONTEXT.md` or `CONTEXT-MAP.md`, and ADRs.
+1. Read the user's goal, repository policy, existing project documents, code, relevant `CONTEXT.md` or `CONTEXT-MAP.md`, ADRs, [DECISION_INVENTORY_FORMAT.md](./references/DECISION_INVENTORY_FORMAT.md), and [READINESS_SUMMARY_FORMAT.md](./references/READINESS_SUMMARY_FORMAT.md).
 2. Apply `grilling` to inventory every unresolved choice within the current project or change scope and classify its ownership. Prioritize Load-Bearing Decisions without omitting smaller choices that affect observable behavior, failure handling, data semantics, operations, or acceptance.
 3. Investigate facts from repository evidence. Resolve user-owned decisions through explicit confirmation. Record implementation-owned defaults without presenting them as product decisions.
 4. Apply `domain-modeling` whenever confirmed answers change terminology, entities, relationships, boundaries, ownership, or invariants. Record only qualifying ADRs.
 5. Apply the Safe Deferral Gate to every proposed deferred decision.
-6. Maintain decision artifacts inline and finish with the Decision Readiness Summary.
+6. Maintain the required Decision Inventory artifact and finish with the Decision Readiness Summary. If the session stops before inventory and readiness assessment are complete, mark both outputs as partial and use the incomplete status.
 
 ## Safe Deferral Gate
 
 A decision is `intentionally deferred` only when all conditions hold:
 
-1. No current specification, Externally Observable Contract, Walking Skeleton, or included near-term Phase requires an assumed answer.
-2. Deferral does not change the meaning of current acceptance criteria.
+1. The next downstream artifact can be completed coherently without assuming an answer.
+2. The decision does not change the meaning of proposed scope, Externally Observable Contracts, Walking Skeleton, acceptance criteria, or any work authorized before the recorded blocking trigger.
 3. A named decision owner or authority is recorded.
 4. The exact phase, event, date, or condition that makes the decision blocking is recorded.
 
@@ -50,40 +50,14 @@ Otherwise classify it as `blocking unresolved`.
 
 ## Decision Readiness Summary
 
-Every completion or stop must output exactly these sections:
+Every completion or stop must produce the Decision Inventory and summary defined by the referenced formats. The summary must use exactly one status: `Ready`, `Stopped With Blocking Decisions`, or `Incomplete — Session Stopped Before Readiness Assessment`.
 
-```markdown
-## Resolved Decisions
-
-## Intentionally Deferred Decisions
-
-## Blocking Open Decisions
-
-## Conflicts or Assumptions Found
-
-## Updated Artifacts
-
-## Recommended Next Workflow
-```
-
-Record every deferred decision as:
-
-```markdown
-- Decision:
-- Why Safe Now:
-- Affected Scope:
-- Decision Owner:
-- Becomes Blocking When:
-```
-
-`Recommended Next Workflow` must name one concrete route: `define-project`, `plan-change`, `continue grill-with-docs`, or `return to human decision owner`.
-
-Only when `Blocking Open Decisions: None` may the summary declare `Ready for define-project`. If any blocking decision remains, do not soften the block with “mostly ready,” an implementation assumption, or a recommendation presented as a decision.
+Only `Ready` with `Blocking Open Decisions: None` may declare `Ready for define-project` or `Ready for plan-change`. A stopped session cannot claim readiness, and known blockers cannot be softened with an assumption or recommendation.
 
 ## Exit Criteria
 
-Every unresolved choice in the current scope has an owner and readiness classification. Every user-owned decision required now is resolved, every deferred decision passes the Safe Deferral Gate, and no Blocking Decision remains.
+For `Ready`, the complete inventory covers the current scope, every choice has an owner and readiness classification, every required user-owned decision is resolved, every deferred decision passes the Safe Deferral Gate, and no Blocking Decision remains.
 
 ## Handoff
 
-Return the Decision Readiness Summary and stop. The named next workflow requires its own Admission Criteria and authority.
+Return the Decision Inventory and Decision Readiness Summary, then stop. The named next workflow requires its own Admission Criteria and authority.

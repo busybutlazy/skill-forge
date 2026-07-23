@@ -18,7 +18,13 @@ Summarize each phase by observable outcome and dependency order.
 
 ## Intentionally Deferred Decisions
 
-List each deferred decision, why deferral is safe now, and when it becomes blocking.
+List each deferred decision with:
+
+- why deferral is safe now;
+- affected scope;
+- decision owner;
+- the Roadmap Decision Gate or other blocking trigger;
+- when it becomes blocking.
 
 ## Risks and Non-Blocking Concerns
 

@@ -32,7 +32,14 @@ Contract：docs/CONTRACTS.md
 6. 產生變更報告，揭露完成、未完成與偏差。
 7. 接受獨立審查。
 
-若工作來源是 Roadmap，優先使用 `deliver-roadmap-phase` 並明確指定 Roadmap 路徑與唯一 Phase ID／標題。它是使用者入口，會把一個 Phase 拆成受控 Changes；不得用「繼續 Roadmap」推定下一階段，也不得一次涵蓋多個 Phase。
+依目前 readiness 選擇 lifecycle 入口：
+
+- 有未決選擇的新專案或重大 Change：使用 `grill-with-docs`，不得在 planning 中自行猜測。
+- 決策已具備 readiness evidence，但缺正式 Project Definition：使用 `define-project`。
+- Greenfield Project Definition 已獲人類批准，但缺工程基線：使用 `bootstrap-project`。
+- 已批准一個明確 Roadmap Phase，且 Phase-start Decision Gates 已滿足：使用 `deliver-roadmap-phase`，並指定 Roadmap 路徑與唯一 Phase ID／標題。
+
+不得用「繼續 Roadmap」推定下一階段，也不得一次涵蓋多個 Phase。Project Approval、bootstrap approval、Phase Acceptance 與 Git／release authority 彼此獨立。
 
 完整流程、風險分級與報告格式見 `docs/agent-guideline.md`。
 

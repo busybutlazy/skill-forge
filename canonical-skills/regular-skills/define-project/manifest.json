@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "instruction.md",
-      "sha256": "308447d13a283828f2c29a76a404ccae836d6878420eadb519db0e976f190091"
+      "sha256": "6c314e31a569da2ac7cdd217d8d4f1a8910363152bfc0096fc9cb414291e8b45"
     },
     {
       "path": "targets/claude.frontmatter.json",
@@ -14,16 +14,20 @@
     },
     {
       "path": "targets/codex.frontmatter.json",
-      "sha256": "b3b6f5f88c4f7eedbd82d533ca6ff8467781c1dc937a71c4a1ed7f7615bb6ced"
+      "sha256": "b26e936b6e1b83ea8f5475be8bd260412a87b38b79dabb5ef17a56839c7fbfb4"
+    },
+    {
+      "path": "references/DECISION_READINESS_EVIDENCE.md",
+      "sha256": "29265e55b44aacae8ce3a28c4e34063a59659dc3ae2ea9932ac012d7dc5e100e"
     },
     {
       "path": "references/PROJECT_APPROVAL_PACKET_TEMPLATE.md",
-      "sha256": "0241caa7422d87a4db409d68c74b25963f8aa4ac59bc7777c8ad29b5bbca3a68"
+      "sha256": "21ba9b237c4f137e559c59477977a9c5c65fc0047058e554fcb6532806d6a9da"
     },
     {
       "path": "references/PROJECT_DEFINITION_FORMAT.md",
-      "sha256": "3b107c12d20a837a54a27405bbdd06f4850ad086e8545b706357d6273a82e346"
+      "sha256": "12f4036255ed26e3c0d0de75018805e6f63451f16a52202059cb31f4a07dc033"
     }
   ],
-  "package_sha256": "87ff93718c0955abeffe2e25a26b277c527faaa3676c2323c986b6023a82293d"
+  "package_sha256": "f8bf0ed4dd78ae8d4da166dde2f8f7dc1b082ebc14042754ed79f4eab621584d"
 }

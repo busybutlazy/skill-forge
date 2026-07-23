@@ -439,6 +439,34 @@ The agent will:
 3. Install or update the skills you choose
 4. Report results and remind you to reload the session
 
+### Recommended project lifecycle
+
+For a new project, install the skills listed under the `Project Lifecycle` catalog group and choose the first entry whose admission criteria match the current state:
+
+| Current state | Start with | Then |
+|---------------|------------|------|
+| The idea is ambiguous or important decisions remain open | `grill-with-docs` | `define-project` |
+| Decisions are ready but formal project artifacts do not exist | `define-project` | human project approval |
+| The Project Definition is approved but the development baseline is missing | `bootstrap-project` | `deliver-roadmap-phase` |
+| One Roadmap Phase is approved and ready | `deliver-roadmap-phase` | human phase acceptance |
+
+The usual greenfield sequence is:
+
+```text
+grill-with-docs
+→ define-project
+→ human project approval
+→ bootstrap-project
+→ deliver-roadmap-phase
+→ human phase acceptance
+→ commit
+→ create-pr
+```
+
+Do not run every step unconditionally. Skip `grill-with-docs` when the decisions are already complete, and use `plan-change` instead of `define-project` for a clear bounded change to an existing project. Each workflow stops at its own approval boundary; no step authorizes implicit commit, push, merge, release, or deployment.
+
+See the [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md) for installation advice, example prompts, routing rules, and expected artifacts.
+
 For Roadmap-driven delivery, install `deliver-roadmap-phase`. Its required Change Workflow skills are disclosed and installed automatically. After reloading the agent session, invoke it with one exact phase:
 
 ```text
@@ -1028,6 +1056,34 @@ Agent 將會：
 2. 呈現含版本與狀態標記的選單
 3. 安裝或更新你選取的 skills
 4. 回報結果並提醒你 reload session
+
+### 建議的專案生命週期
+
+全新專案建議安裝 catalog 中 `Project Lifecycle` 群組列出的 skills，並依目前狀態選擇第一個符合 admission criteria 的入口：
+
+| 目前狀態 | 起始 skill | 下一步 |
+|----------|------------|--------|
+| 想法仍模糊，或重要決策尚未解決 | `grill-with-docs` | `define-project` |
+| 決策已收斂，但尚無正式專案文件 | `define-project` | 人類批准 Project Definition |
+| Project Definition 已批准，但缺開發基線 | `bootstrap-project` | `deliver-roadmap-phase` |
+| 已批准一個明確 Roadmap Phase | `deliver-roadmap-phase` | 人類驗收 Phase |
+
+一般 greenfield 專案的順序是：
+
+```text
+grill-with-docs
+→ define-project
+→ human project approval
+→ bootstrap-project
+→ deliver-roadmap-phase
+→ human phase acceptance
+→ commit
+→ create-pr
+```
+
+不需要無條件執行所有步驟。決策已完整時可略過 `grill-with-docs`；既有專案的明確小型 Change 應使用 `plan-change`，而不是 `define-project`。每個 workflow 都會停在自己的批准邊界，任何一步都不會授權隱含的 commit、push、merge、release 或 deployment。
+
+安裝建議、prompt 範例、路由規則與預期產物請參考 [Project Lifecycle Guide](docs/guides/project-lifecycle-guide.md)。
 
 若要依 Roadmap 開發，安裝 `deliver-roadmap-phase` 即可；安裝器會揭露並自動帶入所需的 Change Workflow skills。重新開啟 agent session 後，以唯一 Phase 呼叫：
 

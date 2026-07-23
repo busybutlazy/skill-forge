@@ -42,17 +42,32 @@ class DecisionMethodTests(unittest.TestCase):
         instruction = (SKILLS_ROOT / "grill-with-docs" / "instruction.md").read_text(
             encoding="utf-8"
         )
+        summary = (
+            SKILLS_ROOT
+            / "grill-with-docs"
+            / "references"
+            / "READINESS_SUMMARY_FORMAT.md"
+        ).read_text(encoding="utf-8")
         for heading in (
+            "## Decision Inventory Reference",
             "## Resolved Decisions",
+            "## Implementation-Owned Defaults",
             "## Intentionally Deferred Decisions",
             "## Blocking Open Decisions",
             "## Conflicts or Assumptions Found",
             "## Updated Artifacts",
             "## Recommended Next Workflow",
         ):
-            self.assertIn(heading, instruction)
-        self.assertIn("Only when `Blocking Open Decisions: None`", instruction)
-        self.assertIn("Ready for define-project", instruction)
+            self.assertIn(heading, summary)
+        for status in (
+            "`Ready`",
+            "`Stopped With Blocking Decisions`",
+            "`Incomplete — Session Stopped Before Readiness Assessment`",
+        ):
+            self.assertIn(status, summary)
+        self.assertIn("Ready for define-project", summary)
+        self.assertIn("Ready for plan-change", summary)
+        self.assertIn("Only `Ready` with `Blocking Open Decisions: None`", instruction)
 
     def test_grilling_inventories_and_assigns_every_unresolved_choice(self) -> None:
         instruction = (SKILLS_ROOT / "grilling" / "instruction.md").read_text(
@@ -69,22 +84,58 @@ class DecisionMethodTests(unittest.TestCase):
             self.assertIn(classification, instruction)
         self.assertIn("never silently omit smaller choices", instruction)
 
+    def test_implementation_owned_gate_prevents_authority_bypass(self) -> None:
+        instruction = (SKILLS_ROOT / "grilling" / "instruction.md").read_text(
+            encoding="utf-8"
+        )
+        gate = (
+            SKILLS_ROOT / "grilling" / "references" / "DECISION_OWNERSHIP.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("never default to `implementation-owned`", instruction)
+        for required in (
+            "## Implementation-Owned Gate",
+            "does not change observable behavior",
+            "reversible within the approved implementation boundary",
+            "requires no new dependency, migration, major architecture choice",
+            "calling workflow grants the implementer authority",
+            "classification remains uncertain",
+        ):
+            self.assertIn(required, gate)
+
     def test_safe_deferral_requires_evidence_owner_and_trigger(self) -> None:
         instruction = (SKILLS_ROOT / "grill-with-docs" / "instruction.md").read_text(
             encoding="utf-8"
         )
         for required in (
             "## Safe Deferral Gate",
-            "No current specification",
-            "does not change the meaning of current acceptance criteria",
+            "next downstream artifact can be completed coherently",
+            "any work authorized before the recorded blocking trigger",
             "named decision owner or authority",
             "exact phase, event, date, or condition",
             "Otherwise classify it as `blocking unresolved`",
-            "- Why Safe Now:",
-            "- Decision Owner:",
-            "- Becomes Blocking When:",
         ):
             self.assertIn(required, instruction)
+
+    def test_decision_inventory_is_required_and_preserves_partial_sessions(self) -> None:
+        instruction = (SKILLS_ROOT / "grill-with-docs" / "instruction.md").read_text(
+            encoding="utf-8"
+        )
+        inventory = (
+            SKILLS_ROOT
+            / "grill-with-docs"
+            / "references"
+            / "DECISION_INVENTORY_FORMAT.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("required Decision Inventory artifact", instruction)
+        for required in (
+            "## Decision Dependency Map",
+            "- Classification:",
+            "- Owner or authority:",
+            "- Resolution or implementation default:",
+            "- Known gaps:",
+            "do not claim readiness",
+        ):
+            self.assertIn(required, inventory)
 
     def test_authority_adapter_survives_render_for_both_targets(self) -> None:
         required = {
@@ -244,12 +295,21 @@ class DecisionMethodTests(unittest.TestCase):
             self.assertNotIn("grill-with-docs", statuses)
 
     def test_relative_reference_links_exist(self) -> None:
-        instruction = SKILLS_ROOT / "domain-modeling" / "instruction.md"
-        for relative in (
-            "references/CONTEXT-FORMAT.md",
-            "references/ADR-FORMAT.md",
-        ):
-            self.assertTrue((instruction.parent / relative).is_file(), relative)
+        required = {
+            "domain-modeling": (
+                "references/CONTEXT-FORMAT.md",
+                "references/ADR-FORMAT.md",
+            ),
+            "grilling": ("references/DECISION_OWNERSHIP.md",),
+            "grill-with-docs": (
+                "references/DECISION_INVENTORY_FORMAT.md",
+                "references/READINESS_SUMMARY_FORMAT.md",
+            ),
+        }
+        for skill, references in required.items():
+            for relative in references:
+                with self.subTest(skill=skill, reference=relative):
+                    self.assertTrue((SKILLS_ROOT / skill / relative).is_file())
 
 
 if __name__ == "__main__":
