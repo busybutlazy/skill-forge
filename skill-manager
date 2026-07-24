@@ -122,6 +122,25 @@ PROJECT_DIR=$(pwd)
 HOST_UID=$(id -u)
 HOST_GID=$(id -g)
 
+# The project directory is just the current working directory, so running this
+# from $HOME or / installs hooks into the user-level ~/.claude/settings.json.
+# Those hooks then apply to every project, while ${CLAUDE_PROJECT_DIR} resolves
+# elsewhere and the hook script is missing.
+case "$PROJECT_DIR" in
+    /)
+        printf 'error: Refusing to run against the filesystem root (/).\n' >&2
+        printf 'cd into the project you want to manage and rerun.\n' >&2
+        exit 1
+        ;;
+esac
+if [ -n "${HOME:-}" ] && [ "$PROJECT_DIR" = "$HOME" ]; then
+    printf 'error: Refusing to run against your home directory (%s).\n' "$HOME" >&2
+    printf 'Installing there writes hooks into the user-level ~/.claude/settings.json,\n' >&2
+    printf 'which then breaks every other project.\n' >&2
+    printf 'cd into the project you want to manage and rerun.\n' >&2
+    exit 1
+fi
+
 maybe_update_repo "$@"
 
 _RUN_TTY_FLAG=""
