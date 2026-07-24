@@ -147,6 +147,24 @@ if ($CliArgs.Count -gt 0 -and $CliArgs[0] -in @("help", "-h", "--help")) {
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $composeFile = Join-Path $scriptDir "compose.yaml"
 $projectDir = (Get-Location).ProviderPath
+
+# The project directory is just the current working directory, so running this
+# from the user profile or a drive root installs hooks into the user-level
+# ~/.claude/settings.json. Those hooks then apply to every project, while
+# ${CLAUDE_PROJECT_DIR} resolves elsewhere and the hook script is missing.
+$projectDirItem = Get-Item -LiteralPath $projectDir
+if ($null -eq $projectDirItem.Parent) {
+    Write-Error "Refusing to run against a drive root ($projectDir). cd into the project you want to manage and rerun."
+    exit 1
+}
+$homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { $HOME }
+if ($homeDir -and ($projectDir.TrimEnd('\', '/') -eq $homeDir.TrimEnd('\', '/'))) {
+    Write-Error ("Refusing to run against your home directory ($homeDir). " +
+        "Installing there writes hooks into the user-level ~/.claude/settings.json, " +
+        "which then breaks every other project. cd into the project you want to manage and rerun.")
+    exit 1
+}
+
 $projectHostDir = Convert-ToDockerHostPath $projectDir
 
 Update-RepoIfNeeded -RepoDir $scriptDir -ForwardArgs $CliArgs

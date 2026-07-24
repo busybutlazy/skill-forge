@@ -26,6 +26,7 @@ from .guideline import (
 from .menu import run_menu
 from .models import ValidationFailure
 from .package_ops import refresh_skill_metadata
+from .project_guard import UnsafeProjectDir, check_project_dir, project_dir_warnings
 from .security_check import (
     check_security_settings,
     format_applied_report,
@@ -437,6 +438,30 @@ def run_menu_command(args: argparse.Namespace) -> int:
     )
 
 
+READ_ONLY_COMMANDS = frozenset({"validate", "render", "catalog", "plan", "list"})
+
+
+def _is_read_only(args: argparse.Namespace) -> bool:
+    if args.command in READ_ONLY_COMMANDS:
+        return True
+    return any(
+        getattr(args, f"{group}_command", None) == "status" for group in ("memory", "guideline")
+    )
+
+
+def _guard_project_dir(args: argparse.Namespace) -> None:
+    """Reject overly broad project directories before any command touches them."""
+    project = getattr(args, "project", None)
+    if project is None:
+        return
+    project_dir = Path(project).resolve()
+    check_project_dir(project_dir)
+    if _is_read_only(args):
+        return
+    for warning in project_dir_warnings(project_dir):
+        print(warning, file=sys.stderr)
+
+
 def _auto_security_check(args: argparse.Namespace) -> None:
     """Run security settings check at startup for claude-related commands."""
     project = getattr(args, "project", None)
@@ -614,6 +639,11 @@ def main(argv: list[str] | None = None) -> int:
         "memory": run_memory,
         "guideline": run_guideline,
     }
+    try:
+        _guard_project_dir(args)
+    except UnsafeProjectDir as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
     _auto_security_check(args)
     try:
         return command_handlers[args.command](args)
